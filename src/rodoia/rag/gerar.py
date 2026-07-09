@@ -8,7 +8,11 @@ Cada trecho é numerado com a resolução de origem, para o modelo citar.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+from pathlib import Path
+
 from rodoia.rag.recuperador import RecuperadorHibrido
+from rodoia.rag.seguranca import detectar_injection, mascarar_pii, registrar_auditoria
 
 PROMPT_SISTEMA = (
     "Você é um assistente jurídico especializado na regulação da ANTT (transporte "
@@ -61,3 +65,46 @@ def responder(
     resposta = llm.gerar(montar_prompt(consulta, chunks), sistema=PROMPT_SISTEMA)
     fontes = list(dict.fromkeys(c["numero"] for c in chunks))  # únicas, na ordem
     return {"resposta": resposta, "fontes": fontes, "chunks": chunks}
+
+
+def responder_seguro(
+    consulta: str,
+    recuperador: RecuperadorHibrido,
+    llm,
+    k: int = 5,
+    auditoria: Path | None = None,
+) -> dict:
+    """RAG com a camada de segurança: bloqueia prompt injection, mascara PII na
+    resposta e registra a consulta na trilha de auditoria."""
+    injecao, motivo = detectar_injection(consulta)
+    if injecao:
+        resultado = {
+            "resposta": "Sua solicitação foi bloqueada por conter um padrão suspeito de "
+            "manipulação de instruções. Reformule a pergunta sobre a regulação da ANTT.",
+            "fontes": [],
+            "chunks": [],
+            "bloqueado": True,
+            "motivo": motivo,
+        }
+    else:
+        r = responder(consulta, recuperador, llm, k=k)
+        resultado = {
+            "resposta": mascarar_pii(r["resposta"]),
+            "fontes": r["fontes"],
+            "chunks": r["chunks"],
+            "bloqueado": False,
+            "motivo": None,
+        }
+
+    if auditoria is not None:
+        registrar_auditoria(
+            {
+                "ts": datetime.now(UTC).isoformat(),
+                "consulta": mascarar_pii(consulta),
+                "bloqueado": resultado["bloqueado"],
+                "motivo": resultado["motivo"],
+                "fontes": resultado["fontes"],
+            },
+            auditoria,
+        )
+    return resultado
