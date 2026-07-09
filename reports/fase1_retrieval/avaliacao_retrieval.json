@@ -1,0 +1,26 @@
+{
+  "denso": {
+    "recall_at_k": 0.8,
+    "mrr": 0.625,
+    "k": 5,
+    "n": 10
+  },
+  "bm25": {
+    "recall_at_k": 0.8,
+    "mrr": 0.675,
+    "k": 5,
+    "n": 10
+  },
+  "hibrido": {
+    "recall_at_k": 0.9,
+    "mrr": 0.7166666666666666,
+    "k": 5,
+    "n": 10
+  },
+  "hibrido+rerank": {
+    "recall_at_k": 0.9,
+    "mrr": 0.725,
+    "k": 5,
+    "n": 10
+  }
+}
