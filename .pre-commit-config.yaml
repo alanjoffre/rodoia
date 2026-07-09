@@ -12,6 +12,9 @@ repos:
         args: ["--baseline", ".secrets.baseline"]
         # A baseline registra falsos-positivos já auditados. Qualquer segredo
         # NOVO fora da baseline falha o commit.
+        # Exclui apontadores DVC e lock: contêm hashes de conteúdo (alta entropia
+        # por natureza), nunca segredos — senão todo `dvc add` daria falso-positivo.
+        exclude: '\.dvc$|dvc\.lock$'
 
   # --- Higiene geral de arquivos ---
   - repo: https://github.com/pre-commit/pre-commit-hooks
