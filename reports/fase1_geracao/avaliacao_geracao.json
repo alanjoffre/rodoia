@@ -1,0 +1,79 @@
+{
+  "faithfulness_media": 0.85,
+  "relevancy_media": 0.9,
+  "n": 8,
+  "casos": [
+    {
+      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
+      "fontes": [
+        "6024/2023",
+        "673/2004"
+      ],
+      "faithfulness": 0.9,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Regras para o transporte rodoviário internacional de cargas",
+      "fontes": [
+        "6038/2024",
+        "1474/2006"
+      ],
+      "faithfulness": 1.0,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
+      "fontes": [
+        "5990/2022",
+        "6039/2024",
+        "5867/2020"
+      ],
+      "faithfulness": 0.8,
+      "relevancy": 0.6
+    },
+    {
+      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
+      "fontes": [
+        "5232/2016"
+      ],
+      "faithfulness": 0.8,
+      "relevancy": 0.9
+    },
+    {
+      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
+      "fontes": [
+        "5867/2020"
+      ],
+      "faithfulness": 0.6,
+      "relevancy": 0.8
+    },
+    {
+      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
+      "fontes": [
+        "6000/2022",
+        "6053/2024",
+        "6032/2023"
+      ],
+      "faithfulness": 1.0,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
+      "fontes": [
+        "5830/2018",
+        "5386/2017"
+      ],
+      "faithfulness": 0.7,
+      "relevancy": 0.9
+    },
+    {
+      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
+      "fontes": [
+        "5976/2022",
+        "5818/2018"
+      ],
+      "faithfulness": 1.0,
+      "relevancy": 1.0
+    }
+  ]
+}
