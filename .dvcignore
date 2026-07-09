@@ -1,0 +1,4 @@
+# Padrões que o DVC deve ignorar ao rastrear/hashear diretórios.
+.DS_Store
+__pycache__/
+*.tmp

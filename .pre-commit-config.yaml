@@ -1,0 +1,42 @@
+# Hooks que rodam ANTES de cada commit. Instalar uma vez com:
+#   pre-commit install
+# O objetivo nº1 aqui é BARRAR SEGREDO antes de entrar num histórico público
+# e imutável. Um vazamento no Git é permanente e é varrido por bots em minutos.
+
+repos:
+  # --- Barreira anti-segredo (pura Python, sem binário externo) ---
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        # A baseline registra falsos-positivos já auditados. Qualquer segredo
+        # NOVO fora da baseline falha o commit.
+
+  # --- Higiene geral de arquivos ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files      # impede dado/modelo pesado no Git
+        args: ["--maxkb=1024"]
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-toml
+      - id: check-case-conflict
+      - id: detect-private-key           # reforço: bloqueia chave privada PEM
+
+  # --- Lint + format Python ---
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+# Reforço opcional (requer binário Go instalado localmente):
+#   - repo: https://github.com/gitleaks/gitleaks
+#     rev: v8.21.2
+#     hooks:
+#       - id: gitleaks

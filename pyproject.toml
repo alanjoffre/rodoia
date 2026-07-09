@@ -1,0 +1,53 @@
+[project]
+name = "rodoia"
+version = "0.0.0"
+description = "Plataforma de IA sobre a regulação e os dados abertos do transporte rodoviário brasileiro (ANTT)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Alan Joffre" }]
+
+# Dependência mínima do núcleo. As libs pesadas de cada fase entram como
+# extras, para não obrigar quem clona a instalar PyTorch/vLLM só pra ler o RAG.
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Fase 0 — fundamentos ML/DL
+fundamentos = ["numpy>=1.26", "scikit-learn>=1.5", "torch>=2.3", "matplotlib>=3.9", "pandas>=2.2"]
+# Fase 1 — RAG
+rag = ["fastapi>=0.111", "uvicorn>=0.30", "qdrant-client>=1.9", "langchain>=0.2", "ragas>=0.1"]
+# Fase 2 — fine-tuning/serving
+ft = ["transformers>=4.42", "peft>=0.11", "trl>=0.9", "bitsandbytes>=0.43", "vllm>=0.5"]
+# Fase 4 — agente
+agente = ["langgraph>=0.1"]
+# MLOps (transversal)
+mlops = ["mlflow>=2.14", "dvc[s3]>=3.51"]
+# Dev
+dev = ["ruff>=0.8", "mypy>=1.10", "pytest>=8.2", "pytest-cov>=5.0", "detect-secrets>=1.5", "pre-commit>=3.7"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

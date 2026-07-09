@@ -1,0 +1,63 @@
+# === Segredos e ambiente (NUNCA versionar) ===
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+service-account*.json
+.secrets.baseline.local
+
+# === Dados brutos e processados (versionados via DVC, não no Git) ===
+/data/raw/
+/data/processed/
+/data/interim/
+*.parquet
+*.duckdb
+*.sqlite
+# exceções: documentação e apontadores DVC entram no Git
+!data/**/README.md
+!data/**/*.dvc
+!data/**/.gitignore
+
+# === Artefatos de modelo / experimentos (via DVC/MLflow, não no Git) ===
+/models/
+/artifacts/
+/mlruns/
+*.safetensors
+*.bin
+*.gguf
+*.ckpt
+*.pt
+*.pth
+!**/*.dvc
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version.local
+
+# === Notebooks / ferramentas ===
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.dvc/cache/
+.dvc/tmp/
+.dvc/config.local
+
+# === SO / editor ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

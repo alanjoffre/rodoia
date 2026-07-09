@@ -1,0 +1,31 @@
+RodoIA
+Copyright (c) 2026 Alan Joffre
+
+Este produto inclui/depende de dados e modelos de terceiros, cada um sob a sua
+própria licença. O uso do RodoIA não altera nem sobrepõe esses termos.
+Atribuições são registradas aqui e detalhadas em data/README.md.
+
+--------------------------------------------------------------------------------
+DADOS
+--------------------------------------------------------------------------------
+- Legislação, resoluções e portarias da ANTT — Agência Nacional de Transportes
+  Terrestres. Fonte pública (gov.br/antt). Verificar termos de uso na obtenção.
+- Dados abertos estruturados da ANTT (frota, fiscalização, tarifas etc.) —
+  publicados via portais de dados abertos. Licença confirmada por fonte em
+  data/README.md antes de qualquer uso.
+
+--------------------------------------------------------------------------------
+MODELOS E BIBLIOTECAS
+--------------------------------------------------------------------------------
+- Modelo aberto usado no fine-tuning/serving (família Llama/Mistral/Qwen a
+  definir na Fase 2) — sujeito à licença do modelo escolhido, a ser citada aqui
+  quando fixada.
+- Bibliotecas OSS (PyTorch, transformers, vLLM, LangGraph, etc.) — sob suas
+  respectivas licenças.
+
+--------------------------------------------------------------------------------
+FRONTEIRA DE DADOS
+--------------------------------------------------------------------------------
+Este repositório contém EXCLUSIVAMENTE domínio público da ANTT. Nenhum dado,
+esquema, nomenclatura ou regra de negócio de qualquer empregador ou cliente do
+autor está presente ou é derivável deste código.
