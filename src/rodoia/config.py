@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     qdrant_path: Path = REPO_ROOT / "data" / "processed" / "qdrant_normas"
     embedding_model: str = "intfloat/multilingual-e5-small"
 
+    # LLM de geração (local-first via Ollama; troca-se por API mudando o backend).
+    ollama_base_url: str = "http://localhost:11434"
+    llm_model: str = "qwen2.5:7b"
+
     # Reprodutibilidade científica.
     seed: int = 42
 
