@@ -19,6 +19,9 @@ service-account*.json
 # Índice vetorial local do RAG (regenerável a partir do corpus + código).
 /data/processed/qdrant_normas/
 
+# Trilha de auditoria da API (dados de runtime).
+/logs/
+
 # Exceções que DEVEM ser versionadas:
 !data/**/README.md
 !data/**/*.dvc
