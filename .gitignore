@@ -8,17 +8,17 @@ credentials.json
 service-account*.json
 .secrets.baseline.local
 
-# === Dados brutos e processados (versionados via DVC, não no Git) ===
-/data/raw/
-/data/processed/
-/data/interim/
+# === Dados: brutos/processados vão para o DVC, NUNCA para o Git ===
+# O DVC cria um .gitignore por diretório rastreado (ignora os dados, mantém o
+# apontador .dvc). Abaixo é a rede de segurança por extensão — mesmo que alguém
+# esqueça o `dvc add`, arquivo de dado bruto não entra no Git.
+*.csv
 *.parquet
 *.duckdb
 *.sqlite
-# exceções: documentação e apontadores DVC entram no Git
+# Exceções que DEVEM ser versionadas:
 !data/**/README.md
 !data/**/*.dvc
-!data/**/.gitignore
 
 # === Artefatos de modelo / experimentos (via DVC/MLflow, não no Git) ===
 /models/

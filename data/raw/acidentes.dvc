@@ -1,0 +1,6 @@
+outs:
+- md5: ebbfe35d5c93d04be466ef204f141217.dir
+  size: 126567251
+  nfiles: 40
+  hash: md5
+  path: acidentes
