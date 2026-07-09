@@ -41,16 +41,24 @@ dvc remote add -d --local localstore "$HOME/dvc-remotes/rodoia"
 Na Fase 5 (Cloud) este remote passa a apontar para um bucket (ex.: S3), sem
 mudar nada no fluxo de trabalho.
 
-## Fontes e licenças (VALIDAÇÃO DE REALIDADE PENDENTE)
+## Fontes e licenças (VALIDADO em 09/07/2026)
 
-Esta tabela é preenchida conforme a **Primeira Tarefa (Seção 6 do prompt-mestre)**
-for executada. Nenhuma fonte abaixo foi ainda confirmada quanto a formato e
-licença — por isso a coluna licença está como "a confirmar".
+Validação de realidade concluída — ver [docs/00_validacao_fontes_antt.md](../docs/00_validacao_fontes_antt.md)
+para o levantamento completo, pegadinhas e itens ainda a confirmar por dataset.
 
-| Fonte | Uso | Fase | Formato | Licença | Status |
+**Veredito de licença:** repo público é seguro. Texto de norma = ato oficial fora
+da proteção autoral (Lei 9.610/98, art. 8º, IV). Datasets = **CC-BY** (Decreto
+8.777/2016) → exigem **atribuição à ANTT** (registrada no `NOTICE`).
+
+| Fonte | Uso | Fase | Formato | Licença | Obs. |
 |---|---|---|---|---|---|
-| Legislação/resoluções/portarias ANTT | RAG (texto regulatório) | 1 | a confirmar (PDF/HTML) | a confirmar | pendente |
-| Dados abertos estruturados ANTT (frota, fiscalização, tarifas…) | ML clássico + agente | 0/3 | a confirmar (CSV/API) | a confirmar | pendente |
+| ANTTlegis — normas ANTT | RAG (texto) | 1 | HTML (latin-1), URL determinística, sem API | Ato oficial (domínio público, Lei 9.610/98) | scraping; OCR p/ normas antigas |
+| LexML (dados abertos) | metadados/URN | 1 | JSON/dumps (SRU ao vivo tem anti-bot) | Licença aberta declarada | atribuir a base |
+| Acidentes em rodovias concedidas | ML clássico (classificação) ⭐ | 0 | CSV (latin-1, `;`, decimal `,`) | CC-BY (confirmar por dataset) | 1 linha = 1 acidente; ~100k+/concessionária |
+| Volume de Tráfego de Pedágio | SQL analítico + regressão | 3/0 | CSV (latin-1, `;`, decimal `,`) | CC-BY (confirmar por dataset) | ~142k linhas/ano |
+| Praça de Pedágio / Receita | dimensão + SQL | 3 | CSV + KMZ | CC-BY | JOINs geográficos/financeiros |
+
+> **Ler CSV da ANTT:** `pandas.read_csv(sep=';', encoding='latin-1', decimal=',')`.
 
 ## Fronteira de dados (inviolável)
 
