@@ -100,6 +100,8 @@ Repo público desde o commit 1 (o histórico Git é imutável). Garantias em vig
 
 ## Como rodar (setup inicial)
 
+> Passo a passo completo (do clone à Fase 0 rodando): **[docs/RUNBOOK.md](docs/RUNBOOK.md)**.
+
 ```bash
 git clone <url-do-repo> && cd rodoia
 python -m venv .venv && source .venv/bin/activate
