@@ -55,3 +55,40 @@ class OllamaLLM:
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             dados = json.loads(resp.read().decode("utf-8"))
         return dados["message"]["content"].strip()
+
+
+class OpenAICompatLLM:
+    """Backend para qualquer endpoint compatível com a API OpenAI — inclusive o
+    **vLLM** (que serve o modelo fine-tunado na Fase 2, `/v1/chat/completions`) e
+    as APIs OpenAI/Together. Mesma interface `LLM`, troca por base_url."""
+
+    def __init__(
+        self,
+        modelo: str,
+        base_url: str = "http://localhost:8000/v1",
+        api_key: str = "nao-usada",
+        temperatura: float = 0.1,
+        timeout: int = 120,
+    ):
+        self.modelo = modelo
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+        self.temperatura = temperatura
+        self.timeout = timeout
+
+    def gerar(self, prompt: str, sistema: str | None = None) -> str:
+        mensagens = []
+        if sistema:
+            mensagens.append({"role": "system", "content": sistema})
+        mensagens.append({"role": "user", "content": prompt})
+        corpo = json.dumps(
+            {"model": self.modelo, "messages": mensagens, "temperature": self.temperatura}
+        ).encode("utf-8")
+        req = urllib.request.Request(
+            f"{self.base_url}/chat/completions",
+            data=corpo,
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"},
+        )
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            dados = json.loads(resp.read().decode("utf-8"))
+        return dados["choices"][0]["message"]["content"].strip()
