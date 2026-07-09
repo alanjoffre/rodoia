@@ -44,6 +44,28 @@ def test_vigencia_detecta_revogacao_passiva() -> None:
     assert esta_vigente(ativa) is True  # 'Revoga' (ativo) ≠ 'Revogada por'
 
 
+def test_vigencia_revogacao_apos_ementa_longa() -> None:
+    """Marca de revogação depois de ementa longa, mas antes do corpo
+    ('A Diretoria Colegiada'). Deve ser detectada mesmo assim (caso real: 5849/2019)."""
+    texto = (
+        "RESOLUÇÃO Nº 5.849 "
+        + "ementa muito longa " * 300
+        + " Revogada pela Resolução 5867/2020/DG/ANTT/MI Veja Também "
+        "A Diretoria Colegiada da ANTT resolve: Art. 1º ..."
+    )
+    assert esta_vigente(texto) is False
+
+
+def test_vigencia_nao_confunde_referencia_no_corpo() -> None:
+    """Norma ATIVA que cita no corpo 'Resolução X revogada por Y' não pode virar
+    revogada (o corte no início do corpo evita esse falso-positivo)."""
+    texto = (
+        "RESOLUÇÃO Nº 6.000 ementa curta A Diretoria Colegiada resolve: "
+        "Art. 1º Fica mantida a Resolução 100, revogada pela Resolução 50."
+    )
+    assert esta_vigente(texto) is True
+
+
 def test_texto_valido_distingue_casca() -> None:
     corpo = "RESOLUÇÃO Nº 6.000 " + ("texto da norma " * 2000)  # > 18k chars
     casca = "Portal Gov.br Acesso rápido Menu " * 100  # sem título, curto

@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     data_raw: Path = REPO_ROOT / "data" / "raw"
     data_processed: Path = REPO_ROOT / "data" / "processed"
 
+    # RAG (Fase 1): corpus, índice vetorial local e modelo de embeddings.
+    normas_jsonl: Path = REPO_ROOT / "data" / "raw" / "normas" / "normas.jsonl"
+    qdrant_path: Path = REPO_ROOT / "data" / "processed" / "qdrant_normas"
+    embedding_model: str = "intfloat/multilingual-e5-small"
+
     # Reprodutibilidade científica.
     seed: int = 42
 

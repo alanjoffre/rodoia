@@ -136,9 +136,22 @@ def extrair_titulo(texto: str) -> str:
     return m.group(1).strip() if m else ""
 
 
+# Marcadores do início do CORPO do ato (após título/ementa/nota de revogação).
+_MARCADORES_CORPO = (
+    "A Diretoria Colegiada",
+    "O Diretor-Geral",
+    "O DIRETOR",
+    "R E S O L V E",
+    "RESOLVE:",
+)
+
+
 def esta_vigente(texto: str) -> bool:
-    """Vigente se o cabeçalho (primeiros ~1200 chars) não marca revogação passiva."""
-    return not _RE_REVOGADA.search(texto[:1200])
+    """Vigente se o CABEÇALHO (título + ementa, antes do corpo) não marca revogação
+    passiva ('Revogada pela Resolução X'). Cortar no início do corpo evita tanto
+    perder a marca (ementas longas) quanto falso-positivo de referências no corpo."""
+    corte = min([texto.find(m) for m in _MARCADORES_CORPO if texto.find(m) != -1] or [2000])
+    return not _RE_REVOGADA.search(texto[:corte])
 
 
 def texto_valido(texto: str) -> bool:
