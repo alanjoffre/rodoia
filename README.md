@@ -82,7 +82,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 |---|---|---|
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
-| **2** | Fine-tuning e serving de modelo próprio | 🟡 em andamento (dataset + scripts prontos; execução na GPU via [handoff](docs/10_fase2_handoff_nitro.md)) |
+| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([handoff](docs/10_fase2_handoff_nitro.md) + [resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050, fp8 no vLLM (101 tok/s), base vs. FT medido |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |

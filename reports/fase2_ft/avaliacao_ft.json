@@ -1,0 +1,166 @@
+{
+  "metrica": "citacao da resolucao-fonte no CONJUNTO_DOURADO (10 perguntas)",
+  "base": {
+    "acuracia_citacao": 0.0,
+    "taxa_citacao": 0.5
+  },
+  "ft": {
+    "acuracia_citacao": 0.0,
+    "taxa_citacao": 0.5
+  },
+  "ganho_acuracia": 0.0,
+  "ganho_taxa_citacao": 0.0,
+  "n": 10,
+  "casos_base": [
+    {
+      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
+      "fonte_esperada": "6024/2023",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Regras para o transporte rodoviário internacional de cargas",
+      "fonte_esperada": "6038/2024",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
+      "fonte_esperada": "5990/2022",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
+      "fonte_esperada": "5232/2016",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
+      "fonte_esperada": "5867/2020",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
+      "fonte_esperada": "6000/2022",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
+      "fonte_esperada": "5830/2018",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
+      "fonte_esperada": "5998/2022",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Delegação de competências da diretoria colegiada da ANTT",
+      "fonte_esperada": "5818/2018",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Programa de regularização de débitos não tributários PRD",
+      "fonte_esperada": "5386/2017",
+      "citou_correta": false,
+      "citou_alguma": false
+    }
+  ],
+  "casos_ft": [
+    {
+      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
+      "fonte_esperada": "6024/2023",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Regras para o transporte rodoviário internacional de cargas",
+      "fonte_esperada": "6038/2024",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
+      "fonte_esperada": "5990/2022",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
+      "fonte_esperada": "5232/2016",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
+      "fonte_esperada": "5867/2020",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
+      "fonte_esperada": "6000/2022",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
+      "fonte_esperada": "5830/2018",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
+      "fonte_esperada": "5998/2022",
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Delegação de competências da diretoria colegiada da ANTT",
+      "fonte_esperada": "5818/2018",
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Programa de regularização de débitos não tributários PRD",
+      "fonte_esperada": "5386/2017",
+      "citou_correta": false,
+      "citou_alguma": false
+    }
+  ],
+  "estilo": {
+    "len_medio_chars_base": 946,
+    "len_medio_chars_ft": 219,
+    "respostas_com_hedge_base": 2,
+    "respostas_com_hedge_ft": 0
+  },
+  "treino": {
+    "modelo_base": "Qwen/Qwen2.5-3B-Instruct",
+    "metodo": "QLoRA NF4 4-bit + LoRA r=16 a=32",
+    "epocas": 3,
+    "steps": 33,
+    "train_loss_final": 0.98,
+    "loss_inicial_aprox": 1.07,
+    "loss_final_aprox": 0.61,
+    "mean_token_accuracy_final": 0.842,
+    "runtime_s": 294,
+    "vram_treino_MiB": 5814
+  },
+  "quantizacao_serving": {
+    "nota": "AWQ via autoawq inviavel neste stack (torch 2.11+cu130, autoawq descontinuado); usado fp8 in-flight do vLLM",
+    "merged_fp16_disco_GB": 5.8,
+    "vram_servindo_fp8_MiB": 5168,
+    "vram_total_MiB": 6141,
+    "throughput_tok_s": 101.1,
+    "lat_p50_s": 3.346,
+    "lat_p95_s": 6.673,
+    "req_por_s": 1.38
+  }
+}

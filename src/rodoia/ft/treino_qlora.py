@@ -68,7 +68,7 @@ def treinar(
         tokenizer.pad_token = tokenizer.eos_token
 
     base = AutoModelForCausalLM.from_pretrained(
-        modelo, quantization_config=bnb, device_map="auto", torch_dtype=torch.bfloat16
+        modelo, quantization_config=bnb, device_map="auto", dtype=torch.bfloat16
     )
     base = prepare_model_for_kbit_training(base)
 
@@ -106,7 +106,7 @@ def treinar(
         optim="paged_adamw_8bit",  # otimizador paginado do QLoRA (economiza VRAM)
         seed=seed,
         report_to="none",
-        max_seq_length=1024,
+        max_length=1024,
         packing=False,
     )
 

@@ -27,7 +27,7 @@ def merge(base: str, adaptador: str, saida_merged: str) -> None:
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     modelo = AutoModelForCausalLM.from_pretrained(
-        base, torch_dtype=torch.float16, device_map="auto"
+        base, dtype=torch.float16, device_map="auto"
     )
     modelo = PeftModel.from_pretrained(modelo, adaptador)
     modelo = modelo.merge_and_unload()  # funde LoRA nos pesos

@@ -1,0 +1,12 @@
+{
+  "n_requests": 24,
+  "concorrencia": 6,
+  "max_tokens": 128,
+  "wall_s": 17.45,
+  "throughput_tok_s": 101.1,
+  "req_por_s": 1.38,
+  "lat_p50_s": 3.346,
+  "lat_p95_s": 6.673,
+  "lat_media_s": 3.918,
+  "total_completion_tokens": 1764
+}
