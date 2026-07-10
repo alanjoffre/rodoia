@@ -97,7 +97,8 @@ def test_avaliar_modo_com_recuperador_real() -> None:
     ]
     try:
         m = avaliar_modo(rec, modo="bm25", rerank=False, k=3)
-        assert m["recall_at_k"] == 1.0
+        assert m["hit_rate_at_k"] == 1.0
         assert m["mrr"] > 0
+        assert len(m["hit_rate_ic95"]) == 2 and len(m["mrr_ic95"]) == 2
     finally:
         av.CONJUNTO_DOURADO = original

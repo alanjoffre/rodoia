@@ -8,6 +8,7 @@ O backend Ollama fala HTTP direto (sem dependência extra) com o serviço local.
 from __future__ import annotations
 
 import json
+import time
 import urllib.request
 from typing import Protocol
 
@@ -16,6 +17,9 @@ from rodoia.config import settings
 
 class LLM(Protocol):
     def gerar(self, prompt: str, sistema: str | None = None) -> str: ...
+
+    # métricas da última chamada (observabilidade): tokens_prompt, tokens_resposta, latencia_s
+    ultima_metrica: dict
 
 
 class OllamaLLM:
@@ -33,6 +37,7 @@ class OllamaLLM:
         self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
         self.temperatura = temperatura
         self.timeout = timeout
+        self.ultima_metrica: dict = {}
 
     def gerar(self, prompt: str, sistema: str | None = None) -> str:
         mensagens = []
@@ -52,8 +57,15 @@ class OllamaLLM:
             data=corpo,
             headers={"Content-Type": "application/json"},
         )
+        t0 = time.perf_counter()
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             dados = json.loads(resp.read().decode("utf-8"))
+        # observabilidade: o Ollama já devolve os contadores de tokens — não descartar.
+        self.ultima_metrica = {
+            "tokens_prompt": dados.get("prompt_eval_count"),
+            "tokens_resposta": dados.get("eval_count"),
+            "latencia_s": round(time.perf_counter() - t0, 3),
+        }
         return dados["message"]["content"].strip()
 
 
@@ -75,6 +87,7 @@ class OpenAICompatLLM:
         self.api_key = api_key
         self.temperatura = temperatura
         self.timeout = timeout
+        self.ultima_metrica: dict = {}
 
     def gerar(self, prompt: str, sistema: str | None = None) -> str:
         mensagens = []
@@ -89,6 +102,13 @@ class OpenAICompatLLM:
             data=corpo,
             headers={"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"},
         )
+        t0 = time.perf_counter()
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             dados = json.loads(resp.read().decode("utf-8"))
+        uso = dados.get("usage", {})
+        self.ultima_metrica = {
+            "tokens_prompt": uso.get("prompt_tokens"),
+            "tokens_resposta": uso.get("completion_tokens"),
+            "latencia_s": round(time.perf_counter() - t0, 3),
+        }
         return dados["choices"][0]["message"]["content"].strip()

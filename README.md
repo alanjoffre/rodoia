@@ -62,13 +62,13 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | PyTorch | Fase 0 + 2 | Treino (F0) + fine-tuning QLoRA (F2) |
 | Métricas e diagnóstico (overfitting, bias/variance) | Fase 0 | Curvas treino/validação documentadas |
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
-| RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Pipeline com hybrid search + reranking |
+| RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) + rerank · avaliado com IC (hit@5 0,72 [0,52–0,86], n=25) · precisão de citação 0,91 |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo com estado e arestas condicionais |
 | Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (101 tok/s) · base vs. FT: PPL −18%, citação 0/0, win-rate controlado FT 4×1 |
-| Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | RAGAS (F1) + LLM-as-judge pareado c/ controle de viés (F2) + guardrails + citação |
+| Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · juiz pareado c/ controle de viés (F2) · guardrails |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
 | CI/CD para ML, versionamento (MLflow/DVC/W&B) | Fase 5 | GitHub Actions com avaliação como gate + MLflow + DVC |
-| Monitoramento, observabilidade, drift | Fase 5 | Dashboard custo/latência/qualidade + drift |
+| Monitoramento, observabilidade, drift | Fase 1 + 5 | Latência/tokens medidos no RAG (F1) → dashboard + drift (F5) |
 | Cloud (AWS/Azure/GCP + serviços de ML) | Fase 5 | Deploy em cloud, serviço gerenciado justificado |
 | Custo, latência, escalabilidade | Fase 5 | Métricas em runtime + trade-off documentado |
 | LGPD/GDPR, PII masking, auditoria | Fase 1 + 5 | Masking + trilha de auditoria |

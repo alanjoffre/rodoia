@@ -45,8 +45,15 @@ def test_julgar_usa_o_juiz() -> None:
 
 def test_avaliar_geracao_agrega_medias() -> None:
     juiz = JuizFalso('{"faithfulness": 0.8, "relevancy": 1.0}')
-    res = avaliar_geracao(RecFalso(), GeradorFalso(), juiz, ["p1", "p2"], k=1)
+    dourados = [
+        {"consulta": "p1", "fontes": ["6024/2023"]},
+        {"consulta": "p2", "fontes": ["6024/2023"]},
+    ]
+    res = avaliar_geracao(RecFalso(), GeradorFalso(), juiz, dourados, k=1)
     assert res["n"] == 2
     assert res["faithfulness_media"] == 0.8
     assert res["relevancy_media"] == 1.0
-    assert res["casos"][0]["fontes"] == ["6024/2023"]
+    assert res["casos"][0]["fontes_esperadas"] == ["6024/2023"]
+    # o gerador citou a fonte esperada, e ela está no contexto → citação correta e ancorada
+    assert res["taxa_citou_esperada"] == 1.0
+    assert res["precisao_citacao_media"] == 1.0

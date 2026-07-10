@@ -1,79 +1,140 @@
 {
-  "faithfulness_media": 0.85,
-  "relevancy_media": 0.9,
-  "n": 8,
+  "faithfulness_media": 0.733,
+  "relevancy_media": 0.95,
+  "precisao_citacao_media": 0.909,
+  "taxa_citou_esperada": 0.75,
+  "observabilidade": {
+    "geracao_p50_s": 9.997,
+    "geracao_p95_s": 17.527,
+    "tokens_resposta_medio": 137
+  },
+  "n": 12,
   "casos": [
     {
-      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
-      "fontes": [
+      "consulta": "Sou embarcador e contratei um caminhoneiro autônomo; preciso adiantar o pedágio da viagem?",
+      "fontes_esperadas": [
         "6024/2023",
         "673/2004"
       ],
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.8,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Vou mandar uma carga de caminhão para a Argentina; que regras da ANTT valem para essa viagem internacional?",
+      "fontes_esperadas": [
+        "6038/2024"
+      ],
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.5,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Como faço para tirar o registro que me habilita a transportar cargas pela ANTT?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
+      "citou_esperada": false,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.2,
+      "relevancy": 0.4
+    },
+    {
+      "consulta": "Vou levar produtos químicos inflamáveis na estrada; que documentos e exigências preciso cumprir?",
+      "fontes_esperadas": [
+        "5232/2016"
+      ],
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
       "faithfulness": 0.9,
       "relevancy": 1.0
     },
     {
-      "consulta": "Regras para o transporte rodoviário internacional de cargas",
-      "fontes": [
-        "6038/2024",
-        "1474/2006"
+      "consulta": "Existe um valor mínimo que devo receber por um frete? Como esse piso é calculado?",
+      "fontes_esperadas": [
+        "5867/2020"
       ],
-      "faithfulness": 1.0,
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.9,
       "relevancy": 1.0
     },
     {
-      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
-      "fontes": [
-        "5990/2022",
-        "6039/2024",
-        "5867/2020"
+      "consulta": "Tenho débitos com a ANTT que ainda não foram para a dívida ativa; consigo parcelar?",
+      "fontes_esperadas": [
+        "5830/2018"
       ],
-      "faithfulness": 0.8,
-      "relevancy": 0.6
-    },
-    {
-      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
-      "fontes": [
-        "5232/2016"
-      ],
-      "faithfulness": 0.8,
-      "relevancy": 0.9
-    },
-    {
-      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
-      "fontes": [
-        "5867/2020"
-      ],
-      "faithfulness": 0.6,
-      "relevancy": 0.8
-    },
-    {
-      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
-      "fontes": [
-        "6000/2022",
-        "6053/2024",
-        "6032/2023"
-      ],
-      "faithfulness": 1.0,
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.9,
       "relevancy": 1.0
     },
     {
-      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
-      "fontes": [
-        "5830/2018",
-        "5386/2017"
+      "consulta": "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
+      "fontes_esperadas": [
+        "5998/2022"
       ],
-      "faithfulness": 0.7,
-      "relevancy": 0.9
+      "citou_esperada": false,
+      "precisao_citacao": null,
+      "faithfulness": 0.8,
+      "relevancy": 1.0
     },
     {
-      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
-      "fontes": [
-        "5976/2022",
+      "consulta": "Quem dentro da ANTT tem competência delegada para decidir sobre esses assuntos?",
+      "fontes_esperadas": [
         "5818/2018"
       ],
-      "faithfulness": 1.0,
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.6,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Existe algum programa para eu regularizar débitos não tributários com a agência?",
+      "fontes_esperadas": [
+        "5386/2017"
+      ],
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.8,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Qual regulamento rege as concessões de rodovias federais atualmente?",
+      "fontes_esperadas": [
+        "6000/2022",
+        "6032/2023",
+        "6053/2024"
+      ],
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.8,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "Que multas e penalidades a ANTT pode aplicar a quem transporta carga irregularmente?",
+      "fontes_esperadas": [
+        "4071/2013"
+      ],
+      "citou_esperada": false,
+      "precisao_citacao": 0.0,
+      "faithfulness": 0.8,
+      "relevancy": 1.0
+    },
+    {
+      "consulta": "O vale-pedágio precisa mesmo ser pago à parte do frete, ou pode ser descontado do motorista?",
+      "fontes_esperadas": [
+        "6024/2023",
+        "673/2004"
+      ],
+      "citou_esperada": true,
+      "precisao_citacao": 1.0,
+      "faithfulness": 0.8,
       "relevancy": 1.0
     }
-  ]
+  ],
+  "gerador": "qwen2.5:7b",
+  "juiz": "llama3.1:8b"
 }

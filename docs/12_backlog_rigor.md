@@ -24,13 +24,15 @@ diagnóstico viés/variância + calibração + clustering. Já é nível especia
 **Forte:** reality-check de fontes ANTT (endpoints stateless, casca vs. texto, vigência), RRF por
 posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segurança integrada, API async.
 
-**Melhorias:**
-- [ALTA] **Observabilidade ausente** — latência/tokens/custo não medidos (o `OllamaLLM` descarta `eval_count`/`total_duration`). Requisito explícito do PROMPT_MESTRE §3. → capturar e agregar (p50/p95, tokens/consulta) — barato e muito visível.
-- [ALTA] **Juiz avalia o próprio gerador** (mesmo qwen2.5:7b gera e julga) → viés de auto-avaliação; usar juiz independente (como fizemos na Fase 2).
-- [ALTA] **Golden set pequeno e circular** — n=10/n=8, perguntas paráfrases do título-alvo; "recall 0.80→0.90" = 1 pergunta. → ≥50 perguntas de intenção real + IC de Wilson/bootstrap.
-- [ALTA] **Injeção indireta via contexto** não tratada (só a consulta é filtrada); teste com chunk envenenado.
-- [MÉDIA] Guardrail 100% regex com testes circulares (as frases de ataque são as que o regex procura) → bateria de evasão (ofuscação, tradução). Métrica chamada `recall@k` é hit-rate@k. Ablação só de modo (sem varredura de k/chunk). Sem métrica de **correção de citação** (a joia de um RAG jurídico).
-- [BAIXA] PII masking não pega CPF/CNPJ sem pontuação; `/perguntar` sem rate-limit (marcar dívida p/ Fase 5).
+**✅ Resolvido neste ciclo:**
+- [ALTA] **Observabilidade** — `OllamaLLM`/`OpenAICompatLLM` capturam tokens (prompt/resposta) e latência (`ultima_metrica`); `responder` propaga; a avaliação agrega geração p50/p95 e tokens/resposta (10s p50, 137 tok).
+- [ALTA] **Juiz independente** — gerador qwen2.5:7b × juiz **llama3.1:8b**; faithfulness caiu de 0.85 (auto-avaliação) para **0.73** — mais honesto.
+- [ALTA] **Golden set 10→25** perguntas de intenção real (não paráfrase do título) + **IC de Wilson** (hit) e **bootstrap** (MRR): hit@5 caiu 0.90→**0.72** [0.52; 0.86]; ICs sobrepostos ⇒ sem vitória "clara"; **rerank não ajudou** (MRR 0.54 vs híbrido 0.62).
+- [ALTA] **Injeção indireta** — contexto delimitado `<contexto>` + marcadores neutralizados + hierarquia de instrução no prompt; teste dedicado.
+- [MÉDIA] `recall@k`→**`hit_rate@k`** (nome honesto); **precisão de citação 0.91** (citações ancoradas no contexto) + taxa de citar a fonte certa 0.75; guardrail com **normalização** + bateria de evasão (teto documentado).
+- [BAIXA] PII: **CPF sem pontuação** mascarado (CNPJ bare já caía).
+
+**Pendente (baixo):** golden ≥50 e por terceiro (estreitar ICs); ablação de hiperparâmetros (k_rrf/candidatos/chunk); `/perguntar` sem rate-limit (dívida p/ Fase 5).
 
 ## Fase 2 — Fine-tuning/serving (concluída; avaliação rigorosa)
 **Forte:** QLoRA em 6 GB, fp8 no vLLM, **3 medições** (PPL −18%, citação 0/0, win-rate com

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from pathlib import Path
 
 # --- 1. Prompt injection ---------------------------------------------------
@@ -51,11 +52,22 @@ _PADROES_INJECTION: tuple[tuple[re.Pattern, str], ...] = (
 )
 
 
+def _normalizar(texto: str) -> str:
+    """Normaliza p/ frustrar evasões triviais: sem acentos, minúsculas, espaços/
+    pontuação repetidos colapsados (ex.: 'IGNORE  as   instruções!!!' → 'ignore as
+    instrucoes ')."""
+    sem_acento = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+    return re.sub(r"[\s\W]+", " ", sem_acento.lower())
+
+
 def detectar_injection(texto: str) -> tuple[bool, str | None]:
-    """Retorna (True, nome_do_padrão) se a entrada parecer uma tentativa de
-    injeção; (False, None) caso contrário."""
+    """Retorna (True, nome_do_padrão) se a entrada parecer uma tentativa de injeção;
+    (False, None) caso contrário. Checa o texto cru E a forma normalizada — pega
+    evasões por acento/caixa/espaçamento. Heurística: não cobre ofuscação forte
+    (base64, letra-a-letra, outra língua) — daí o prompt de sistema também ancorar."""
+    normal = _normalizar(texto)
     for padrao, nome in _PADROES_INJECTION:
-        if padrao.search(texto):
+        if padrao.search(texto) or padrao.search(normal):
             return True, nome
     return False, None
 
@@ -68,6 +80,7 @@ _MASCARAS_PII: tuple[tuple[re.Pattern, str], ...] = (
     (re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"), "[EMAIL]"),
     (re.compile(r"\(?\d{2}\)?\s?9\d{4}-?\d{4}\b"), "[TELEFONE]"),
     (re.compile(r"\b\d{5}-\d{3}\b"), "[CEP]"),
+    (re.compile(r"\b\d{11}\b"), "[CPF]"),  # CPF sem pontuação (CNPJ bare já cai no 1º padrão)
 )
 
 

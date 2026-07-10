@@ -43,9 +43,9 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 |---|---|---|
 | Ingestão | ANTTlegis (45 resoluções, 3.432 chunks), chunking por artigo | 06 |
 | Indexação | E5 local + Qdrant, filtro de vigência | 06 |
-| Retrieval | híbrido (BM25+RRF) + reranker — recall@5 0,80→0,90 | 07 |
-| Governança | guardrails anti-injection + PII masking + auditoria | 08 |
-| Geração | resposta com citação, grounding — faithfulness 0,85 / relevancy 0,90 | — |
+| Retrieval | híbrido (BM25+RRF) + reranker — hit@5 **0,72** [IC 0,52–0,86], n=25 | 07 |
+| Governança | guardrail (direto+indireto+evasão) + PII + auditoria | 08 |
+| Geração | citação; **juiz independente** (llama3.1): faithfulness **0,73** / relevancy **0,95** / precisão de citação **0,91** · obs.: geração p50 10s | — |
 | Interface | FastAPI async + UI de demo | 09 |
 
 **Critérios de conclusão (todos ✓):** ingestão reproduzível · citação da fonte ·

@@ -23,27 +23,32 @@ os dois.
 
 ## Avaliação (conjunto dourado)
 
-10 perguntas naturais com a resolução-resposta conhecida (verificada nos títulos).
-Métricas: **recall@5** (achou a fonte certa no top-5?) e **MRR** (achou cedo?).
+**25 perguntas de intenção real** (como um usuário pergunta, não paráfrase do título —
+para evitar circularidade), várias com múltiplas fontes válidas. Métricas com **IC 95%**
+(dado o n ainda pequeno): **hit@5** (nome honesto — como o gold é único por pergunta, é
+*hit-rate*, não *recall* verdadeiro) por IC de **Wilson**; **MRR** por **bootstrap**.
 
-| Modo | recall@5 | MRR |
-|---|---|---|
-| denso (só embeddings) | 0,80 | 0,625 |
-| bm25 (só léxico) | 0,80 | 0,675 |
-| **híbrido (RRF)** | **0,90** | 0,717 |
-| **híbrido + rerank** | **0,90** | **0,725** |
+| Modo | hit@5 | IC95 (hit) | MRR | IC95 (MRR) |
+|---|---|---|---|---|
+| denso (só embeddings) | 0,72 | [0,52; 0,86] | 0,540 | [0,38; 0,70] |
+| bm25 (só léxico) | 0,68 | [0,48; 0,83] | 0,535 | [0,36; 0,70] |
+| **híbrido (RRF)** | **0,72** | [0,52; 0,86] | **0,620** | [0,46; 0,78] |
+| híbrido + rerank | 0,72 | [0,52; 0,86] | 0,543 | [0,39; 0,70] |
 
 ## Leitura dos números (honesta)
 
-- **O híbrido é a vitória clara:** recall **0,80 → 0,90** (+12,5%) e MRR **+15%**
-  sobre o denso. Fundir semântico + léxico recupera casos que cada um sozinho perde.
-- **O rerank dá ganho marginal** aqui (MRR 0,717 → 0,725). Esperado: com um conjunto
-  dourado pequeno e candidatos já bons, sobra pouca margem. O reranker tende a
-  brilhar em corpora maiores e consultas mais ambíguas — fica no pipeline como
-  camada pronta, e a avaliação é o instrumento para revalidar quando o corpus crescer.
+- Com perguntas **realistas** (não paráfrases do título), o hit@5 fica em **0,72** — bem
+  abaixo dos 0,90 do conjunto antigo (n=10, circular), que superestimava.
+- **O híbrido lidera no MRR** (0,620 vs. 0,540 do denso) — fundir semântico + léxico ainda
+  ajuda a achar a fonte *mais cedo*. Mas os **ICs se sobrepõem**: com n=25 não dá para
+  cravar superioridade estatística — reportado como tendência, não vitória "clara".
+- **O rerank NÃO ajudou aqui** (MRR 0,543 vs. híbrido 0,620) — chegou a piorar. A
+  avaliação circular anterior escondia isso. Fica no pipeline como camada pronta, mas a
+  decisão de mantê-lo ligado deve ser revalidada quando o corpus/golden crescer.
 
-Este é o **antes/depois numérico** que o `PROMPT_MESTRE` exige: otimização (híbrido)
-comprovada com métrica, não com "achismo".
+Lição de rigor: **ampliar e des-enviesar o conjunto dourado + reportar IC** transformou
+um "antes/depois" otimista num retrato honesto (e mostrou que o rerank não se justifica
+neste corpus). Próximo passo: golden ≥50 e por terceiro, para estreitar os ICs.
 
 ## Próximo incremento
 
