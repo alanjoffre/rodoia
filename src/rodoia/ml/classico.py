@@ -45,6 +45,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
 from rodoia.config import settings
+from rodoia.proveniencia import carimbar
 
 ALVO = "houve_vitima"
 
@@ -212,13 +213,15 @@ def _salvar_relatorio(res, melhor, n_tr, n_te, prevalencia) -> None:
     _REPORT_DIR.mkdir(parents=True, exist_ok=True)
     (_REPORT_DIR / "metrics.json").write_text(
         json.dumps(
-            {
-                "n_treino": n_tr,
-                "n_teste": n_te,
-                "prevalencia_y1": prevalencia,
-                "melhor": melhor,
-                "modelos": res,
-            },
+            carimbar(
+                {
+                    "n_treino": n_tr,
+                    "n_teste": n_te,
+                    "prevalencia_y1": prevalencia,
+                    "melhor": melhor,
+                    "modelos": res,
+                }
+            ),
             ensure_ascii=False,
             indent=2,
         )

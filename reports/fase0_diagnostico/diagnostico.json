@@ -7,9 +7,9 @@
   },
   "curva_validacao": {
     "profundidade_otima": 12,
-    "roc_auc_validacao_max": 0.7662274106905896,
-    "roc_auc_treino_na_prof_maxima": 0.9658054251330822,
-    "roc_auc_validacao_na_prof_maxima": 0.6557565760530831
+    "roc_auc_validacao_max": 0.7663145573195799,
+    "roc_auc_treino_na_prof_maxima": 0.9658768339900111,
+    "roc_auc_validacao_na_prof_maxima": 0.6564771264076046
   },
   "calibracao": {
     "brier_balanced": 0.16987201034154237,
@@ -18,7 +18,7 @@
   "clustering": {
     "silhuetas": {
       "2": 0.10354247405972597,
-      "3": 0.1209005259759543,
+      "3": 0.12090052597595431,
       "4": 0.13796038954624776,
       "5": 0.1606355338870661,
       "6": 0.16902466677959058
@@ -73,6 +73,17 @@
         "km_medio": 322.422,
         "hora_media": 12.437
       }
+    }
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "ec78a93",
+    "timestamp_utc": "2026-07-10T16:40:36+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3"
     }
   }
 }

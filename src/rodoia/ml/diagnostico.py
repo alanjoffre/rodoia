@@ -41,6 +41,7 @@ from rodoia.ml.classico import (
     construir_modelos,
     construir_preprocessador,
 )
+from rodoia.proveniencia import carimbar
 
 _REPORT_DIR = settings.data_processed.parent.parent / "reports" / "fase0_diagnostico"
 
@@ -198,7 +199,7 @@ def diagnosticar(amostra: int = 150_000) -> dict:
         "clustering": clustering_exploratorio(X, y),
     }
     (_REPORT_DIR / "diagnostico.json").write_text(
-        json.dumps(resultado, ensure_ascii=False, indent=2)
+        json.dumps(carimbar(resultado), ensure_ascii=False, indent=2)
     )
 
     la = resultado["curva_aprendizado"]

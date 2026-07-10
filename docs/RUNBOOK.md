@@ -54,7 +54,7 @@ dvc pull                                                          # baixa dados 
 ## 5. Rodar o pipeline da Fase 0
 
 ```bash
-# 1) Consolida as 39 concessionárias -> data/processed/acidentes.parquet
+# 1) Consolida os 39 CSVs -> 37 concessionárias -> data/processed/acidentes.parquet (~1,03M acidentes)
 python -m rodoia.data.ingestao_acidentes
 
 # 2) Baseline: treina e compara 4 modelos -> reports/fase0_baseline/

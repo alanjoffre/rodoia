@@ -10,13 +10,15 @@
 1 cabeça provada vs. PyTorch; baseline com métricas certas p/ desbalanceado + CV + anti-leakage;
 diagnóstico viés/variância + calibração + clustering. Já é nível especialista.
 
-**Melhorias:**
-- [ALTA] **Multi-head attention sem prova numérica** — só tem teste de forma; `docs/05` afirma equivalência não testada. → teste `AtencaoMultiCabeca(d,1)` vs. `AutoAtencao(d)` (mesmos pesos) + caso causal.
-- [ALTA] **Caminho de treino não testado** — `MLP.treinar` não tem teste (o teste re-implementa o laço). → smoke com dados sintéticos: perda cai + artefatos escritos; idem `avaliar`/`diagnosticar`.
-- [MÉDIA] **MLP avaliada só por ROC-AUC** — reusar `_metricas` do baseline e comparar MLP × HistGB na mesma tabela (PR-AUC/F1/calibração).
-- [MÉDIA] **"Validação" da MLP = test set** — introduzir split treino/val/teste; teste intocado até o fim.
-- [MÉDIA] **Reprodutibilidade** — sem lockfile; artefatos JSON sem proveniência (git SHA, seed, versões). → carimbar reports.
-- [BAIXA] doc×código: MLP `epocas=15` default vs. 20 nos reports; limiar fixo 0.5 sem justificativa; caveat de determinismo GPU.
+**✅ Resolvido neste ciclo:**
+- [ALTA] **Multi-head attention** agora provada numericamente vs. `F.scaled_dot_product_attention` por cabeça + Wo, com caso causal (`tests/test_attention.py`).
+- [ALTA] **Caminho de treino testado** — `tests/test_ml_treino.py` exercita `mlp_torch.treinar` (perda cai, métricas, artefatos) e `classico.avaliar` (com frame sintético).
+- [MÉDIA] **MLP com o conjunto completo de métricas** (`_metricas` reusado): empata o HistGB em ROC-AUC/PR-AUC/F1/bal-acc, não só ROC-AUC.
+- [MÉDIA] **Split três-vias** treino/val/teste — validação sintoniza o limiar e monitora a curva; teste medido 1× ao fim.
+- [MÉDIA] **Proveniência** (`rodoia/proveniencia.py`) carimba seed/git_sha/versões/timestamp em `reports/fase0_*` + `versoes_nitro.txt` na F2.
+- [BAIXA] épocas default 15→20; **limiar da MLP derivado na validação** (max-F1); caveat de determinismo GPU no `docs/04`.
+
+**Pendente (baixo):** limiar 0.5 do **baseline clássico** (não da MLP) segue como ponto de operação documentado; lockfile único de todo o projeto (a F2 já tem `versoes_nitro.txt`).
 
 ## Fase 1 — RAG (concluída; engenharia sênior)
 **Forte:** reality-check de fontes ANTT (endpoints stateless, casca vs. texto, vigência), RRF por
@@ -70,6 +72,7 @@ aviso de "handoff superado por docs/11 (fp8, não AWQ)"; README rastreabilidade 
 fp8/vLLM/números; LLM-judge inclui Fase 2; remove TensorFlow) + status da Fase 2 enriquecido;
 RUNBOOK Fase 2 "futura" → concluída.
 
-**Pendentes (baixo impacto):** reconciliar "37 × 39 concessionárias" (RUNBOOK × doc 02);
-`data/README` layout mostra `interim/` inexistente e a linha de Volume atribui "regressão" à F0
-(foi classificação); carimbar proveniência (git SHA/seed/versões) nos JSON de `reports/`.
+**Também aplicadas:** "37 × 39 concessionárias" reconciliado (39 CSVs → 37 concessionárias) no
+RUNBOOK; proveniência carimbada nos JSON de `reports/fase0_*`.
+**Pendentes (baixo impacto):** `data/README` layout mostra `interim/` inexistente e a linha de
+Volume atribui "regressão" à F0 (foi classificação de severidade).

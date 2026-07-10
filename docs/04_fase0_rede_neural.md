@@ -60,20 +60,29 @@ perda.backward()         # autograd calcula os gradientes
 otimizador.step()        # Adam atualiza os pesos
 ```
 
-Rodou na **GPU Metal (MPS)** do Mac M3 Pro. `pos_weight` no lugar do
-`class_weight` do sklearn trata o desbalanceamento.
+Rodou em **GPU** (MPS no Mac M3 Pro; CUDA na Nitro/RTX 4050 na regeneração).
+`pos_weight` no lugar do `class_weight` do sklearn trata o desbalanceamento.
 
-### Resultado
+### Metodologia (split e limiar de decisão)
 
-| Modelo | ROC-AUC (teste) | Observação |
-|---|---|---|
-| **MLP (PyTorch, MPS)** | **0,814** | 20 épocas, ~16 s |
-| HistGradientBoosting (baseline) | 0,813 | melhor modelo clássico |
+Split **três-vias** treino/validação/teste (64/16/20, estratificado). O
+pré-processador é ajustado **só no treino**; a **validação** monitora a curva de perda
+e **sintoniza o limiar de decisão** (max-F1); o **teste fica intocado** e é medido uma
+única vez ao final. O limiar sai da validação (~0,49) em vez do 0,5 arbitrário — que
+engana ainda mais quando o `pos_weight` distorce a probabilidade.
 
-A rede neural **empata com o melhor modelo clássico** — e a curva de treino mostra
-`treino ≈ validação` (0,676 vs 0,671), ou seja, **sem overfitting**. Em dado
-tabular, é o esperado: árvores/boosting e MLP costumam ficar lado a lado; o valor
-aqui é **provar domínio do PyTorch e do ciclo de treino**, não vencer o baseline.
+### Resultado (mesmo conjunto de métricas do baseline, não só ROC-AUC)
+
+| Modelo | ROC-AUC | PR-AUC | F1 | bal-acc |
+|---|---|---|---|---|
+| **MLP (PyTorch)** | **0,813** | **0,736** | **0,673** | **0,744** |
+| HistGradientBoosting (baseline) | 0,813 | 0,736 | 0,672 | 0,744 |
+
+A rede neural **empata com o melhor modelo clássico em todas as métricas** — e a curva
+treino×validação fica junta (**sem overfitting**). Em dado tabular é o esperado:
+árvores/boosting e MLP lado a lado; o valor aqui é **provar domínio do PyTorch e do
+ciclo de treino**, medido com rigor (split correto, PR-AUC além de ROC-AUC, limiar
+justificado). Reprodutibilidade: `reports/fase0_mlp/mlp.json` carimba seed/commit/versões.
 
 ![curva de treino](../reports/fase0_mlp/curva_treino_mlp.png)
 
