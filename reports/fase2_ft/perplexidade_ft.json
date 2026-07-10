@@ -1,0 +1,7 @@
+{
+  "modelo": "models/antt-merged",
+  "n_textos": 84,
+  "n_tokens": 3868,
+  "ppl_micro": 7.846,
+  "ppl_macro": 11.775
+}

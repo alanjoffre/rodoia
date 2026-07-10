@@ -75,32 +75,64 @@ FT servido: `vllm serve models/antt-merged --quantization fp8 --max-model-len 20
 | Latência p95 | 6.67 s |
 | Tempo de carga do modelo | ~50 s |
 
-## 5. Avaliação base vs. fine-tunado — honesta
+## 5. Avaliação base vs. fine-tunado — rigorosa e honesta
 
-**Limitação de dados:** o corpus `data/raw/normas.jsonl` (referência do juiz) é gerido
-por **DVC sem remoto configurado** nesta máquina, então não há texto de norma para o
-juiz-LLM-com-referência do `avaliar_ft.py`. Substituímos por uma **métrica objetiva e
-reproduzível** sobre o `CONJUNTO_DOURADO` (10 perguntas com a resolução-fonte conhecida),
-gerada por `aval_cite.py` (base e FT servidos em fp8, `temperature=0`):
+**Limitação de dados:** o corpus `data/raw/normas.jsonl` (referência factual) é gerido
+por **DVC sem remoto configurado** nesta máquina; sem o texto das normas não há como o
+juiz verificar *correção factual*. Compensamos com **três medições independentes**, cada
+uma iluminando uma faceta diferente (dados brutos em `reports/fase2_ft/`).
 
-| Métrica | Base | Fine-tunado | Ganho |
+### 5.1 Perplexidade de domínio — *o FT aprendeu o registro?* (`perplexidade.py`)
+PPL do base vs. FT sobre as respostas de domínio (via `prompt_logprobs` do vLLM, fp8).
+
+| PPL (↓ melhor) | Base | Fine-tunado | Δ |
 |---|---|---|---|
-| **Acurácia de citação** (cita a resolução **correta**) | 0/10 | 0/10 | **0.0** |
-| Taxa de citação (cita *alguma* resolução) | 50% | 50% | 0.0 |
-| Comprimento médio da resposta | 946 chars | **219 chars** | −77% |
-| Respostas com hedge/ressalva | 2/10 | **0/10** | −2 |
+| micro (por token) | 9.60 | **7.85** | **−18.3%** |
+| macro (por texto) | 12.51 | **11.78** | −5.8% |
 
-### Interpretação
-O fine-tuning **mudou claramente o comportamento** do modelo — respostas muito mais
-**concisas, diretas e assertivas**, sempre no formato *"A Resolução nº X estabelece…"* —
-mas **não melhorou a acurácia factual**: ambos alucinam o número da resolução (ex.:
-para o vale-pedágio, esperado 6024/2023, o FT cita "6.088/2016"). Isso é **exatamente o
-esperado** com 84 exemplos e **sem RAG**: QLoRA adapta *estilo/formato de domínio*, não
-injeta *conhecimento factual*. É a demonstração de manual de **adaptação de estilo ≠
-injeção de conhecimento** — e a justificativa quantitativa para **combinar FT + RAG**
-(a Fase 1) num próximo passo, além de expandir o dataset.
+→ O QLoRA **aproximou mensuravelmente a distribuição do modelo ao registro jurídico da
+ANTT**. (Nota: in-sample — mede *fit de domínio*, não generalização factual.)
 
-Relatório completo (por caso): `reports/fase2_ft/avaliacao_ft.json`.
+### 5.2 Acurácia de citação — *acerta a norma certa?* (`aval_cite.py`)
+Sobre o `CONJUNTO_DOURADO` (10 perguntas com a resolução-fonte conhecida), `temperature=0`.
+
+| Métrica | Base | Fine-tunado |
+|---|---|---|
+| **Acurácia de citação** (resolução **correta**) | 0/10 | **0/10** |
+| Taxa de citação (cita *alguma* resolução) | 50% | 50% |
+| Comprimento médio | 946 chars | **219 chars** (−77%) |
+| Respostas com hedge/ressalva | 2/10 | **0/10** |
+
+→ **Nenhum** acerta a norma; ambos **alucinam** o número (ex.: vale-pedágio, esperado
+6024/2023 → FT cita "6.088/2016"). O FT ficou muito mais **conciso e assertivo**.
+
+### 5.3 Win-rate por juiz independente — *qual responde melhor?* (`juiz_winrate.py`)
+Juiz **`qwen2.5:7b`** (Ollama, checkpoint distinto), pareado com **troca de posição**
+(só conta vitória se consistente nas duas ordens). Critério: qualidade de resposta
+regulatória (clareza/estrutura/formato), **não** correção factual.
+
+| | Base | Fine-tunado | Empates |
+|---|---|---|---|
+| Vitórias (de 10) | **9** | **0** | 1 |
+| Win-rate | **0.90** | **0.00** | — |
+
+→ O juiz **prefere o base 9×0**. *Caveat:* possível viés de comprimento (base ~4× mais
+longo). Ainda assim, o sinal é claro: a concisão-com-excesso-de-confiança do FT foi
+julgada **pior** que a resposta mais completa e cautelosa do base.
+
+### Interpretação (o resultado científico)
+As três medições contam uma história coerente e **não-óbvia**: o fine-tuning
+**mudou a distribuição** do modelo (PPL −18%, respostas −77% mais curtas, zero hedge),
+mas **não injetou conhecimento factual** (citação 0/0) e **degradou a qualidade
+percebida** (win-rate 0/10). Com 84 exemplos e **sem RAG**, o QLoRA ensinou o modelo a
+*soar* como um especialista da ANTT — conciso e citando "Resolução nº X" — sem *saber* a
+norma certa, trocando as ressalvas úteis do base por **alucinações confiantes**. É a
+demonstração de manual de **adaptação de estilo ≠ injeção de conhecimento**, e a
+justificativa quantitativa para **(a) combinar FT + RAG** (a Fase 1 fornece a fonte) e
+**(b) expandir o dataset** muito além de 84 exemplos.
+
+Relatórios completos: `reports/fase2_ft/` (`avaliacao_ft.json`, `perplexidade_*.json`,
+`winrate_ft.json`, `respostas_*.json`, `comparacao.md`).
 
 ## 6. Como reproduzir (na Nitro)
 
@@ -114,6 +146,12 @@ vllm serve models/antt-merged --quantization fp8 --max-model-len 2048 \
     --gpu-memory-utilization 0.80 --enforce-eager --port 8001 --served-model-name antt-ft
 python -m rodoia.ft.gen_offline Qwen/Qwen2.5-3B-Instruct /tmp/ans_base.json   # respostas base
 python -m rodoia.ft.aval_cite /tmp/ans_base.json /tmp/ans_ft.json reports/fase2_ft/avaliacao_ft.json
+# avaliação rigorosa:
+python -m rodoia.ft.perplexidade Qwen/Qwen2.5-3B-Instruct /tmp/ppl_base.json   # PPL base
+python -m rodoia.ft.perplexidade models/antt-merged        /tmp/ppl_ft.json    # PPL FT
+ollama serve & ollama pull qwen2.5:7b   # juiz independente
+python -m rodoia.ft.juiz_winrate reports/fase2_ft/respostas_base.json \
+    reports/fase2_ft/respostas_ft.json reports/fase2_ft/winrate_ft.json
 ```
 
 > **Notas do stack (fixar se reinstalar):** vLLM 0.24 puxa torch 2.11+cu130 e o
@@ -127,7 +165,7 @@ python -m rodoia.ft.aval_cite /tmp/ans_base.json /tmp/ans_ft.json reports/fase2_
 - [x] Dataset de fine-tuning documentado (84 exemplos, `ft_dataset.jsonl`)
 - [x] Modelo fine-tunado com QLoRA, hiperparâmetros versionados
 - [x] Modelo quantizado com trade-off medido (**fp16 não-servível → fp8 5168 MiB**)
-- [x] Avaliação base vs. fine-tunado com números (**acurácia 0/0; estilo −77% de tamanho**)
+- [x] Avaliação base vs. fine-tunado com números (**3 medições**: PPL −18% · citação 0/0 · win-rate 0×9)
 - [x] Modelo servido via vLLM, com throughput/latência (**101 tok/s; p50 3.35 s**)
 - [x] `docs/11` com todas as decisões de treino e serving
 - [x] Partes testáveis do pipeline validadas; execução real confirmada na Nitro

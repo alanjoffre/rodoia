@@ -1,0 +1,7 @@
+{
+  "modelo": "Qwen/Qwen2.5-3B-Instruct",
+  "n_textos": 84,
+  "n_tokens": 3868,
+  "ppl_micro": 9.598,
+  "ppl_macro": 12.507
+}

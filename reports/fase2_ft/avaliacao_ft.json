@@ -162,5 +162,23 @@
     "lat_p50_s": 3.346,
     "lat_p95_s": 6.673,
     "req_por_s": 1.38
+  },
+  "perplexidade_dominio": {
+    "nota": "in-sample (respostas do ft_dataset); mede fit de dominio, nao generalizacao factual",
+    "base_micro": 9.598,
+    "ft_micro": 7.846,
+    "base_macro": 12.507,
+    "ft_macro": 11.775,
+    "reducao_micro_pct": -18.3
+  },
+  "winrate_juiz": {
+    "juiz": "qwen2.5:7b",
+    "criterio": "qualidade de resposta regulatoria (nao correcao factual verificada)",
+    "ft_win_rate": 0.0,
+    "base_win_rate": 0.9,
+    "ft_wins": 0,
+    "base_wins": 9,
+    "empates": 1,
+    "caveat": "juiz pode ter vies de comprimento (respostas do base sao ~4x mais longas)"
   }
 }

@@ -1,0 +1,72 @@
+{
+  "juiz": "qwen2.5:7b",
+  "criterio": "qualidade de resposta regulatoria (nao correcao factual verificada)",
+  "n": 10,
+  "ft_wins": 0,
+  "base_wins": 9,
+  "empates": 1,
+  "ft_win_rate": 0.0,
+  "base_win_rate": 0.9,
+  "casos": [
+    {
+      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Regras para o transporte rodoviário internacional de cargas",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
+      "ordem1": "B",
+      "ordem2": "B",
+      "vencedor": "empate"
+    },
+    {
+      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Delegação de competências da diretoria colegiada da ANTT",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    },
+    {
+      "consulta": "Programa de regularização de débitos não tributários PRD",
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
+    }
+  ]
+}
