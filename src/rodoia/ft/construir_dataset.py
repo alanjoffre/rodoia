@@ -120,7 +120,8 @@ def main() -> None:
     p.add_argument("--por-norma", type=int, default=3)
     p.add_argument("--limite-normas", type=int, default=None)
     args = p.parse_args()
-    construir(OllamaLLM(), por_norma=args.por_norma, limite_normas=args.limite_normas)
+    # temperatura=0 → geração determinística (reprodutível dado o modelo/corpus).
+    construir(OllamaLLM(temperatura=0.0), por_norma=args.por_norma, limite_normas=args.limite_normas)
 
 
 if __name__ == "__main__":

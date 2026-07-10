@@ -75,88 +75,98 @@ FT servido: `vllm serve models/antt-merged --quantization fp8 --max-model-len 20
 | Latência p95 | 6.67 s |
 | Tempo de carga do modelo | ~50 s |
 
-## 5. Avaliação base vs. fine-tunado — rigorosa e honesta
+## 5. Avaliação base vs. fine-tunado — rigorosa, com held-out e IC
 
-**Limitação de dados:** o corpus `data/raw/normas.jsonl` (referência factual) é gerido
-por **DVC sem remoto configurado** nesta máquina; sem o texto das normas não há como o
-juiz verificar *correção factual*. Compensamos com **três medições independentes**, cada
-uma iluminando uma faceta diferente (dados brutos em `reports/fase2_ft/`).
+### 5.0 Desenho: split held-out (`split_dataset.py`)
+Para medir **generalização** (e não memorização), reservamos **6 das 29 normas inteiras**
+como *held-out* (nenhum exemplo delas entra no treino; split determinístico, seed=42),
+re-treinando o QLoRA nas 23 restantes (**66 exemplos**). O split é versionado em
+`reports/fase2_ft/split_holdout.json`. Nota de dados: o corpus `normas.jsonl` (referência
+factual do juiz) segue ausente (DVC sem remoto) — por isso a correção factual é medida por
+proxy (citação da norma-fonte), não pelo `avaliar_ft.py` (inativo).
 
-### 5.1 Perplexidade de domínio — *o FT aprendeu o registro?* (`perplexidade.py`)
-PPL do base vs. FT sobre as respostas de domínio (via `prompt_logprobs` do vLLM, fp8).
+### 5.1 Perplexidade — *fit de domínio vs. generalização* (`perplexidade.py`, fp8)
+PPL (↓ melhor) via `prompt_logprobs`, medida **in-sample** (respostas do treino) e
+**held-out** (respostas de normas NÃO vistas):
 
-| PPL (↓ melhor) | Base | Fine-tunado | Δ |
+| PPL micro | Base | Fine-tunado | Δ |
 |---|---|---|---|
-| micro (por token) | 9.60 | **7.85** | **−18.3%** |
-| macro (por texto) | 12.51 | **11.78** | −5.8% |
+| **in-sample** (66 textos) | 9.79 | **8.24** | **−15.8%** |
+| **held-out** (18 textos) | 9.12 | **8.78** | **−3.7%** |
 
-→ O QLoRA **aproximou mensuravelmente a distribuição do modelo ao registro jurídico da
-ANTT**. (Nota: in-sample — mede *fit de domínio*, não generalização factual.)
+→ O FT baixa a PPL **muito mais in-sample (−16%) que held-out (−4%)**: aprendeu o registro
+dos exemplos vistos, mas **generaliza fracamente** a normas novas. O −18% relatado antes era
+só in-sample e superestimava.
 
-### 5.2 Acurácia de citação — *acerta a norma certa?* (`aval_cite.py`)
-Sobre o `CONJUNTO_DOURADO` (10 perguntas com a resolução-fonte conhecida), `temperature=0`.
+### 5.2 Acurácia de citação — *acerta a norma?* (`aval_cite.py`) — n=25, IC de Wilson
+Sobre o `CONJUNTO_DOURADO` (25 perguntas de intenção real, `temperature=0`):
 
 | Métrica | Base | Fine-tunado |
 |---|---|---|
-| **Acurácia de citação** (resolução **correta**) | 0/10 | **0/10** |
-| Taxa de citação (cita *alguma* resolução) | 50% | 50% |
-| Comprimento médio | 946 chars | **219 chars** (−77%) |
-| Respostas com hedge/ressalva | 2/10 | **0/10** |
+| **Acurácia de citação** (norma **correta**) | 0/25 [0; 0.13] | **0/25 [0; 0.13]** |
+| Taxa de citação (cita *alguma*) | 0.56 | **0.84** |
 
-→ **Nenhum** acerta a norma; ambos **alucinam** o número (ex.: vale-pedágio, esperado
-6024/2023 → FT cita "6.088/2016"). O FT ficou muito mais **conciso e assertivo**.
+→ **Nenhum** acerta a norma (ambos alucinam o número); o FT passou a **citar mais** (0.84 vs
+0.56) — de novo estilo, não fato.
 
-### 5.3 Win-rate por juiz independente — *qual responde melhor?* (`juiz_winrate.py`)
-Juiz **`qwen2.5:7b`** (Ollama, checkpoint distinto), pareado com **troca de posição**
-(só conta vitória se consistente nas duas ordens). Critério: qualidade de resposta
-regulatória (clareza/estrutura/formato), **não** correção factual. Rodamos **dois modos**
-para isolar o viés de comprimento (o base é ~4× mais longo que o FT):
+### 5.3 Win-rate por juiz independente (`juiz_winrate.py`) — n=25, IC de Wilson
+Juiz **`qwen2.5:7b`** (checkpoint distinto), pareado com **troca de posição**. Dois modos p/
+isolar o viés de comprimento (o base é ~4× mais longo):
 
-| Modo | Base vence | FT vence | Empates | FT win-rate |
+| Modo | Base | FT | Empates | FT win-rate (IC95) |
 |---|---|---|---|---|
-| **Bruto** (respostas originais) | 9 | 0 | 1 | 0.00 |
-| **Controlado** (truncado ao mesmo tamanho) | 1 | **4** | 5 | **0.40** |
+| **Bruto** | 23 | 1 | 1 | 0.04 [0.01; 0.20] |
+| **Controlado** (mesmo tamanho) | 1 | **21** | 3 | **0.84 [0.65; 0.94]** |
 
-→ **A vantagem 9×0 do base era quase toda viés de comprimento.** Com as respostas
-truncadas ao mesmo tamanho, o juiz **inverte** e prefere o FT (4×1, 5 empates) — a
-concisão assertiva do FT é levemente melhor *a igual quantidade de conteúdo*. Lição
-metodológica: sem **controlar o confundidor (comprimento)**, o número diria o oposto
-da verdade. (Ambos os relatórios: `winrate_ft.json`, `winrate_ft_controlado.json`.)
+→ O bruto (base 23×1) era **quase todo viés de comprimento**. Controlando o tamanho, o FT
+**vence 21×1** e o **IC exclui 0.5** — a igual conteúdo, a resposta concisa e assertiva do FT
+é **significativamente** preferida.
+
+### 5.4 Serving fp8 — benchmark reprodutível (`benchmark_vllm.py`)
+**205 tokens/s**, latência **p50 3.08s / p95 3.59s**, **VRAM 5168 / 6141 MiB** (24 req,
+concorrência 6). *Trade-off de quantização:* a memória está medida (fp16 5.8 GB não cabe →
+fp8 cabe); o **custo de qualidade fp16×fp8 não foi medido** — o 3B em fp16 não carrega em
+6 GB pelo mesmo caminho de serving (a própria restrição que forçou a quantização). Fica como
+limite de hardware documentado.
 
 ### Interpretação (o resultado científico)
-As três medições contam uma história coerente e **não-óbvia**: o fine-tuning
-**mudou a distribuição** do modelo (PPL de domínio −18%, respostas −77% mais curtas,
-zero hedge) e, **a igual comprimento, é levemente preferido** pelo juiz (win-rate
-controlado 0.40 × 0.10) — mas **não injetou conhecimento factual** (citação 0/0). Com 84
-exemplos e **sem RAG**, o QLoRA ensinou o modelo a *soar* como um especialista da ANTT —
-conciso e citando "Resolução nº X" — sem *saber* a norma certa, trocando as ressalvas do
-base por afirmações assertivas (às vezes **alucinações confiantes**). É a demonstração de
-manual de **adaptação de estilo ≠ injeção de conhecimento**, e a justificativa
-quantitativa para **(a) combinar FT + RAG** (a Fase 1 fornece a fonte factual) e
-**(b) expandir o dataset** muito além de 84 exemplos. O episódio do win-rate (bruto 0×9 →
-controlado 4×1) também é uma lição de método: **medir sem controlar o confundidor engana**.
-
-Relatórios completos: `reports/fase2_ft/` (`avaliacao_ft.json`, `perplexidade_*.json`,
-`winrate_ft.json`, `respostas_*.json`, `comparacao.md`).
+Coerente e **não-óbvia**: o fine-tuning **mudou a distribuição** (PPL in-sample −16%, respostas
+−77% mais curtas, cita mais) e, **a igual comprimento, é significativamente preferido** pelo
+juiz (0.84 [0.65; 0.94]) — mas **não injetou conhecimento factual** (citação 0/25) e
+**generaliza fraco** a normas novas (PPL held-out só −4%). Com 66 exemplos e **sem RAG**, o
+QLoRA ensinou o modelo a *soar* como especialista da ANTT sem *saber* a norma certa. É a
+demonstração de manual de **adaptação de estilo ≠ injeção de conhecimento** — e a justificativa
+quantitativa para **(a) FT + RAG** (a Fase 1 dá a fonte) e **(b) dataset muito maior**. Lição de
+método: o win-rate (bruto 0.04 → controlado 0.84) prova que **medir sem controlar o confundidor
+diz o oposto da verdade**. Todos os reports carimbados com proveniência em `reports/fase2_ft/`.
 
 ## 6. Como reproduzir (na Nitro)
 
 ```bash
 # WSL2 Ubuntu, dentro do repo, com env preparado (venv + CUDA_HOME=nvidia/cu13 +
 # VLLM_ATTENTION_BACKEND=TORCH_SDPA + VLLM_USE_FLASHINFER_SAMPLER=0 -> ver env.sh):
-python -m rodoia.ft.treino_qlora --modelo Qwen/Qwen2.5-3B-Instruct --epocas 3
-CUDA_VISIBLE_DEVICES="" python -m rodoia.ft.merge_quantiza --pular-awq \
-    --adaptador models/qlora-antt --merged models/antt-merged
-vllm serve models/antt-merged --quantization fp8 --max-model-len 2048 \
-    --gpu-memory-utilization 0.80 --enforce-eager --port 8001 --served-model-name antt-ft
-python -m rodoia.ft.gen_offline Qwen/Qwen2.5-3B-Instruct /tmp/ans_base.json   # respostas base
-python -m rodoia.ft.aval_cite /tmp/ans_base.json /tmp/ans_ft.json reports/fase2_ft/avaliacao_ft.json
-# avaliação rigorosa:
-python -m rodoia.ft.perplexidade Qwen/Qwen2.5-3B-Instruct /tmp/ppl_base.json   # PPL base
-python -m rodoia.ft.perplexidade models/antt-merged        /tmp/ppl_ft.json    # PPL FT
-ollama serve & ollama pull qwen2.5:7b   # juiz independente
-python -m rodoia.ft.juiz_winrate reports/fase2_ft/respostas_base.json \
-    reports/fase2_ft/respostas_ft.json reports/fase2_ft/winrate_ft.json
+R=reports/fase2_ft
+python -m rodoia.ft.split_dataset                                    # split held-out (66/18)
+python -m rodoia.ft.treino_qlora --dataset data/processed/ft_dataset_treino.jsonl \
+    --saida models/qlora-antt-ho --epocas 3
+CUDA_VISIBLE_DEVICES="" python -m rodoia.ft.merge_quantiza \
+    --adaptador models/qlora-antt-ho --merged models/antt-merged-ho   # merge-only é default
+# perplexidade held-out E in-sample, base e FT:
+python -m rodoia.ft.perplexidade Qwen/Qwen2.5-3B-Instruct $R/perplexidade_base_holdout.json \
+    data/processed/ft_dataset_holdout.jsonl fp8
+python -m rodoia.ft.perplexidade models/antt-merged-ho $R/perplexidade_ft_holdout.json \
+    data/processed/ft_dataset_holdout.jsonl fp8
+# citação + win-rate (juiz independente qwen2.5:7b via Ollama):
+python -m rodoia.ft.gen_offline Qwen/Qwen2.5-3B-Instruct $R/respostas_base.json
+python -m rodoia.ft.gen_offline models/antt-merged-ho     $R/respostas_ft.json
+python -m rodoia.ft.aval_cite $R/respostas_base.json $R/respostas_ft.json $R/avaliacao_ft.json
+python -m rodoia.ft.juiz_winrate $R/respostas_base.json $R/respostas_ft.json $R/winrate_ft.json
+python -m rodoia.ft.juiz_winrate $R/respostas_base.json $R/respostas_ft.json \
+    $R/winrate_ft_controlado.json --controlar-comprimento
+# serving + benchmark reprodutível:
+vllm serve models/antt-merged-ho --quantization fp8 --max-model-len 2048 \
+    --gpu-memory-utilization 0.80 --enforce-eager --port 8001 --served-model-name antt-ft &
+python -m rodoia.ft.benchmark_vllm antt-ft http://localhost:8001/v1 $R/benchmark_vllm.json
 ```
 
 > **Notas do stack (fixar se reinstalar):** vLLM 0.24 puxa torch 2.11+cu130 e o
@@ -169,11 +179,11 @@ python -m rodoia.ft.juiz_winrate reports/fase2_ft/respostas_base.json \
 
 - [x] Dataset de fine-tuning documentado (84 exemplos, `ft_dataset.jsonl`)
 - [x] Modelo fine-tunado com QLoRA, hiperparâmetros versionados
-- [x] Modelo quantizado com trade-off medido (**fp16 não-servível → fp8 5168 MiB**)
-- [x] Avaliação base vs. fine-tunado com números (**3 medições**: PPL −18% · citação 0/0 · win-rate bruto 0×9 → controlado FT 4×1)
-- [x] Modelo servido via vLLM, com throughput/latência (**101 tok/s; p50 3.35 s**)
-- [x] `docs/11` com todas as decisões de treino e serving
-- [x] Partes testáveis do pipeline validadas; execução real confirmada na Nitro
+- [x] Modelo quantizado com trade-off de memória medido (**fp16 não-servível → fp8 5168 MiB**; custo de qualidade = limite de hardware documentado)
+- [x] Avaliação base vs. fine-tunado com **held-out + IC**: PPL in-sample −16% × held-out −4% · citação 0/25 [0;0.13] · win-rate controlado **0.84 [0.65;0.94]**
+- [x] Modelo servido via vLLM, throughput/latência por **harness reprodutível** (**205 tok/s; p50 3.08 s**)
+- [x] `docs/11` com todas as decisões; reports carimbados com proveniência
+- [x] Funções puras testadas (split/PPL/citação/win-rate/benchmark); execução real na Nitro
 
 ### Próximos passos sugeridos
 1. **Combinar FT + RAG** (Fase 1) — o FT dá o estilo, o RAG dá a fonte correta.

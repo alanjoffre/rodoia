@@ -54,10 +54,12 @@ def main() -> None:
     p.add_argument("--adaptador", default="models/qlora-antt")
     p.add_argument("--merged", default="models/antt-merged")
     p.add_argument("--awq", default="models/antt-awq")
-    p.add_argument("--pular-awq", action="store_true", help="só faz o merge")
+    # Merge-only é o DEFAULT: a Fase 2 serve em fp8 (autoawq foi descartado — ver docs/11).
+    # `--com-awq` reativa o caminho AWQ (provavelmente quebra no stack torch 2.11/cu130).
+    p.add_argument("--com-awq", action="store_true", help="(legado) tenta quantizar AWQ")
     args = p.parse_args()
     merge(args.base, args.adaptador, args.merged)
-    if not args.pular_awq:
+    if args.com_awq:
         quantizar_awq(args.merged, args.awq)
 
 

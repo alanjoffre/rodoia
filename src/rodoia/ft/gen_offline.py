@@ -1,29 +1,48 @@
-"""Gera respostas de um modelo (fp8, offline vLLM) para as golden questions da Fase 2."""
-if __name__ == "__main__":
-    import sys, json
+"""Gera respostas de um modelo (fp8, offline vLLM) para o golden de domínio.
+
+Usa o MESMO `CONJUNTO_DOURADO` da avaliação de retrieval (perguntas de intenção real,
+com a resolução-fonte conhecida) — fonte única de verdade, sem golden divergente
+hard-coded. As respostas alimentam `aval_cite` (citação) e `juiz_winrate` (win-rate).
+"""
+from __future__ import annotations
+
+import json
+import sys
+
+SISTEMA = "Responda sobre a regulação da ANTT, citando a resolução."
+
+
+def montar_conversas(golden: list[dict], sistema: str = SISTEMA) -> list[list[dict]]:
+    """Constrói as conversas (system+user) para cada pergunta do golden. Pura/testável."""
+    return [
+        [{"role": "system", "content": sistema}, {"role": "user", "content": g["consulta"]}]
+        for g in golden
+    ]
+
+
+def montar_respostas(golden: list[dict], textos: list[str]) -> list[dict]:
+    """Casa cada pergunta do golden com o texto gerado (preserva TODAS as fontes)."""
+    return [
+        {"consulta": g["consulta"], "fontes": g["fontes"], "resposta": t.strip()}
+        for g, t in zip(golden, textos)
+    ]
+
+
+def main() -> None:
     from vllm import LLM, SamplingParams
 
-    MODEL = sys.argv[1]
-    OUT = sys.argv[2]
-    GOLDEN = [
-        {"consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?", "fontes": ["6024/2023"]},
-        {"consulta": "Regras para o transporte rodoviário internacional de cargas", "fontes": ["6038/2024"]},
-        {"consulta": "O que é o Registro Nacional do Agente Transportador de cargas?", "fontes": ["5990/2022"]},
-        {"consulta": "Quais documentos são exigidos no transporte de produtos perigosos?", "fontes": ["5232/2016"]},
-        {"consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?", "fontes": ["5867/2020"]},
-        {"consulta": "Regulamento das concessões rodoviárias federais, segunda norma", "fontes": ["6000/2022"]},
-        {"consulta": "Parcelamento de débitos não inscritos em dívida ativa", "fontes": ["5830/2018"]},
-        {"consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros", "fontes": ["5998/2022"]},
-        {"consulta": "Delegação de competências da diretoria colegiada da ANTT", "fontes": ["5818/2018"]},
-        {"consulta": "Programa de regularização de débitos não tributários PRD", "fontes": ["5386/2017"]},
-    ]
-    SYS = "Responda sobre a regulação da ANTT, citando a resolução."
-    llm = LLM(model=MODEL, quantization="fp8", max_model_len=2048,
+    from rodoia.rag.avaliacao_retrieval import CONJUNTO_DOURADO
+
+    modelo, out = sys.argv[1], sys.argv[2]
+    llm = LLM(model=modelo, quantization="fp8", max_model_len=2048,
               gpu_memory_utilization=0.80, enforce_eager=True)
-    convs = [[{"role": "system", "content": SYS}, {"role": "user", "content": g["consulta"]}] for g in GOLDEN]
-    outs = llm.chat(convs, SamplingParams(max_tokens=256, temperature=0.0))
-    ans = [{"consulta": g["consulta"], "fontes": g["fontes"], "resposta": o.outputs[0].text.strip()}
-           for g, o in zip(GOLDEN, outs)]
-    json.dump(ans, open(OUT, "w"), ensure_ascii=False, indent=2)
-    print("SALVO", OUT, "n=", len(ans))
+    convs = montar_conversas(CONJUNTO_DOURADO)
+    saidas = llm.chat(convs, SamplingParams(max_tokens=256, temperature=0.0))
+    respostas = montar_respostas(CONJUNTO_DOURADO, [s.outputs[0].text for s in saidas])
+    json.dump(respostas, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    print(f"SALVO {out} n={len(respostas)}")
     print("DONE_OFFLINE")
+
+
+if __name__ == "__main__":
+    main()

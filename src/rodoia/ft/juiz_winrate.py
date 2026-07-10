@@ -26,6 +26,9 @@ import sys
 
 import requests
 
+from rodoia.estat import wilson
+from rodoia.proveniencia import carimbar
+
 OLLAMA = "http://127.0.0.1:11434/api/chat"
 JUIZ = "qwen2.5:7b"
 _RE_JSON = re.compile(r"\{[^{}]*\}", re.S)
@@ -109,16 +112,18 @@ def comparar(base_path: str, ft_path: str, saida: str, controlar_comprimento: bo
         empates += venc == "empate"
         casos.append({"consulta": b["consulta"], "ordem1": r1, "ordem2": r2, "vencedor": venc})
     n = len(casos)
-    res = {
+    res = carimbar({
         "juiz": JUIZ,
         "criterio": "qualidade de resposta regulatoria (nao correcao factual verificada)",
         "controle_comprimento": controlar_comprimento,
         "n": n,
         "ft_wins": ft_wins, "base_wins": base_wins, "empates": empates,
         "ft_win_rate": round(ft_wins / n, 3),
+        "ft_win_rate_ic95": wilson(ft_wins, n),
         "base_win_rate": round(base_wins / n, 3),
+        "base_win_rate_ic95": wilson(base_wins, n),
         "casos": casos,
-    }
+    })
     json.dump(res, open(saida, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     modo = "COM controle de comprimento" if controlar_comprimento else "sem controle"
     print(f"[{modo}] FT wins={ft_wins}  base wins={base_wins}  empates={empates}  "

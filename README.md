@@ -64,7 +64,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
 | RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) + rerank · avaliado com IC (hit@5 0,72 [0,52–0,86], n=25) · precisão de citação 0,91 |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo com estado e arestas condicionais |
-| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (101 tok/s) · base vs. FT: PPL −18%, citação 0/0, win-rate controlado FT 4×1 |
+| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (205 tok/s) · base vs. FT com **held-out+IC**: PPL in-sample −16% × held-out −4%, citação 0/25, win-rate controlado **0.84 [0.65;0.94]** |
 | Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · juiz pareado c/ controle de viés (F2) · guardrails |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
 | CI/CD para ML, versionamento (MLflow/DVC/W&B) | Fase 5 | GitHub Actions com avaliação como gate + MLflow + DVC |
@@ -82,7 +82,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 |---|---|---|
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
-| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM (101 tok/s) · base vs. FT medido com rigor: aproximou o registro jurídico (PPL −18%) mas **não** injetou fato (citação 0/0) — reportado honestamente; motiva FT+RAG. Ver [backlog de rigor](docs/12_backlog_rigor.md) |
+| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM · avaliação com **held-out**: memoriza o registro (PPL in-sample −16%) mas **generaliza fraco** (held-out −4%) e **não** injeta fato (citação 0/25); a igual comprimento o juiz prefere o FT (0.84 [0.65;0.94]). Reportado honestamente. Ver [backlog](docs/12_backlog_rigor.md) |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |

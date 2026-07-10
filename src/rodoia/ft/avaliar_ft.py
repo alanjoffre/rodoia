@@ -1,4 +1,10 @@
-"""Avaliação antes/depois do fine-tuning (Fase 2) — o entregável científico.
+"""Avaliação antes/depois do fine-tuning por juiz-com-referência (Fase 2).
+
+>>> INATIVO nesta máquina: exige `data/raw/normas.jsonl` (DVC, sem remoto) como
+referência factual + dois endpoints vLLM + Ollama. A avaliação ATIVA da fase é a
+combinação `perplexidade.py` + `aval_cite.py` + `juiz_winrate.py` (ver docs/11).
+Quando o corpus DVC estiver disponível, este script complementa com a nota factual;
+grava em `avaliacao_ref_juiz.json` (NÃO no `avaliacao_ft.json` consolidado).
 
 Compara o modelo BASE vs. o FINE-TUNADO nas mesmas perguntas de domínio, SEM RAG
 (mede o que o modelo "sabe" após a adaptação). Um LLM juiz, que recebe o texto da
@@ -99,8 +105,10 @@ def main() -> None:
     print(f"base: {b:.2f} | fine-tunado: {f:.2f} | ganho: {g:+.2f}")
     saida = REPO_ROOT / "reports" / "fase2_ft"
     saida.mkdir(parents=True, exist_ok=True)
-    (saida / "avaliacao_ft.json").write_text(json.dumps(res, ensure_ascii=False, indent=2))
-    print(f"relatório: {saida / 'avaliacao_ft.json'}")
+    # NÃO grava em avaliacao_ft.json (esse é o report consolidado da avaliação ativa) —
+    # este é o juiz-com-referência, INATIVO até `data/raw/normas.jsonl` (DVC) existir.
+    (saida / "avaliacao_ref_juiz.json").write_text(json.dumps(res, ensure_ascii=False, indent=2))
+    print(f"relatório: {saida / 'avaliacao_ref_juiz.json'}")
 
 
 if __name__ == "__main__":

@@ -1,192 +1,519 @@
 {
-  "metrica": "citacao da resolucao-fonte no CONJUNTO_DOURADO (10 perguntas)",
+  "metrica": "citacao da resolucao-fonte no CONJUNTO_DOURADO (com IC de Wilson)",
+  "n": 25,
   "base": {
     "acuracia_citacao": 0.0,
-    "taxa_citacao": 0.5
+    "acuracia_ic95": [
+      0.0,
+      0.133
+    ],
+    "taxa_citacao": 0.56,
+    "taxa_ic95": [
+      0.371,
+      0.733
+    ]
   },
   "ft": {
     "acuracia_citacao": 0.0,
-    "taxa_citacao": 0.5
+    "acuracia_ic95": [
+      0.0,
+      0.133
+    ],
+    "taxa_citacao": 0.84,
+    "taxa_ic95": [
+      0.653,
+      0.936
+    ]
   },
   "ganho_acuracia": 0.0,
-  "ganho_taxa_citacao": 0.0,
-  "n": 10,
   "casos_base": [
     {
-      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
-      "fonte_esperada": "6024/2023",
+      "consulta": "Sou embarcador e contratei um caminhoneiro autônomo; preciso adiantar o pedágio da viagem?",
+      "fontes_esperadas": [
+        "6024/2023",
+        "673/2004"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Regras para o transporte rodoviário internacional de cargas",
-      "fonte_esperada": "6038/2024",
-      "citou_correta": false,
-      "citou_alguma": true
-    },
-    {
-      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
-      "fonte_esperada": "5990/2022",
+      "consulta": "Vou mandar uma carga de caminhão para a Argentina; que regras da ANTT valem para essa viagem internacional?",
+      "fontes_esperadas": [
+        "6038/2024"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
-      "fonte_esperada": "5232/2016",
+      "consulta": "Como faço para tirar o registro que me habilita a transportar cargas pela ANTT?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
-      "fonte_esperada": "5867/2020",
+      "consulta": "Vou levar produtos químicos inflamáveis na estrada; que documentos e exigências preciso cumprir?",
+      "fontes_esperadas": [
+        "5232/2016"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
-      "fonte_esperada": "6000/2022",
+      "consulta": "Existe um valor mínimo que devo receber por um frete? Como esse piso é calculado?",
+      "fontes_esperadas": [
+        "5867/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Tenho débitos com a ANTT que ainda não foram para a dívida ativa; consigo parcelar?",
+      "fontes_esperadas": [
+        "5830/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
+      "fontes_esperadas": [
+        "5998/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quem dentro da ANTT tem competência delegada para decidir sobre esses assuntos?",
+      "fontes_esperadas": [
+        "5818/2018"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
-      "fonte_esperada": "5830/2018",
+      "consulta": "Existe algum programa para eu regularizar débitos não tributários com a agência?",
+      "fontes_esperadas": [
+        "5386/2017"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
-      "fonte_esperada": "5998/2022",
+      "consulta": "Qual regulamento rege as concessões de rodovias federais atualmente?",
+      "fontes_esperadas": [
+        "6000/2022",
+        "6032/2023",
+        "6053/2024"
+      ],
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Que multas e penalidades a ANTT pode aplicar a quem transporta carga irregularmente?",
+      "fontes_esperadas": [
+        "4071/2013"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Delegação de competências da diretoria colegiada da ANTT",
-      "fonte_esperada": "5818/2018",
+      "consulta": "O vale-pedágio precisa mesmo ser pago à parte do frete, ou pode ser descontado do motorista?",
+      "fontes_esperadas": [
+        "6024/2023",
+        "673/2004"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Programa de regularização de débitos não tributários PRD",
-      "fonte_esperada": "5386/2017",
+      "consulta": "Meu RNTRC está vencendo; como funciona a renovação do registro de transportador?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Preciso transportar explosivos; a carga tem que ter sinalização e rótulo de risco?",
+      "fontes_esperadas": [
+        "5232/2016"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Como a ANTT reajusta a tarifa de pedágio cobrada pelas concessionárias?",
+      "fontes_esperadas": [
+        "5831/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quais são as regras para uma viagem internacional de ônibus com passageiros?",
+      "fontes_esperadas": [
+        "5998/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "A tabela de piso mínimo muda conforme o número de eixos do caminhão?",
+      "fontes_esperadas": [
+        "5867/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Onde encontro a estrutura organizacional e as competências internas da ANTT?",
+      "fontes_esperadas": [
+        "5976/2022",
+        "5888/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Sou transportador de carga própria; também sou obrigado a me registrar na ANTT?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quero saber as condições para participar do programa de regularização de débitos da ANTT.",
+      "fontes_esperadas": [
+        "5386/2017"
+      ],
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Que norma trata da revisão e do reajuste das tarifas nas concessões rodoviárias?",
+      "fontes_esperadas": [
+        "5831/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Transporto cargas para o Mercosul; preciso de alguma habilitação internacional específica?",
+      "fontes_esperadas": [
+        "6038/2024"
+      ],
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "O parcelamento de débito com a ANTT tem número máximo de parcelas?",
+      "fontes_esperadas": [
+        "5830/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "Qual a metodologia oficial para definir o preço mínimo do frete rodoviário?",
+      "fontes_esperadas": [
+        "5867/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": false
+    },
+    {
+      "consulta": "As novas normas do regulamento de concessões de 2023 e 2024 mudaram o quê?",
+      "fontes_esperadas": [
+        "6032/2023",
+        "6053/2024"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     }
   ],
   "casos_ft": [
     {
-      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
-      "fonte_esperada": "6024/2023",
+      "consulta": "Sou embarcador e contratei um caminhoneiro autônomo; preciso adiantar o pedágio da viagem?",
+      "fontes_esperadas": [
+        "6024/2023",
+        "673/2004"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Regras para o transporte rodoviário internacional de cargas",
-      "fonte_esperada": "6038/2024",
+      "consulta": "Vou mandar uma carga de caminhão para a Argentina; que regras da ANTT valem para essa viagem internacional?",
+      "fontes_esperadas": [
+        "6038/2024"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Como faço para tirar o registro que me habilita a transportar cargas pela ANTT?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Vou levar produtos químicos inflamáveis na estrada; que documentos e exigências preciso cumprir?",
+      "fontes_esperadas": [
+        "5232/2016"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Existe um valor mínimo que devo receber por um frete? Como esse piso é calculado?",
+      "fontes_esperadas": [
+        "5867/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Tenho débitos com a ANTT que ainda não foram para a dívida ativa; consigo parcelar?",
+      "fontes_esperadas": [
+        "5830/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
+      "fontes_esperadas": [
+        "5998/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quem dentro da ANTT tem competência delegada para decidir sobre esses assuntos?",
+      "fontes_esperadas": [
+        "5818/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Existe algum programa para eu regularizar débitos não tributários com a agência?",
+      "fontes_esperadas": [
+        "5386/2017"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Qual regulamento rege as concessões de rodovias federais atualmente?",
+      "fontes_esperadas": [
+        "6000/2022",
+        "6032/2023",
+        "6053/2024"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Que multas e penalidades a ANTT pode aplicar a quem transporta carga irregularmente?",
+      "fontes_esperadas": [
+        "4071/2013"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "O vale-pedágio precisa mesmo ser pago à parte do frete, ou pode ser descontado do motorista?",
+      "fontes_esperadas": [
+        "6024/2023",
+        "673/2004"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Meu RNTRC está vencendo; como funciona a renovação do registro de transportador?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
-      "fonte_esperada": "5990/2022",
+      "consulta": "Preciso transportar explosivos; a carga tem que ter sinalização e rótulo de risco?",
+      "fontes_esperadas": [
+        "5232/2016"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
-      "fonte_esperada": "5232/2016",
+      "consulta": "Como a ANTT reajusta a tarifa de pedágio cobrada pelas concessionárias?",
+      "fontes_esperadas": [
+        "5831/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Quais são as regras para uma viagem internacional de ônibus com passageiros?",
+      "fontes_esperadas": [
+        "5998/2022"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "A tabela de piso mínimo muda conforme o número de eixos do caminhão?",
+      "fontes_esperadas": [
+        "5867/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Onde encontro a estrutura organizacional e as competências internas da ANTT?",
+      "fontes_esperadas": [
+        "5976/2022",
+        "5888/2020"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
-      "fonte_esperada": "5867/2020",
-      "citou_correta": false,
-      "citou_alguma": true
-    },
-    {
-      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
-      "fonte_esperada": "6000/2022",
+      "consulta": "Sou transportador de carga própria; também sou obrigado a me registrar na ANTT?",
+      "fontes_esperadas": [
+        "5990/2022"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     },
     {
-      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
-      "fonte_esperada": "5830/2018",
+      "consulta": "Quero saber as condições para participar do programa de regularização de débitos da ANTT.",
+      "fontes_esperadas": [
+        "5386/2017"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
-      "fonte_esperada": "5998/2022",
+      "consulta": "Que norma trata da revisão e do reajuste das tarifas nas concessões rodoviárias?",
+      "fontes_esperadas": [
+        "5831/2018"
+      ],
       "citou_correta": false,
       "citou_alguma": true
     },
     {
-      "consulta": "Delegação de competências da diretoria colegiada da ANTT",
-      "fonte_esperada": "5818/2018",
+      "consulta": "Transporto cargas para o Mercosul; preciso de alguma habilitação internacional específica?",
+      "fontes_esperadas": [
+        "6038/2024"
+      ],
       "citou_correta": false,
-      "citou_alguma": false
+      "citou_alguma": true
     },
     {
-      "consulta": "Programa de regularização de débitos não tributários PRD",
-      "fonte_esperada": "5386/2017",
+      "consulta": "O parcelamento de débito com a ANTT tem número máximo de parcelas?",
+      "fontes_esperadas": [
+        "5830/2018"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "Qual a metodologia oficial para definir o preço mínimo do frete rodoviário?",
+      "fontes_esperadas": [
+        "5867/2020"
+      ],
+      "citou_correta": false,
+      "citou_alguma": true
+    },
+    {
+      "consulta": "As novas normas do regulamento de concessões de 2023 e 2024 mudaram o quê?",
+      "fontes_esperadas": [
+        "6032/2023",
+        "6053/2024"
+      ],
       "citou_correta": false,
       "citou_alguma": false
     }
   ],
-  "estilo": {
-    "len_medio_chars_base": 946,
-    "len_medio_chars_ft": 219,
-    "respostas_com_hedge_base": 2,
-    "respostas_com_hedge_ft": 0
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "875a40e",
+    "timestamp_utc": "2026-07-10T19:53:53+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
   },
-  "treino": {
-    "modelo_base": "Qwen/Qwen2.5-3B-Instruct",
-    "metodo": "QLoRA NF4 4-bit + LoRA r=16 a=32",
-    "epocas": 3,
-    "steps": 33,
-    "train_loss_final": 0.98,
-    "loss_inicial_aprox": 1.07,
-    "loss_final_aprox": 0.61,
-    "mean_token_accuracy_final": 0.842,
-    "runtime_s": 294,
-    "vram_treino_MiB": 5814
+  "split_holdout": {
+    "n_treino": 66,
+    "n_holdout": 18,
+    "normas_holdout": [
+      "5083/2016",
+      "5823/2018",
+      "5888/2020",
+      "5976/2022",
+      "5998/2022",
+      "6000/2022"
+    ]
   },
-  "quantizacao_serving": {
-    "nota": "AWQ via autoawq inviavel neste stack (torch 2.11+cu130, autoawq descontinuado); usado fp8 in-flight do vLLM",
-    "merged_fp16_disco_GB": 5.8,
-    "vram_servindo_fp8_MiB": 5168,
-    "vram_total_MiB": 6141,
-    "throughput_tok_s": 101.1,
-    "lat_p50_s": 3.346,
-    "lat_p95_s": 6.673,
-    "req_por_s": 1.38
-  },
-  "perplexidade_dominio": {
-    "nota": "in-sample (respostas do ft_dataset); mede fit de dominio, nao generalizacao factual",
-    "base_micro": 9.598,
-    "ft_micro": 7.846,
-    "base_macro": 12.507,
-    "ft_macro": 11.775,
-    "reducao_micro_pct": -18.3
+  "perplexidade": {
+    "held_out": {
+      "base_micro": 9.122,
+      "ft_micro": 8.783,
+      "reducao_micro_pct": -3.7
+    },
+    "in_sample": {
+      "base_micro": 9.789,
+      "ft_micro": 8.241,
+      "reducao_micro_pct": -15.8
+    },
+    "nota": "FT reduz PPL muito mais in-sample que held-out -> memorizacao > generalizacao"
   },
   "winrate_juiz": {
     "juiz": "qwen2.5:7b",
-    "criterio": "qualidade de resposta regulatoria (nao correcao factual verificada)",
-    "ft_win_rate": 0.0,
-    "base_win_rate": 0.9,
-    "ft_wins": 0,
-    "base_wins": 9,
-    "empates": 1,
-    "caveat": "juiz pode ter vies de comprimento (respostas do base sao ~4x mais longas)",
-    "controlado_comprimento": {
-      "ft_win_rate": 0.4,
-      "base_win_rate": 0.1,
-      "ft_wins": 4,
-      "base_wins": 1,
-      "empates": 5,
-      "nota": "respostas truncadas ao mesmo tamanho -> remove vies de comprimento; FT passa a ser preferido"
-    }
+    "bruto": {
+      "ft_win_rate": 0.04,
+      "ic95": [
+        0.007,
+        0.195
+      ],
+      "ft": 1,
+      "base": 23
+    },
+    "controlado": {
+      "ft_win_rate": 0.84,
+      "ic95": [
+        0.653,
+        0.936
+      ],
+      "ft": 21,
+      "base": 1
+    },
+    "nota": "bruto sofre vies de comprimento; controlado (mesmo tamanho) o FT vence 21x1 (IC exclui 0.5)"
+  },
+  "serving_fp8": {
+    "throughput_tok_s": 205.5,
+    "lat_p50_s": 3.079,
+    "lat_p95_s": 3.586,
+    "vram_usada_mb": 5168,
+    "quantizacao": "fp8 in-flight (AWQ descartado); custo de qualidade fp16xfp8 nao medido: 3B fp16 nao cabe em 6GB"
   }
 }

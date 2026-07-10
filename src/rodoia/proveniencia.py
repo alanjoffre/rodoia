@@ -12,7 +12,12 @@ from importlib.metadata import PackageNotFoundError, version
 
 from rodoia.config import settings
 
-_LIBS = ("numpy", "scikit-learn", "torch", "pandas")
+# Cobre o stack das Fases 0–2; libs ausentes no ambiente viram "n/d" (sem erro).
+_LIBS = (
+    "numpy", "scikit-learn", "torch", "pandas",
+    "transformers", "peft", "trl", "bitsandbytes", "accelerate", "datasets",
+    "vllm", "sentence-transformers", "qdrant-client",
+)
 
 
 def _git_sha() -> str:

@@ -2,72 +2,190 @@
   "juiz": "qwen2.5:7b",
   "criterio": "qualidade de resposta regulatoria (nao correcao factual verificada)",
   "controle_comprimento": true,
-  "n": 10,
-  "ft_wins": 4,
+  "n": 25,
+  "ft_wins": 21,
   "base_wins": 1,
-  "empates": 5,
-  "ft_win_rate": 0.4,
-  "base_win_rate": 0.1,
+  "empates": 3,
+  "ft_win_rate": 0.84,
+  "ft_win_rate_ic95": [
+    0.653,
+    0.936
+  ],
+  "base_win_rate": 0.04,
+  "base_win_rate_ic95": [
+    0.007,
+    0.195
+  ],
   "casos": [
     {
-      "consulta": "Como funciona o vale-pedágio obrigatório no transporte de cargas?",
+      "consulta": "Sou embarcador e contratei um caminhoneiro autônomo; preciso adiantar o pedágio da viagem?",
       "ordem1": "B",
       "ordem2": "A",
       "vencedor": "ft"
     },
     {
-      "consulta": "Regras para o transporte rodoviário internacional de cargas",
+      "consulta": "Vou mandar uma carga de caminhão para a Argentina; que regras da ANTT valem para essa viagem internacional?",
       "ordem1": "B",
       "ordem2": "A",
       "vencedor": "ft"
     },
     {
-      "consulta": "O que é o Registro Nacional do Agente Transportador de cargas?",
-      "ordem1": "B",
-      "ordem2": "B",
-      "vencedor": "empate"
-    },
-    {
-      "consulta": "Quais documentos são exigidos no transporte de produtos perigosos?",
-      "ordem1": "B",
-      "ordem2": "A",
-      "vencedor": "ft"
-    },
-    {
-      "consulta": "Como são calculados os pisos mínimos de frete por eixo carregado?",
-      "ordem1": "B",
-      "ordem2": "A",
-      "vencedor": "ft"
-    },
-    {
-      "consulta": "Regulamento das concessões rodoviárias federais, segunda norma",
+      "consulta": "Como faço para tirar o registro que me habilita a transportar cargas pela ANTT?",
       "ordem1": "A",
       "ordem2": "A",
       "vencedor": "empate"
     },
     {
-      "consulta": "Parcelamento de débitos não inscritos em dívida ativa",
+      "consulta": "Vou levar produtos químicos inflamáveis na estrada; que documentos e exigências preciso cumprir?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Existe um valor mínimo que devo receber por um frete? Como esse piso é calculado?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Tenho débitos com a ANTT que ainda não foram para a dívida ativa; consigo parcelar?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
       "ordem1": "B",
       "ordem2": "B",
       "vencedor": "empate"
     },
     {
-      "consulta": "Regulamento do transporte rodoviário coletivo interestadual de passageiros",
+      "consulta": "Quem dentro da ANTT tem competência delegada para decidir sobre esses assuntos?",
       "ordem1": "B",
-      "ordem2": "B",
-      "vencedor": "empate"
+      "ordem2": "A",
+      "vencedor": "ft"
     },
     {
-      "consulta": "Delegação de competências da diretoria colegiada da ANTT",
+      "consulta": "Existe algum programa para eu regularizar débitos não tributários com a agência?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Qual regulamento rege as concessões de rodovias federais atualmente?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Que multas e penalidades a ANTT pode aplicar a quem transporta carga irregularmente?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "O vale-pedágio precisa mesmo ser pago à parte do frete, ou pode ser descontado do motorista?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Meu RNTRC está vencendo; como funciona a renovação do registro de transportador?",
       "ordem1": "A",
       "ordem2": "B",
       "vencedor": "base"
     },
     {
-      "consulta": "Programa de regularização de débitos não tributários PRD",
+      "consulta": "Preciso transportar explosivos; a carga tem que ter sinalização e rótulo de risco?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como a ANTT reajusta a tarifa de pedágio cobrada pelas concessionárias?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Quais são as regras para uma viagem internacional de ônibus com passageiros?",
       "ordem1": "B",
       "ordem2": "B",
       "vencedor": "empate"
+    },
+    {
+      "consulta": "A tabela de piso mínimo muda conforme o número de eixos do caminhão?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Onde encontro a estrutura organizacional e as competências internas da ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Sou transportador de carga própria; também sou obrigado a me registrar na ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Quero saber as condições para participar do programa de regularização de débitos da ANTT.",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Que norma trata da revisão e do reajuste das tarifas nas concessões rodoviárias?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Transporto cargas para o Mercosul; preciso de alguma habilitação internacional específica?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "O parcelamento de débito com a ANTT tem número máximo de parcelas?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Qual a metodologia oficial para definir o preço mínimo do frete rodoviário?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "As novas normas do regulamento de concessões de 2023 e 2024 mudaram o quê?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
     }
-  ]
+  ],
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "875a40e",
+    "timestamp_utc": "2026-07-10T19:57:41+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
 }

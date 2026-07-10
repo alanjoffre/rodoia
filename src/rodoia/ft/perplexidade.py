@@ -1,18 +1,16 @@
-"""Perplexidade de domínio (Fase 2) — sinal quantitativo de fit ao domínio ANTT.
+"""Perplexidade de domínio (Fase 2) — fit ao registro ANTT e GENERALIZAÇÃO.
 
-Mede a perplexidade (PPL) de um modelo sobre as respostas de domínio do
-`ft_dataset.jsonl`, via `prompt_logprobs` do vLLM (fp8). Comparar BASE vs.
-FINE-TUNADO quantifica **quanto o QLoRA aproximou a distribuição do modelo ao
-registro jurídico-regulatório da ANTT** — complementa a acurácia de citação
-(que mede fato, não estilo). PPL menor no FT = aprendeu o domínio.
+Mede a PPL de um modelo sobre as respostas de domínio de um dataset, via
+`prompt_logprobs` do vLLM. Dois usos:
+- **in-sample** (respostas do treino) → mede *fit* de domínio;
+- **held-out** (respostas de normas NÃO vistas no treino — ver `split_dataset.py`) →
+  mede *generalização* do registro.
 
-Nota metodológica: as respostas são as usadas no treino (in-sample), então a PPL
-mede **fit de domínio**, não generalização factual — reportado honestamente em
-`docs/11`. O sinal de generalização vem do win-rate no CONJUNTO_DOURADO (juiz).
+O parâmetro `quantizacao` permite também medir o **custo de qualidade da quantização**
+(PPL em bf16 vs fp8) — o eixo que faltava no trade-off (só a memória estava medida).
 
 Uso:
-    python -m rodoia.ft.perplexidade Qwen/Qwen2.5-3B-Instruct /tmp/ppl_base.json
-    python -m rodoia.ft.perplexidade models/antt-merged        /tmp/ppl_ft.json
+    python -m rodoia.ft.perplexidade <modelo> <saida.json> [dataset.jsonl] [fp8|bfloat16]
 """
 from __future__ import annotations
 
@@ -20,8 +18,11 @@ import json
 import math
 import sys
 
+from rodoia.config import settings
+from rodoia.proveniencia import carimbar
 
-def _textos_dominio(caminho: str = "data/processed/ft_dataset.jsonl") -> list[str]:
+
+def _textos_dominio(caminho: str) -> list[str]:
     """Respostas do assistente (o alvo que o modelo deve modelar)."""
     textos = []
     for linha in open(caminho, encoding="utf-8"):
@@ -32,26 +33,18 @@ def _textos_dominio(caminho: str = "data/processed/ft_dataset.jsonl") -> list[st
     return textos
 
 
-def perplexidade(modelo: str, saida: str) -> dict:
-    from vllm import LLM, SamplingParams
-
-    textos = _textos_dominio()
-    llm = LLM(model=modelo, quantization="fp8", max_model_len=2048,
-              gpu_memory_utilization=0.80, enforce_eager=True)
-    # prompt_logprobs=0 -> devolve o logprob do próprio token de cada posição do prompt.
-    outs = llm.generate(textos, SamplingParams(max_tokens=1, prompt_logprobs=0, temperature=0.0))
-
+def _agregar_ppl(prompt_logprobs_por_texto: list) -> dict:
+    """Agrega NLL → perplexidade (função pura, testável sem GPU).
+    Entrada: lista (por texto) de listas de posições; cada posição é None (1º token)
+    ou um dict {token_id: obj_com_.logprob} com exatamente o token real."""
     soma_nll = 0.0
     n_tokens = 0
     ppls = []
-    for o in outs:
-        pl = o.prompt_logprobs  # lista; pl[0] é None (1º token não tem contexto)
-        nll_seq = 0.0
-        cnt = 0
+    for pl in prompt_logprobs_por_texto:
+        nll_seq, cnt = 0.0, 0
         for pos in pl:
             if pos is None:
                 continue
-            # pos: {token_id: Logprob}. Há exatamente 1 (o token real) com prompt_logprobs=0.
             lp = next(iter(pos.values())).logprob
             nll_seq += -lp
             cnt += 1
@@ -59,18 +52,39 @@ def perplexidade(modelo: str, saida: str) -> dict:
             ppls.append(math.exp(nll_seq / cnt))
             soma_nll += nll_seq
             n_tokens += cnt
-
-    res = {
-        "modelo": modelo,
-        "n_textos": len(textos),
+    return {
         "n_tokens": n_tokens,
-        "ppl_micro": round(math.exp(soma_nll / n_tokens), 3),  # agregada por token
-        "ppl_macro": round(sum(ppls) / len(ppls), 3),          # média das PPLs por texto
+        "ppl_micro": round(math.exp(soma_nll / n_tokens), 3) if n_tokens else None,
+        "ppl_macro": round(sum(ppls) / len(ppls), 3) if ppls else None,
     }
+
+
+def perplexidade(modelo: str, saida: str, dataset: str | None = None,
+                 quantizacao: str = "fp8") -> dict:
+    from vllm import LLM, SamplingParams
+
+    dataset = dataset or str(settings.data_processed / "ft_dataset.jsonl")
+    textos = _textos_dominio(dataset)
+    kwargs = {"max_model_len": 2048, "gpu_memory_utilization": 0.80, "enforce_eager": True}
+    if quantizacao and quantizacao != "none":
+        kwargs["quantization"] = quantizacao
+    llm = LLM(model=modelo, **kwargs)
+    outs = llm.generate(textos, SamplingParams(max_tokens=1, prompt_logprobs=0, temperature=0.0))
+
+    res = carimbar({
+        "modelo": modelo,
+        "dataset": dataset,
+        "quantizacao": quantizacao,
+        "n_textos": len(textos),
+        **_agregar_ppl([o.prompt_logprobs for o in outs]),
+    })
     json.dump(res, open(saida, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"PPL {modelo}: micro={res['ppl_micro']}  macro={res['ppl_macro']}  (n={len(textos)} textos)")
+    print(f"PPL {modelo} [{quantizacao}] em {len(textos)} textos: "
+          f"micro={res['ppl_micro']} macro={res['ppl_macro']}")
     return res
 
 
 if __name__ == "__main__":
-    perplexidade(sys.argv[1], sys.argv[2])
+    ds = sys.argv[3] if len(sys.argv) > 3 else None
+    quant = sys.argv[4] if len(sys.argv) > 4 else "fp8"
+    perplexidade(sys.argv[1], sys.argv[2], ds, quant)

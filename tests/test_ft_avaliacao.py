@@ -6,17 +6,22 @@ from rodoia.ft.juiz_winrate import _decidir, _parse_veredito, _truncar_par
 # ---- aval_cite ----
 
 def test_cita_correta_com_e_sem_ponto():
-    assert cita_correta("conforme a Resolução nº 6024/2023", "6024/2023")
-    assert cita_correta("nos termos da Resolução 6.024/2023", "6024/2023")  # ponto de milhar
+    assert cita_correta("conforme a Resolução nº 6024/2023", ["6024/2023"])
+    assert cita_correta("nos termos da Resolução 6.024/2023", ["6024/2023"])  # ponto de milhar
 
 
 def test_cita_correta_numero_errado():
-    assert not cita_correta("a Resolução nº 6.088/2016 trata disso", "6024/2023")
-    assert not cita_correta("Resolução 6024/2024", "6024/2023")  # ano diferente
+    assert not cita_correta("a Resolução nº 6.088/2016 trata disso", ["6024/2023"])
+    assert not cita_correta("Resolução 6024/2024", ["6024/2023"])  # ano diferente
+
+
+def test_cita_correta_multi_fonte_casa_qualquer():
+    # com múltiplas fontes esperadas, citar QUALQUER uma conta como correta
+    assert cita_correta("ver a Resolução 673/2004 sobre vale-pedágio", ["6024/2023", "673/2004"])
 
 
 def test_cita_correta_sem_citacao():
-    assert not cita_correta("a ANTT regula o transporte de cargas", "6024/2023")
+    assert not cita_correta("a ANTT regula o transporte de cargas", ["6024/2023"])
 
 
 def test_cita_alguma():

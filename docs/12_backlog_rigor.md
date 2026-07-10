@@ -34,14 +34,20 @@ posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segu
 
 **Pendente (baixo):** golden ≥50 e por terceiro (estreitar ICs); ablação de hiperparâmetros (k_rrf/candidatos/chunk); `/perguntar` sem rate-limit (dívida p/ Fase 5).
 
-## Fase 2 — Fine-tuning/serving (concluída; avaliação rigorosa)
-**Forte:** QLoRA em 6 GB, fp8 no vLLM, **3 medições** (PPL −18%, citação 0/0, win-rate com
-controle de viés de comprimento), resultado negativo reportado com honestidade, 21 testes.
+## Fase 2 — Fine-tuning/serving (concluída; avaliação rigorosa com held-out)
+**Forte:** QLoRA em 6 GB, fp8 no vLLM, avaliação multi-facetada honesta com controle de viés.
 
-**Melhorias:**
-- [MÉDIA] **Dataset de 84 exemplos** — a própria avaliação prova ser pequeno. → expandir p/ centenas.
-- [MÉDIA] **Sem held-out real** — PPL é in-sample; retreinar 74/10 p/ PPL e win-rate de generalização.
-- [BAIXA] Reativar o **juiz factual** quando `data/raw/normas.jsonl` (DVC) estiver disponível (Fase 5).
+**✅ Resolvido na 2ª rodada de rigor (`split_dataset.py` + re-treino 66 exemplos):**
+- [ALTA] **Held-out real** — 6 normas reservadas (nunca no treino); PPL **in-sample −16% × held-out −4%** ⇒ memorização ≫ generalização (o "−18%" antigo era só in-sample).
+- [ALTA] **Proveniência** — `carimbar()` (com `_LIBS` estendido p/ transformers/peft/trl/vllm) em todos os reports de FT + `dataset_stats.json`.
+- [MÉDIA] **`avaliar_ft.py` órfão** — grava em `avaliacao_ref_juiz.json` (não clobbera) e marcado INATIVO (precisa DVC).
+- [MÉDIA] **Benchmark reprodutível** — `benchmark_vllm.py` versionado (percentis + `nvidia-smi`): **205 tok/s, p50 3.08s, VRAM 5168**.
+- [MÉDIA] **`gen_offline` alinhado** ao `CONJUNTO_DOURADO` real (fonte única) + função pura testável; docs corrigidos.
+- [MÉDIA] **IC** (Wilson) em citação (0/25 [0;0.13]) e win-rate (controlado **0.84 [0.65;0.94]**, agora significativo); helper `estat.py` compartilhado c/ a Fase 1.
+- [MÉDIA] **Dataset determinístico** (temperatura 0) + `dataset_stats.json`.
+- [BAIXA] **AWQ** deixou de ser default do merge (`--com-awq` opt-in); `_agregar_ppl`/`percentil`/`dividir` puras e testadas.
+
+**Pendente:** [MÉDIA] **custo de qualidade fp16×fp8 não medido** — o 3B fp16 não cabe em 6 GB no mesmo caminho (limite de hardware; exigiria GPU maior/CPU-offload). [BAIXA] reativar juiz factual quando o DVC de `normas.jsonl` existir; expandir o dataset além de 84.
 
 ## Fase 3 — Ingestão de dados estruturados (a implementar, mesmo padrão)
 - **Dados/licença:** Volume de Tráfego de Pedágio (carro-chefe), Praça+KMZ (geo), Receita; confirmar licença por dataset; pipeline `baixar_*` reproduzível (`sep=';'`, `latin-1`, `decimal=','`); brutos fora do Git (DVC).

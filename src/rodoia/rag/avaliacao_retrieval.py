@@ -13,11 +13,10 @@ Métricas (com intervalo de confiança 95%, dado o n pequeno):
 from __future__ import annotations
 
 import json
-import math
-
-import numpy as np
 
 from rodoia.config import REPO_ROOT, settings
+from rodoia.estat import bootstrap_ic as _bootstrap_ic
+from rodoia.estat import wilson as _wilson
 from rodoia.rag.recuperador import RecuperadorHibrido
 
 # Conjunto dourado: perguntas de INTENÇÃO REAL (como um usuário pergunta, não
@@ -84,28 +83,6 @@ def _rank_da_fonte(resultados: list[dict], fontes: list[str]) -> int | None:
         if chunk.get("numero") in fontes:
             return pos
     return None
-
-
-def _wilson(k: int, n: int, z: float = 1.96) -> list[float]:
-    """IC de Wilson para uma proporção (robusto a n pequeno, ao contrário do normal)."""
-    if n == 0:
-        return [0.0, 0.0]
-    p = k / n
-    denom = 1 + z * z / n
-    centro = (p + z * z / (2 * n)) / denom
-    margem = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
-    return [round(max(0.0, centro - margem), 3), round(min(1.0, centro + margem), 3)]
-
-
-def _bootstrap_ic(valores: list[float], n_boot: int = 2000, seed: int = 42) -> list[float]:
-    """IC 95% por bootstrap percentílico da média (para o MRR)."""
-    arr = np.asarray(valores, dtype=float)
-    if arr.size == 0:
-        return [0.0, 0.0]
-    rng = np.random.default_rng(seed)
-    medias = rng.choice(arr, size=(n_boot, arr.size), replace=True).mean(axis=1)
-    lo, hi = np.percentile(medias, [2.5, 97.5])
-    return [round(float(lo), 3), round(float(hi), 3)]
 
 
 def avaliar_modo(recuperador: RecuperadorHibrido, modo: str, rerank: bool, k: int = 5) -> dict:
