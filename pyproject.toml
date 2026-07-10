@@ -21,9 +21,11 @@ dependencies = [
 fundamentos = ["numpy>=1.26", "scikit-learn>=1.5", "torch>=2.3", "matplotlib>=3.9", "pandas>=2.2"]
 # Fase 1 — RAG
 rag = ["fastapi>=0.111", "uvicorn>=0.30", "qdrant-client>=1.9", "sentence-transformers>=3.0", "rank-bm25>=0.2", "langchain>=0.2", "ragas>=0.1"]
-# Fase 2 — fine-tuning/serving
-# Fase 2 — fine-tuning/serving (roda na Nitro/CUDA; ver docs/10 p/ versões testadas)
-ft = ["transformers>=4.44", "peft>=0.12", "trl>=0.11", "bitsandbytes>=0.43", "accelerate>=0.33", "datasets>=2.20", "autoawq>=0.2", "vllm>=0.6"]
+# Fase 2 — fine-tuning/serving (roda na Nitro/CUDA; conjunto exato validado em
+# reports/fase2_ft/versoes_nitro.txt). Pisos elevados p/ a API nova (trl 1.x usa
+# SFTConfig.max_length; transformers 5.x usa dtype=). AWQ via autoawq foi DESCARTADO
+# (descontinuado, rebaixa o torch e quebra o vLLM 0.24/cu130) -> quantização = fp8 (docs/11).
+ft = ["transformers>=5.0", "peft>=0.19", "trl>=1.0", "bitsandbytes>=0.45", "accelerate>=1.0", "datasets>=3.0", "vllm>=0.24"]
 # Fase 4 — agente
 agente = ["langgraph>=0.1"]
 # MLOps (transversal)

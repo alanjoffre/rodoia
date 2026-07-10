@@ -109,27 +109,32 @@ Sobre o `CONJUNTO_DOURADO` (10 perguntas com a resolução-fonte conhecida), `te
 ### 5.3 Win-rate por juiz independente — *qual responde melhor?* (`juiz_winrate.py`)
 Juiz **`qwen2.5:7b`** (Ollama, checkpoint distinto), pareado com **troca de posição**
 (só conta vitória se consistente nas duas ordens). Critério: qualidade de resposta
-regulatória (clareza/estrutura/formato), **não** correção factual.
+regulatória (clareza/estrutura/formato), **não** correção factual. Rodamos **dois modos**
+para isolar o viés de comprimento (o base é ~4× mais longo que o FT):
 
-| | Base | Fine-tunado | Empates |
-|---|---|---|---|
-| Vitórias (de 10) | **9** | **0** | 1 |
-| Win-rate | **0.90** | **0.00** | — |
+| Modo | Base vence | FT vence | Empates | FT win-rate |
+|---|---|---|---|---|
+| **Bruto** (respostas originais) | 9 | 0 | 1 | 0.00 |
+| **Controlado** (truncado ao mesmo tamanho) | 1 | **4** | 5 | **0.40** |
 
-→ O juiz **prefere o base 9×0**. *Caveat:* possível viés de comprimento (base ~4× mais
-longo). Ainda assim, o sinal é claro: a concisão-com-excesso-de-confiança do FT foi
-julgada **pior** que a resposta mais completa e cautelosa do base.
+→ **A vantagem 9×0 do base era quase toda viés de comprimento.** Com as respostas
+truncadas ao mesmo tamanho, o juiz **inverte** e prefere o FT (4×1, 5 empates) — a
+concisão assertiva do FT é levemente melhor *a igual quantidade de conteúdo*. Lição
+metodológica: sem **controlar o confundidor (comprimento)**, o número diria o oposto
+da verdade. (Ambos os relatórios: `winrate_ft.json`, `winrate_ft_controlado.json`.)
 
 ### Interpretação (o resultado científico)
 As três medições contam uma história coerente e **não-óbvia**: o fine-tuning
-**mudou a distribuição** do modelo (PPL −18%, respostas −77% mais curtas, zero hedge),
-mas **não injetou conhecimento factual** (citação 0/0) e **degradou a qualidade
-percebida** (win-rate 0/10). Com 84 exemplos e **sem RAG**, o QLoRA ensinou o modelo a
-*soar* como um especialista da ANTT — conciso e citando "Resolução nº X" — sem *saber* a
-norma certa, trocando as ressalvas úteis do base por **alucinações confiantes**. É a
-demonstração de manual de **adaptação de estilo ≠ injeção de conhecimento**, e a
-justificativa quantitativa para **(a) combinar FT + RAG** (a Fase 1 fornece a fonte) e
-**(b) expandir o dataset** muito além de 84 exemplos.
+**mudou a distribuição** do modelo (PPL de domínio −18%, respostas −77% mais curtas,
+zero hedge) e, **a igual comprimento, é levemente preferido** pelo juiz (win-rate
+controlado 0.40 × 0.10) — mas **não injetou conhecimento factual** (citação 0/0). Com 84
+exemplos e **sem RAG**, o QLoRA ensinou o modelo a *soar* como um especialista da ANTT —
+conciso e citando "Resolução nº X" — sem *saber* a norma certa, trocando as ressalvas do
+base por afirmações assertivas (às vezes **alucinações confiantes**). É a demonstração de
+manual de **adaptação de estilo ≠ injeção de conhecimento**, e a justificativa
+quantitativa para **(a) combinar FT + RAG** (a Fase 1 fornece a fonte factual) e
+**(b) expandir o dataset** muito além de 84 exemplos. O episódio do win-rate (bruto 0×9 →
+controlado 4×1) também é uma lição de método: **medir sem controlar o confundidor engana**.
 
 Relatórios completos: `reports/fase2_ft/` (`avaliacao_ft.json`, `perplexidade_*.json`,
 `winrate_ft.json`, `respostas_*.json`, `comparacao.md`).
@@ -165,7 +170,7 @@ python -m rodoia.ft.juiz_winrate reports/fase2_ft/respostas_base.json \
 - [x] Dataset de fine-tuning documentado (84 exemplos, `ft_dataset.jsonl`)
 - [x] Modelo fine-tunado com QLoRA, hiperparâmetros versionados
 - [x] Modelo quantizado com trade-off medido (**fp16 não-servível → fp8 5168 MiB**)
-- [x] Avaliação base vs. fine-tunado com números (**3 medições**: PPL −18% · citação 0/0 · win-rate 0×9)
+- [x] Avaliação base vs. fine-tunado com números (**3 medições**: PPL −18% · citação 0/0 · win-rate bruto 0×9 → controlado FT 4×1)
 - [x] Modelo servido via vLLM, com throughput/latência (**101 tok/s; p50 3.35 s**)
 - [x] `docs/11` com todas as decisões de treino e serving
 - [x] Partes testáveis do pipeline validadas; execução real confirmada na Nitro

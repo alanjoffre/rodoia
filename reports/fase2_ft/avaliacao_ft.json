@@ -179,6 +179,14 @@
     "ft_wins": 0,
     "base_wins": 9,
     "empates": 1,
-    "caveat": "juiz pode ter vies de comprimento (respostas do base sao ~4x mais longas)"
+    "caveat": "juiz pode ter vies de comprimento (respostas do base sao ~4x mais longas)",
+    "controlado_comprimento": {
+      "ft_win_rate": 0.4,
+      "base_win_rate": 0.1,
+      "ft_wins": 4,
+      "base_wins": 1,
+      "empates": 5,
+      "nota": "respostas truncadas ao mesmo tamanho -> remove vies de comprimento; FT passa a ser preferido"
+    }
   }
 }

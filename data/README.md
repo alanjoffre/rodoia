@@ -19,13 +19,14 @@ data/
 
 ## Como obter os dados
 
-Ainda **não** há pipeline publicado — este é o estado inicial do repositório
-(Fase 0, item 0). A obtenção será, por fonte:
+Pipelines de obtenção já publicados (reproduzíveis, dados brutos fora do Git via DVC):
 
 ```bash
-# (a preencher na Fase 1/Fase 3) — cada fonte terá um comando reproduzível, ex.:
-# python -m rodoia.data.baixar_resolucoes_antt
-# dvc add data/raw/resolucoes_antt && dvc push
+# Fase 0 — acidentes rodoviários (ML clássico):
+python -m rodoia.data.baixar_acidentes && python -m rodoia.data.ingestao_acidentes
+# Fase 1 — resoluções da ANTT (RAG):
+python -m rodoia.rag.baixar_normas
+# Fase 3 — dados estruturados (volume/receita de pedágio): (a preencher)
 ```
 
 ## Remote DVC (local-first)

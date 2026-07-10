@@ -157,7 +157,7 @@ Repo público desde o primeiro commit; histórico Git imutável (vazamento é pe
 
 ---
 
-## 6. Primeira tarefa (validação de realidade — PENDENTE)
+## 6. Primeira tarefa (validação de realidade — ✅ CONCLUÍDA, ver [docs/00](docs/00_validacao_fontes_antt.md))
 
 Antes de qualquer código de fase, duas validações em paralelo:
 

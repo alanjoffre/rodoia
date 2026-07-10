@@ -59,13 +59,13 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | SQL avançado e modelagem | Fase 3 | Schema modelado, queries analíticas (DuckDB/Postgres) |
 | ML clássico (regressão, árvores, ensembles, clustering) | Fase 0 | Modelos treinados sobre dado tabular ANTT, com métricas |
 | Redes neurais, backprop, arquiteturas (CNN/RNN/Transformer) | Fase 0 | Rede em PyTorch puro + atenção à mão |
-| PyTorch/TensorFlow | Fase 0 + 2 | Treino (F0) + fine-tuning (F2) |
+| PyTorch | Fase 0 + 2 | Treino (F0) + fine-tuning QLoRA (F2) |
 | Métricas e diagnóstico (overfitting, bias/variance) | Fase 0 | Curvas treino/validação documentadas |
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
 | RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Pipeline com hybrid search + reranking |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo com estado e arestas condicionais |
-| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | Modelo fine-tunado + quantizado, antes/depois numérico |
-| Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 4 | RAGAS + LLM-as-judge + guardrails + citação |
+| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (101 tok/s) · base vs. FT: PPL −18%, citação 0/0, win-rate controlado FT 4×1 |
+| Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | RAGAS (F1) + LLM-as-judge pareado c/ controle de viés (F2) + guardrails + citação |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
 | CI/CD para ML, versionamento (MLflow/DVC/W&B) | Fase 5 | GitHub Actions com avaliação como gate + MLflow + DVC |
 | Monitoramento, observabilidade, drift | Fase 5 | Dashboard custo/latência/qualidade + drift |
@@ -82,7 +82,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 |---|---|---|
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
-| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([handoff](docs/10_fase2_handoff_nitro.md) + [resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050, fp8 no vLLM (101 tok/s), base vs. FT medido |
+| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM (101 tok/s) · base vs. FT medido com rigor: aproximou o registro jurídico (PPL −18%) mas **não** injetou fato (citação 0/0) — reportado honestamente; motiva FT+RAG. Ver [backlog de rigor](docs/12_backlog_rigor.md) |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |

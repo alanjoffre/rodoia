@@ -1,5 +1,10 @@
 # 10 — Fase 2: HANDOFF para execução na Nitro (fine-tuning + serving)
 
+> ⚠️ **Handoff histórico — a Fase 2 foi CONCLUÍDA; ver [`docs/11`](11_fase2_resultados.md).**
+> A execução real **substituiu AWQ por quantização fp8** (autoawq incompatível com o stack
+> torch 2.11/cu130) e adaptou os scripts para trl 1.x / transformers 5.x. Este documento é o
+> plano original (caminho AWQ) — não siga literalmente; use o doc 11.
+
 > **Este documento é auto-contido.** Um agente de IA que nunca viu o resto da
 > conversa deve conseguir, lendo isto + o código do repositório, executar a Fase 2
 > de ponta a ponta na máquina com GPU NVIDIA (Acer Nitro V15, RTX 4050, 6 GB VRAM).
