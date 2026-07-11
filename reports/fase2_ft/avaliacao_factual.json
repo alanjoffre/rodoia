@@ -1,22 +1,22 @@
 {
   "metrica": "correcao factual (0-1) por juiz com referencia",
   "juiz": "llama3.1:8b",
-  "n": 25,
-  "base_media": 0.88,
+  "n": 50,
+  "base_media": 0.85,
   "base_ic95": [
-    0.78,
-    0.96
+    0.77,
+    0.93
   ],
-  "ft_media": 0.516,
+  "ft_media": 0.79,
   "ft_ic95": [
-    0.336,
-    0.7
+    0.68,
+    0.9
   ],
-  "ganho": -0.364,
+  "ganho": -0.06,
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "bd4dfbf",
-    "timestamp_utc": "2026-07-11T02:04:49+00:00",
+    "git_sha": "38b78a6",
+    "timestamp_utc": "2026-07-11T02:52:36+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

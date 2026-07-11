@@ -2,19 +2,19 @@
   "juiz": "qwen2.5:7b",
   "criterio": "qualidade de resposta regulatoria (nao correcao factual verificada)",
   "controle_comprimento": true,
-  "n": 25,
-  "ft_wins": 21,
-  "base_wins": 1,
-  "empates": 3,
-  "ft_win_rate": 0.84,
+  "n": 50,
+  "ft_wins": 44,
+  "base_wins": 2,
+  "empates": 4,
+  "ft_win_rate": 0.88,
   "ft_win_rate_ic95": [
-    0.653,
-    0.936
+    0.762,
+    0.944
   ],
   "base_win_rate": 0.04,
   "base_win_rate_ic95": [
-    0.007,
-    0.195
+    0.011,
+    0.135
   ],
   "casos": [
     {
@@ -26,14 +26,14 @@
     {
       "consulta": "Vou mandar uma carga de caminhão para a Argentina; que regras da ANTT valem para essa viagem internacional?",
       "ordem1": "B",
-      "ordem2": "A",
-      "vencedor": "ft"
+      "ordem2": "B",
+      "vencedor": "empate"
     },
     {
       "consulta": "Como faço para tirar o registro que me habilita a transportar cargas pela ANTT?",
-      "ordem1": "A",
+      "ordem1": "B",
       "ordem2": "A",
-      "vencedor": "empate"
+      "vencedor": "ft"
     },
     {
       "consulta": "Vou levar produtos químicos inflamáveis na estrada; que documentos e exigências preciso cumprir?",
@@ -44,8 +44,8 @@
     {
       "consulta": "Existe um valor mínimo que devo receber por um frete? Como esse piso é calculado?",
       "ordem1": "B",
-      "ordem2": "A",
-      "vencedor": "ft"
+      "ordem2": "B",
+      "vencedor": "empate"
     },
     {
       "consulta": "Tenho débitos com a ANTT que ainda não foram para a dívida ativa; consigo parcelar?",
@@ -56,8 +56,8 @@
     {
       "consulta": "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
       "ordem1": "B",
-      "ordem2": "B",
-      "vencedor": "empate"
+      "ordem2": "A",
+      "vencedor": "ft"
     },
     {
       "consulta": "Quem dentro da ANTT tem competência delegada para decidir sobre esses assuntos?",
@@ -91,9 +91,9 @@
     },
     {
       "consulta": "Meu RNTRC está vencendo; como funciona a renovação do registro de transportador?",
-      "ordem1": "A",
-      "ordem2": "B",
-      "vencedor": "base"
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
     },
     {
       "consulta": "Preciso transportar explosivos; a carga tem que ter sinalização e rótulo de risco?",
@@ -109,9 +109,9 @@
     },
     {
       "consulta": "Quais são as regras para uma viagem internacional de ônibus com passageiros?",
-      "ordem1": "B",
+      "ordem1": "A",
       "ordem2": "B",
-      "vencedor": "empate"
+      "vencedor": "base"
     },
     {
       "consulta": "A tabela de piso mínimo muda conforme o número de eixos do caminhão?",
@@ -127,9 +127,9 @@
     },
     {
       "consulta": "Sou transportador de carga própria; também sou obrigado a me registrar na ANTT?",
-      "ordem1": "B",
-      "ordem2": "A",
-      "vencedor": "ft"
+      "ordem1": "A",
+      "ordem2": "B",
+      "vencedor": "base"
     },
     {
       "consulta": "Quero saber as condições para participar do programa de regularização de débitos da ANTT.",
@@ -166,12 +166,162 @@
       "ordem1": "B",
       "ordem2": "A",
       "vencedor": "ft"
+    },
+    {
+      "consulta": "Um caminhoneiro pode transportar carga sem estar inscrito na ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como contesto uma multa aplicada pela ANTT no transporte de cargas?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Quais as regras para transportar produtos perigosos em área urbana?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "A concessionária pode aumentar o pedágio quando quiser?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como funciona a habilitação para o transporte internacional de passageiros?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Qual o prazo para pagar as parcelas de um débito parcelado com a ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como é feita a fiscalização do vale-pedágio nas rodovias?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "O RNTRC tem categorias diferentes para transportador autônomo e empresa?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Que documentos são de porte obrigatório no transporte de produtos perigosos?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "A metodologia do piso mínimo de frete considera o custo do diesel?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "O que é exigido para operar uma concessão de rodovia federal?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como a ANTT tipifica as infrações no transporte rodoviário?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Preciso declarar o valor da carga para calcular o vale-pedágio?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Qual resolução trata da delegação de competências na diretoria da ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como funciona o parcelamento de multas ainda não inscritas em dívida ativa?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Que regras valem para transportar cargas perigosas a granel?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Onde encontro o regimento interno e a estrutura da ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como é calculada a tarifa de pedágio nas concessões federais?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Preciso de habilitação específica para transporte internacional de cargas no Mercosul?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Quais as condições para aderir ao programa de regularização de débitos não tributários?",
+      "ordem1": "A",
+      "ordem2": "A",
+      "vencedor": "empate"
+    },
+    {
+      "consulta": "O transporte coletivo interestadual de passageiros precisa de autorização da ANTT?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Como o piso de frete varia com a distância e o tipo de carga?",
+      "ordem1": "B",
+      "ordem2": "B",
+      "vencedor": "empate"
+    },
+    {
+      "consulta": "Sou empresa de transporte de cargas; como me inscrevo no RNTRC?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "Que penalidades existem para excesso de peso no transporte de cargas?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
+    },
+    {
+      "consulta": "O vale-pedágio se aplica ao transporte internacional de cargas?",
+      "ordem1": "B",
+      "ordem2": "A",
+      "vencedor": "ft"
     }
   ],
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "875a40e",
-    "timestamp_utc": "2026-07-10T19:57:41+00:00",
+    "git_sha": "38b78a6",
+    "timestamp_utc": "2026-07-11T02:45:44+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

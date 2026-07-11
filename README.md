@@ -62,9 +62,9 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | PyTorch | Fase 0 + 2 | Treino (F0) + fine-tuning QLoRA (F2) |
 | Métricas e diagnóstico (overfitting, bias/variance) | Fase 0 | Curvas treino/validação documentadas |
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
-| RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) + rerank · avaliado com IC (hit@5 0,72 [0,52–0,86], n=25) · precisão de citação 0,91 |
+| RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) · avaliado com IC (hit@5 0,64 [0,50–0,76], n=50; rerank não ajuda) · precisão de citação 0,91 |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo com estado e arestas condicionais |
-| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (205 tok/s) · base vs. FT com **held-out+IC**: PPL in-sample −16% × held-out −4%, citação 0/25, win-rate controlado **0.84 [0.65;0.94]** |
+| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (205 tok/s, NF4 ΔPPL +14%) · base vs. FT **held-out+IC** (n=50): PPL in-sample −16% × held-out +8%, citação 0/50, factual em paridade, win-rate estilo 0.88 |
 | Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · juiz pareado c/ controle de viés (F2) · guardrails |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
 | CI/CD para ML, versionamento (MLflow/DVC/W&B) | Fase 5 | GitHub Actions com avaliação como gate + MLflow + DVC |
@@ -82,7 +82,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 |---|---|---|
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
-| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM (205 tok/s; quantização NF4 ΔPPL +14%) · avaliação com **held-out+IC**: FT ganha em estilo (win-rate controlado 0.84 [0.65;0.94]) mas **piora o fato** (correção factual **0.88→0.52**, juiz com referência) e generaliza fraco (held-out −4%). Motiva FT+RAG. Ver [backlog](docs/12_backlog_rigor.md) |
+| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM (205 tok/s; NF4 ΔPPL +14%) · avaliação **held-out+IC** (n=50, dataset 158): FT ganha em estilo (win-rate controlado **0.88 [0.76;0.94]**), fica em paridade factual (0.85 vs 0.79) mas **generaliza pior** (PPL held-out **+8%**) e não acerta a citação (0/50). Motiva FT+RAG. Ver [backlog](docs/12_backlog_rigor.md) |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |

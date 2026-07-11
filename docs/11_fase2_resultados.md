@@ -78,63 +78,61 @@ FT servido: `vllm serve models/antt-merged --quantization fp8 --max-model-len 20
 ## 5. Avaliação base vs. fine-tunado — rigorosa, com held-out e IC
 
 ### 5.0 Desenho: split held-out (`split_dataset.py`)
-Para medir **generalização** (e não memorização), reservamos **6 das 29 normas inteiras**
-como *held-out* (nenhum exemplo delas entra no treino; split determinístico, seed=42),
-re-treinando o QLoRA nas 23 restantes (**66 exemplos**). O split é versionado em
-`reports/fase2_ft/split_holdout.json`. Nota de dados: o corpus `normas.jsonl` (referência
-factual do juiz) segue ausente (DVC sem remoto) — por isso a correção factual é medida por
-proxy (citação da norma-fonte), não pelo `avaliar_ft.py` (inativo).
+Para medir **generalização**, reservamos **6 normas inteiras** como *held-out* (split
+determinístico, seed=42) e re-treinamos nas demais. Dataset **expandido para 158 exemplos**
+(30 normas × ~5, `construir_dataset` com temperatura 0) → **124 treino / 34 held-out**. Split
+versionado em `reports/fase2_ft/split_holdout.json`. O corpus `normas.jsonl` foi regenerado
+(Fase 1), então a **correção factual com referência** voltou a ser medível (§5.4).
 
 ### 5.1 Perplexidade — *fit de domínio vs. generalização* (`perplexidade.py`, fp8)
-PPL (↓ melhor) via `prompt_logprobs`, medida **in-sample** (respostas do treino) e
-**held-out** (respostas de normas NÃO vistas):
+PPL (↓ melhor) via `prompt_logprobs`, **in-sample** (treino) e **held-out** (normas NÃO vistas):
 
 | PPL micro | Base | Fine-tunado | Δ |
 |---|---|---|---|
-| **in-sample** (66 textos) | 9.79 | **8.24** | **−15.8%** |
-| **held-out** (18 textos) | 9.12 | **8.78** | **−3.7%** |
+| **in-sample** (124 textos) | 9.73 | **8.16** | **−16.2%** |
+| **held-out** (34 textos) | 11.28 | 12.21 | **+8.3%** ⚠️ |
 
-→ O FT baixa a PPL **muito mais in-sample (−16%) que held-out (−4%)**: aprendeu o registro
-dos exemplos vistos, mas **generaliza fracamente** a normas novas. O −18% relatado antes era
-só in-sample e superestimava.
+→ Resultado de manual: com **mais dados**, o FT baixa a PPL in-sample (**−16%**, memoriza o
+registro) mas **PIORA no held-out (+8%)** — **generaliza pior que o base** em normas novas.
+Overfitting ao estilo do domínio à custa da generalização. (Com 84 ex. o held-out era −4%;
+com 158 virou +8% — mais fine-tuning, pior generalização.)
 
-### 5.2 Acurácia de citação — *acerta a norma?* (`aval_cite.py`) — n=25, IC de Wilson
-Sobre o `CONJUNTO_DOURADO` (25 perguntas de intenção real, `temperature=0`):
+### 5.2 Acurácia de citação — *acerta a norma?* (`aval_cite.py`) — n=50, IC de Wilson
+Sobre o `CONJUNTO_DOURADO` (**50** perguntas de intenção real, `temperature=0`):
 
 | Métrica | Base | Fine-tunado |
 |---|---|---|
-| **Acurácia de citação** (norma **correta**) | 0/25 [0; 0.13] | **0/25 [0; 0.13]** |
-| Taxa de citação (cita *alguma*) | 0.56 | **0.84** |
+| **Acurácia de citação** (norma **correta**) | 0/50 [0; 0.07] | **0/50 [0; 0.07]** |
+| Taxa de citação (cita *alguma*) | 0.56 | 0.50 |
 
-→ **Nenhum** acerta a norma (ambos alucinam o número); o FT passou a **citar mais** (0.84 vs
-0.56) — de novo estilo, não fato.
+→ **Nenhum** acerta a norma (IC bem estreito com n=50) — o RAG (Fase 1), não o FT, é quem dá a
+fonte correta.
 
-### 5.3 Win-rate por juiz independente (`juiz_winrate.py`) — n=25, IC de Wilson
+### 5.3 Win-rate por juiz independente (`juiz_winrate.py`) — n=50, IC de Wilson
 Juiz **`qwen2.5:7b`** (checkpoint distinto), pareado com **troca de posição**. Dois modos p/
-isolar o viés de comprimento (o base é ~4× mais longo):
+isolar o viés de comprimento:
 
 | Modo | Base | FT | Empates | FT win-rate (IC95) |
 |---|---|---|---|---|
-| **Bruto** | 23 | 1 | 1 | 0.04 [0.01; 0.20] |
-| **Controlado** (mesmo tamanho) | 1 | **21** | 3 | **0.84 [0.65; 0.94]** |
+| **Bruto** | 39 | 3 | 8 | 0.06 [0.02; 0.16] |
+| **Controlado** (mesmo tamanho) | 2 | **44** | 4 | **0.88 [0.76; 0.94]** |
 
-→ O bruto (base 23×1) era **quase todo viés de comprimento**. Controlando o tamanho, o FT
-**vence 21×1** e o **IC exclui 0.5** — a igual conteúdo, a resposta concisa e assertiva do FT
-é **significativamente** preferida.
+→ O bruto era **quase todo viés de comprimento**. Controlando o tamanho, o FT **vence 44×2**
+(IC **exclui 0.5**) — a igual conteúdo, a resposta concisa e assertiva do FT é
+**significativamente** preferida em *estilo*.
 
-### 5.4 Correção factual por juiz com referência (`juiz_factual.py`) — n=25, IC
-Com o corpus `normas.jsonl` disponível, o juiz **independente** (llama3.1:8b) pontua 0–1 a
-**correção factual** de cada resposta contra o TEXTO da norma-fonte (a métrica que a citação
-só aproximava):
+### 5.4 Correção factual por juiz com referência (`juiz_factual.py`) — n=50, IC
+Com o `normas.jsonl` regenerado, o juiz **independente** (llama3.1:8b) pontua 0–1 a **correção
+factual** de cada resposta contra o TEXTO da norma-fonte (a métrica que a citação só aproximava):
 
 | Correção factual (↑ melhor) | Base | Fine-tunado |
 |---|---|---|
-| média [IC95 bootstrap] | **0.88 [0.78; 0.96]** | **0.52 [0.34; 0.70]** |
+| média [IC95 bootstrap] | **0.85 [0.77; 0.93]** | **0.79 [0.68; 0.90]** |
 
-→ **O FT é factualmente PIOR que o base** (ganho **−0.36**, ICs **não se sobrepõem**). É o
-outro lado da moeda do §5.3: o FT ganha em *estilo* (conciso/assertivo) mas **perde em fato** —
-aprendeu a citar números com confiança, muitas vezes errados, que o juiz-com-referência
-penaliza como alucinação; o base, mais cauteloso, acerta mais.
+→ Base e FT ficam **em paridade factual** (ganho −0.06, **ICs se sobrepõem**) — o FT **não é
+factualmente pior**. Achado importante da expansão: com **84 exemplos** o FT chegou a ser
+*muito* pior (0.88 → **0.52**, ICs disjuntos); com **158** a diferença sumiu. Ou seja, **a piora
+factual era em boa parte artefato de dataset pequeno** — só medível porque expandimos e refizemos.
 
 ### 5.5 Serving fp8 + trade-off de quantização (`benchmark_vllm.py`, `quantizacao_qualidade.py`)
 Serving: **205 tokens/s**, **p50 3.08s / p95 3.59s**, **VRAM 5168 / 6141 MiB**. Trade-off da
@@ -144,17 +142,21 @@ servido é mais preciso que NF4, logo seu custo de qualidade é **≤ 14%** (cro
 vLLM ≈ +4% vs. fp32).
 
 ### Interpretação (o resultado científico)
-Coerente e **não-óbvia**: o fine-tuning **mudou a distribuição** (PPL in-sample −16%, respostas
-−77% mais curtas) e, **a igual comprimento, é preferido em estilo** (win-rate 0.84 [0.65;0.94]) —
-mas **degradou o fato**: correção factual **0.88 → 0.52** (juiz com referência), não acerta a
-citação (0/25) e **generaliza fraco** a normas novas (PPL held-out só −4%). Com 66 exemplos e
-**sem RAG**, o QLoRA ensinou o modelo a *soar* como especialista da ANTT — e a **alucinar com
-confiança** — sem *saber* a norma. É a demonstração de manual de **adaptação de estilo ≠ injeção
-de conhecimento** (aqui o estilo até *prejudica* o fato), e a justificativa quantitativa para
-**(a) FT + RAG** (a Fase 1 dá a fonte) e **(b) dataset muito maior**. Lição de método: sem
-controlar o confundidor (comprimento) o win-rate diria o oposto; e a citação sozinha não
-revelava a **piora factual** que só o juiz-com-referência mostra. Reports carimbados em
-`reports/fase2_ft/`.
+Retrato coerente, **não-óbvio** e — após a expansão do dataset — **mais nuançado**:
+- **Estilo:** o FT deixa as respostas mais concisas/assertivas e, a igual comprimento, é
+  **significativamente preferido** pelo juiz (win-rate 0.88 [0.76; 0.94]).
+- **Fato:** com dataset pequeno o FT **degradava** os fatos (factual 0.88 → 0.52); com **158
+  exemplos** recupera à **paridade** (0.85 vs 0.79). Ou seja, o dano factual era em boa parte
+  **artefato de dados escassos**.
+- **Conhecimento:** o FT **não acerta a citação** (0/50) e, pior, com mais dados **generaliza
+  pior** a normas não vistas (PPL held-out **+8%**) — memoriza o registro em vez de aprender a
+  norma. É a demonstração de **adaptação de estilo ≠ injeção de conhecimento**, e a justificativa
+  quantitativa para **FT + RAG** (o RAG da Fase 1 dá a fonte factual).
+
+Lições de método que só o rigor revelou: (1) sem **controlar o comprimento**, o win-rate diria o
+oposto (0.06 → 0.88); (2) sem **held-out**, o "−18% de PPL" parecia generalização (era memorização
+— o held-out ficou **+8%**); (3) sem **expandir o dataset**, a "piora factual" pareceria
+definitiva (era small-data). Reports carimbados com proveniência em `reports/fase2_ft/`.
 
 ## 6. Como reproduzir (na Nitro)
 
@@ -193,10 +195,10 @@ python -m rodoia.ft.benchmark_vllm antt-ft http://localhost:8001/v1 $R/benchmark
 
 ## 7. Critérios de conclusão da Fase 2
 
-- [x] Dataset de fine-tuning documentado (84 exemplos, `ft_dataset.jsonl`)
+- [x] Dataset de fine-tuning documentado (**158 exemplos**, `ft_dataset.jsonl` + `dataset_stats.json`)
 - [x] Modelo fine-tunado com QLoRA, hiperparâmetros versionados
 - [x] Modelo quantizado com trade-off medido nos **dois eixos**: memória (fp16 não cabe → fp8 5168 MiB) e qualidade (NF4 ΔPPL +14%)
-- [x] Avaliação base vs. fine-tunado com **held-out + IC**: PPL in-sample −16% × held-out −4% · citação 0/25 · **correção factual 0.88 → 0.52** (juiz c/ referência) · win-rate estilo controlado **0.84 [0.65;0.94]**
+- [x] Avaliação base vs. fine-tunado com **held-out + IC** (n=50): PPL in-sample −16% × held-out **+8%** (generaliza pior) · citação 0/50 · correção factual em paridade (0.85 vs 0.79) · win-rate estilo controlado **0.88 [0.76;0.94]**
 - [x] Modelo servido via vLLM, throughput/latência por **harness reprodutível** (**205 tok/s; p50 3.08 s**)
 - [x] `docs/11` com todas as decisões; reports carimbados com proveniência
 - [x] Funções puras testadas (split/PPL/citação/win-rate/benchmark); execução real na Nitro

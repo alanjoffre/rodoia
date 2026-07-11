@@ -74,6 +74,56 @@ CONJUNTO_DOURADO = [
      "rodoviário?", "fontes": ["5867/2020"]},
     {"consulta": "As novas normas do regulamento de concessões de 2023 e 2024 mudaram o "
      "quê?", "fontes": ["6032/2023", "6053/2024"]},
+    {"consulta": "Um caminhoneiro pode transportar carga sem estar inscrito na ANTT?",
+     "fontes": ["5990/2022"]},
+    {"consulta": "Como contesto uma multa aplicada pela ANTT no transporte de cargas?",
+     "fontes": ["4071/2013"]},
+    {"consulta": "Quais as regras para transportar produtos perigosos em área urbana?",
+     "fontes": ["5232/2016"]},
+    {"consulta": "A concessionária pode aumentar o pedágio quando quiser?",
+     "fontes": ["5831/2018"]},
+    {"consulta": "Como funciona a habilitação para o transporte internacional de "
+     "passageiros?", "fontes": ["5998/2022"]},
+    {"consulta": "Qual o prazo para pagar as parcelas de um débito parcelado com a ANTT?",
+     "fontes": ["5830/2018"]},
+    {"consulta": "Como é feita a fiscalização do vale-pedágio nas rodovias?",
+     "fontes": ["6024/2023", "673/2004"]},
+    {"consulta": "O RNTRC tem categorias diferentes para transportador autônomo e "
+     "empresa?", "fontes": ["5990/2022"]},
+    {"consulta": "Que documentos são de porte obrigatório no transporte de produtos "
+     "perigosos?", "fontes": ["5232/2016"]},
+    {"consulta": "A metodologia do piso mínimo de frete considera o custo do diesel?",
+     "fontes": ["5867/2020"]},
+    {"consulta": "O que é exigido para operar uma concessão de rodovia federal?",
+     "fontes": ["6000/2022", "6032/2023", "6053/2024"]},
+    {"consulta": "Como a ANTT tipifica as infrações no transporte rodoviário?",
+     "fontes": ["4071/2013"]},
+    {"consulta": "Preciso declarar o valor da carga para calcular o vale-pedágio?",
+     "fontes": ["6024/2023"]},
+    {"consulta": "Qual resolução trata da delegação de competências na diretoria da "
+     "ANTT?", "fontes": ["5818/2018"]},
+    {"consulta": "Como funciona o parcelamento de multas ainda não inscritas em dívida "
+     "ativa?", "fontes": ["5830/2018"]},
+    {"consulta": "Que regras valem para transportar cargas perigosas a granel?",
+     "fontes": ["5232/2016"]},
+    {"consulta": "Onde encontro o regimento interno e a estrutura da ANTT?",
+     "fontes": ["5976/2022", "5888/2020"]},
+    {"consulta": "Como é calculada a tarifa de pedágio nas concessões federais?",
+     "fontes": ["5831/2018"]},
+    {"consulta": "Preciso de habilitação específica para transporte internacional de "
+     "cargas no Mercosul?", "fontes": ["6038/2024"]},
+    {"consulta": "Quais as condições para aderir ao programa de regularização de débitos "
+     "não tributários?", "fontes": ["5386/2017"]},
+    {"consulta": "O transporte coletivo interestadual de passageiros precisa de "
+     "autorização da ANTT?", "fontes": ["5998/2022"]},
+    {"consulta": "Como o piso de frete varia com a distância e o tipo de carga?",
+     "fontes": ["5867/2020"]},
+    {"consulta": "Sou empresa de transporte de cargas; como me inscrevo no RNTRC?",
+     "fontes": ["5990/2022"]},
+    {"consulta": "Que penalidades existem para excesso de peso no transporte de cargas?",
+     "fontes": ["4071/2013"]},
+    {"consulta": "O vale-pedágio se aplica ao transporte internacional de cargas?",
+     "fontes": ["6024/2023"]},
 ]
 
 

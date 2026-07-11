@@ -1,19 +1,19 @@
 {
-  "n_total": 84,
-  "n_treino": 66,
-  "n_holdout": 18,
+  "n_total": 158,
+  "n_treino": 124,
+  "n_holdout": 34,
   "normas_holdout": [
     "5083/2016",
     "5823/2018",
     "5888/2020",
-    "5976/2022",
-    "5998/2022",
-    "6000/2022"
+    "5982/2022",
+    "6000/2022",
+    "6024/2023"
   ],
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "875a40e",
-    "timestamp_utc": "2026-07-10T20:02:54+00:00",
+    "git_sha": "38b78a6",
+    "timestamp_utc": "2026-07-11T02:20:37+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

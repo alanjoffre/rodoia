@@ -32,7 +32,8 @@ posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segu
 - [MÉDIA] `recall@k`→**`hit_rate@k`** (nome honesto); **precisão de citação 0.91** (citações ancoradas no contexto) + taxa de citar a fonte certa 0.75; guardrail com **normalização** + bateria de evasão (teto documentado).
 - [BAIXA] PII: **CPF sem pontuação** mascarado (CNPJ bare já caía).
 
-**Pendente (baixo):** golden ≥50 e por terceiro (estreitar ICs); ablação de hiperparâmetros (k_rrf/candidatos/chunk); `/perguntar` sem rate-limit (dívida p/ Fase 5).
+**✅ também:** golden **expandido para 50** (ICs mais estreitos): hit@5 híbrido **0,64 [0,50;0,76]**; confirmado com n=50 que o **rerank não ajuda** (MRR 0,47 < 0,51) → recomenda-se desligar (camada opcional).
+**Pendente (baixo):** golden por terceiro (des-enviesar autoria); ablação de hiperparâmetros (k_rrf/candidatos/chunk); `/perguntar` sem rate-limit (dívida p/ Fase 5).
 
 ## Fase 2 — Fine-tuning/serving (concluída; avaliação rigorosa com held-out)
 **Forte:** QLoRA em 6 GB, fp8 no vLLM, avaliação multi-facetada honesta com controle de viés.
@@ -49,9 +50,14 @@ posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segu
 
 **✅ Ressalvas residuais também resolvidas:**
 - **Custo de qualidade da quantização** medido (`quantizacao_qualidade.py`): PPL fp32 8.44 → NF4 9.64 (**ΔPPL +14%**); fp8 servido é mais preciso ⇒ custo ≤ 14% (cross-check fp8≈+4%).
-- **Juiz factual com referência** reativado (`normas.jsonl` regenerado na F1): correção factual **base 0.88 [0.78;0.96] × FT 0.52 [0.34;0.70]** — o FT é **factualmente pior** (significativo), a métrica que a citação só aproximava.
+- **Juiz factual com referência** reativado (`normas.jsonl` regenerado na F1): a métrica que a citação só aproximava.
+- **Dataset expandido (84→158)** + **golden (25→50)** + re-treino + re-avaliação com n=50 — ICs mais estreitos.
 
-**Pendente (não-bloqueia):** expandir golden (≥50) e dataset FT (>84) para estreitar ICs — melhoria incremental.
+**Achado refinado pela expansão (por que valeu a pena):** com 84 exemplos o FT era *muito* pior nos
+fatos (factual 0.88→**0.52**, ICs disjuntos); com **158** recupera à **paridade** (0.85 vs 0.79,
+ICs sobrepostos) — o dano factual era **artefato de small-data**. Mas o held-out PPL **piorou**
+(−4% → **+8%**): mais fine-tuning = memoriza mais, **generaliza pior**. Win-rate estilo controlado
+firme em **0.88 [0.76;0.94]**. Nenhuma ressalva de rigor pendente; expandir ainda mais é incremental.
 
 ## Fase 3 — Ingestão de dados estruturados (a implementar, mesmo padrão)
 - **Dados/licença:** Volume de Tráfego de Pedágio (carro-chefe), Praça+KMZ (geo), Receita; confirmar licença por dataset; pipeline `baixar_*` reproduzível (`sep=';'`, `latin-1`, `decimal=','`); brutos fora do Git (DVC).

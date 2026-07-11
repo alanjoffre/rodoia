@@ -23,32 +23,33 @@ os dois.
 
 ## Avaliação (conjunto dourado)
 
-**25 perguntas de intenção real** (como um usuário pergunta, não paráfrase do título —
-para evitar circularidade), várias com múltiplas fontes válidas. Métricas com **IC 95%**
-(dado o n ainda pequeno): **hit@5** (nome honesto — como o gold é único por pergunta, é
-*hit-rate*, não *recall* verdadeiro) por IC de **Wilson**; **MRR** por **bootstrap**.
+**50 perguntas de intenção real** (como um usuário pergunta, não paráfrase do título —
+para evitar circularidade), várias com múltiplas fontes válidas. Métricas com **IC 95%**:
+**hit@5** (nome honesto — como o gold é único por pergunta, é *hit-rate*, não *recall*
+verdadeiro) por IC de **Wilson**; **MRR** por **bootstrap**.
 
 | Modo | hit@5 | IC95 (hit) | MRR | IC95 (MRR) |
 |---|---|---|---|---|
-| denso (só embeddings) | 0,72 | [0,52; 0,86] | 0,540 | [0,38; 0,70] |
-| bm25 (só léxico) | 0,68 | [0,48; 0,83] | 0,535 | [0,36; 0,70] |
-| **híbrido (RRF)** | **0,72** | [0,52; 0,86] | **0,620** | [0,46; 0,78] |
-| híbrido + rerank | 0,72 | [0,52; 0,86] | 0,543 | [0,39; 0,70] |
+| denso (só embeddings) | 0,66 | [0,52; 0,78] | 0,499 | [0,38; 0,62] |
+| bm25 (só léxico) | 0,54 | [0,40; 0,67] | 0,406 | [0,29; 0,53] |
+| **híbrido (RRF)** | 0,64 | [0,50; 0,76] | **0,513** | [0,39; 0,63] |
+| híbrido + rerank | 0,64 | [0,50; 0,76] | 0,473 | [0,35; 0,59] |
 
 ## Leitura dos números (honesta)
 
-- Com perguntas **realistas** (não paráfrases do título), o hit@5 fica em **0,72** — bem
-  abaixo dos 0,90 do conjunto antigo (n=10, circular), que superestimava.
-- **O híbrido lidera no MRR** (0,620 vs. 0,540 do denso) — fundir semântico + léxico ainda
-  ajuda a achar a fonte *mais cedo*. Mas os **ICs se sobrepõem**: com n=25 não dá para
-  cravar superioridade estatística — reportado como tendência, não vitória "clara".
-- **O rerank NÃO ajudou aqui** (MRR 0,543 vs. híbrido 0,620) — chegou a piorar. A
-  avaliação circular anterior escondia isso. Fica no pipeline como camada pronta, mas a
-  decisão de mantê-lo ligado deve ser revalidada quando o corpus/golden crescer.
+- Com perguntas **realistas** e n=50, o hit@5 fica em **0,64–0,66** — longe dos 0,90 do
+  conjunto antigo (n=10, circular), que superestimava. Os **ICs estreitaram** (n=50 vs. 25).
+- **O híbrido lidera o MRR** (0,513 vs. denso 0,499) e **bate o BM25 com folga** (0,406);
+  fundir semântico + léxico ajuda a achar a fonte mais cedo. Denso e híbrido têm ICs
+  sobrepostos — o ganho do RRF sobre o denso é modesto neste corpus.
+- **O rerank NÃO ajuda** (MRR 0,473 < híbrido 0,513) — confirmado agora com n=50; a
+  avaliação circular anterior escondia isso. Decisão honesta: a evidência **recomenda
+  desligá-lo** neste corpus; fica como camada opcional (`rerank=`), a revalidar se o
+  corpus crescer.
 
-Lição de rigor: **ampliar e des-enviesar o conjunto dourado + reportar IC** transformou
-um "antes/depois" otimista num retrato honesto (e mostrou que o rerank não se justifica
-neste corpus). Próximo passo: golden ≥50 e por terceiro, para estreitar os ICs.
+Lição de rigor: **ampliar (n=50) e des-enviesar o conjunto dourado + reportar IC** trocou
+um "antes/depois" otimista por um retrato honesto — e mostrou que o **rerank não se
+justifica** neste corpus e que o BM25 puro é o mais fraco.
 
 ## Próximo incremento
 
