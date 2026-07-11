@@ -72,6 +72,43 @@ async def perguntar(p: Pergunta) -> Resposta:
     return Resposta(resposta=r["resposta"], fontes=r["fontes"], bloqueado=r["bloqueado"])
 
 
+class RespostaAgente(BaseModel):
+    resposta: str
+    fontes: list[str]
+    rotas: list[str]
+    trajetoria: list[dict]
+
+
+def _carregar_agente() -> None:
+    """Monta o agente (Fase 4) reusando o recuperador/LLM já carregados p/ o RAG."""
+    if "agente_deps" not in _estado:
+        _carregar()
+        from rodoia.agente.ferramentas import (dados_real, entidades_real,
+                                                regulatorio_real)
+        from rodoia.agente.estado import DepsAgente
+        from rodoia.rag.llm import OpenAICompatLLM
+
+        cerebro = _estado["llm"]
+        llm_ft = OpenAICompatLLM(modelo="rodoia-ner-ft", base_url="http://localhost:8001/v1")
+        _estado["agente_deps"] = DepsAgente(
+            llm_cerebro=cerebro,
+            regulatorio=regulatorio_real(_estado["rec"], cerebro),
+            entidades=entidades_real(llm_ft),
+            dados=dados_real(),
+        )
+
+
+@app.post("/agente", response_model=RespostaAgente)
+async def agente(p: Pergunta) -> RespostaAgente:
+    """Agente orquestrado (Fase 4): roteia entre RAG + modelo FT + dados e sintetiza."""
+    from rodoia.agente.grafo import responder as responder_agente
+
+    _carregar_agente()
+    r = await asyncio.to_thread(responder_agente, p.consulta, _estado["agente_deps"])
+    return RespostaAgente(resposta=r["resposta"], fontes=r["fontes"],
+                          rotas=r["rotas"], trajetoria=r["trajetoria"])
+
+
 _HTML = """<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
 <title>RodoIA — RAG ANTT</title><style>
 body{font-family:system-ui;max-width:760px;margin:40px auto;padding:0 16px;line-height:1.5}

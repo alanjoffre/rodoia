@@ -63,7 +63,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | Métricas e diagnóstico (overfitting, bias/variance) | Fase 0 | Curvas treino/validação documentadas |
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
 | RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) · avaliado com IC (hit@5 0,64 [0,50–0,76], n=50; rerank não ajuda) · precisão de citação 0,91 |
-| Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo com estado e arestas condicionais |
+| Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo LangGraph (estado + arestas condicionais) combinando as 3 ferramentas · roteamento 100% (6 casos) · juiz independente ([docs/15](docs/15_fase4_agente.md)) |
 | Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B) p/ **NER jurídico**: F1 **0,13→0,77** vs. SOTA BERTimbau 0,89 ([docs/13](docs/13_fase2_ner.md)) · **fp8** no vLLM (205 tok/s, NF4 ΔPPL +14%) · estudo-baseline (FT≠conhecimento) em [docs/11](docs/11_fase2_resultados.md) |
 | Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · juiz pareado c/ controle de viés (F2) · guardrails |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
@@ -84,7 +84,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
 | **2** | Fine-tuning e serving de modelo próprio | ✅ concluída — **QLoRA vence com métrica dura**: NER jurídico (LeNER-Br), F1 **0,13 → 0,77** (base→FT), encostando no SOTA BERTimbau 0,89 ([resultados NER](docs/13_fase2_ner.md)). Serving fp8 no vLLM (205 tok/s). Antes, um *estudo-baseline* honesto ([docs/11](docs/11_fase2_resultados.md)) mostrou que FT **não** injeta conhecimento factual — o arco (negativo rigoroso → pivot p/ tarefa objetiva) é o diferencial. |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ✅ concluída ([docs/14](docs/14_fase3_dados_estruturados.md)) — Volume de Pedágio (2010–2026, 741k linhas) · **esquema estrela DuckDB** + SQL analítico (window) · camada de acesso testada (anti-injection) · **previsão de demanda** (backtest multi-step 12m em 63 praças + IC): **Holt-Winters bate o naïve com significância** (pareado Δ=3,01pp, IC95 [1,76; 4,40], vence em 73% das praças) |
-| **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
+| **4** | Agente de orquestração (LangGraph) | ✅ concluída ([docs/15](docs/15_fase4_agente.md)) — grafo com **arestas condicionais reais** (guardrail + roteador) que combina RAG (F1) + modelo FT NER (F2) + dados (F3) · **roteamento objetivo 1,0** (6 casos: puros, combinado, fora-de-escopo, adversarial) · juiz independente (rota 2,0/2) · guardrails + degradação graciosa testados · demo `POST /agente` |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |
 
 O plano completo, os critérios de conclusão de cada fase e as regras de condução estão em **[PROMPT_MESTRE.md](PROMPT_MESTRE.md)**.
