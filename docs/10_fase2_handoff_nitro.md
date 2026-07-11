@@ -1,9 +1,10 @@
 # 10 — Fase 2: HANDOFF para execução na Nitro (fine-tuning + serving)
 
-> ⚠️ **Handoff histórico — a Fase 2 foi CONCLUÍDA; ver [`docs/11`](11_fase2_resultados.md).**
-> A execução real **substituiu AWQ por quantização fp8** (autoawq incompatível com o stack
-> torch 2.11/cu130) e adaptou os scripts para trl 1.x / transformers 5.x. Este documento é o
-> plano original (caminho AWQ) — não siga literalmente; use o doc 11.
+> ⚠️ **Handoff histórico — Fase 2 CONCLUÍDA.** Resultado **principal**: NER jurídico onde o
+> fine-tuning vence (F1 0,13→0,77 vs. SOTA) — [`docs/13`](13_fase2_ner.md). Este handoff descreve
+> o **estudo-baseline** (FT generativo), cujos resultados estão em [`docs/11`](11_fase2_resultados.md).
+> A execução real substituiu AWQ por **fp8** e adaptou os scripts p/ trl 1.x / transformers 5.x —
+> não siga o caminho AWQ literalmente.
 
 > **Este documento é auto-contido.** Um agente de IA que nunca viu o resto da
 > conversa deve conseguir, lendo isto + o código do repositório, executar a Fase 2
@@ -22,7 +23,7 @@ https://github.com/alanjoffre/rodoia . Estado:
   à mão (NumPy), MLP (PyTorch), self-attention à mão. Docs 00–05.
 - **Fase 1 (concluída):** RAG sobre a regulação da ANTT — ingestão (ANTTlegis),
   Qdrant, retrieval híbrido, geração com citação, guardrails, FastAPI. Docs 06–09.
-- **Fase 2 (ESTA, em andamento):** fine-tuning QLoRA + quantização + serving vLLM
+- **Fase 2 (ESTA, concluída):** fine-tuning QLoRA + quantização + serving vLLM
   de um modelo próprio, com avaliação antes/depois.
 
 O código é tipado, testado (`pytest`) e passa por pre-commit (ruff + detect-secrets).

@@ -58,7 +58,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
 | SQL avançado e modelagem | Fase 3 | Schema modelado, queries analíticas (DuckDB/Postgres) |
 | ML clássico (regressão, árvores, ensembles, clustering) | Fase 0 | Modelos treinados sobre dado tabular ANTT, com métricas |
-| Redes neurais, backprop, arquiteturas (CNN/RNN/Transformer) | Fase 0 | Rede em PyTorch puro + atenção à mão |
+| Redes neurais, backprop, arquitetura Transformer | Fase 0 | MLP em PyTorch puro + self-attention/backprop à mão (CNN/RNN fora de escopo) |
 | PyTorch | Fase 0 + 2 | Treino (F0) + fine-tuning QLoRA (F2) |
 | Métricas e diagnóstico (overfitting, bias/variance) | Fase 0 | Curvas treino/validação documentadas |
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |

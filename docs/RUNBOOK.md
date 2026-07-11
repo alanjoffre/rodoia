@@ -7,8 +7,8 @@
 
 - **Python 3.11+** (testado em 3.12) · **git** · ~2 GB de disco livre.
 - Acesso à internet na primeira execução (baixa os dados públicos da ANTT).
-- Opcional (Fase 2, concluída — ver docs/10–11): máquina com GPU NVIDIA
-  (Nitro/RTX 4050) em WSL2/CUDA para fine-tuning e vLLM. Fase 0 roda no Mac (CPU/MPS).
+- Opcional (Fase 2, concluída — resultado principal: **NER, docs/13**; baseline em docs/10–11):
+  máquina com GPU NVIDIA (Nitro/RTX 4050) em WSL2/CUDA para fine-tuning e vLLM. Fase 0 roda no Mac.
 
 ## 1. Clonar e preparar o ambiente
 

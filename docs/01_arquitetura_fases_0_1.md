@@ -49,8 +49,7 @@ src/rodoia/
 │   ├── backprop_numpy.py        # 1 passo de gradiente à mão
 │   └── attention.py             # self-attention puro
 notebooks/
-├── 00_matematica_aplicada.ipynb
-└── 01_acidentes_eda_diagnostico.ipynb
+└── 00_matematica_aplicada.ipynb   # (EDA de acidentes ficou no módulo diagnostico.py, não em notebook)
 tests/
 ├── test_ingestao_acidentes.py   # schema, encoding, sanidade
 ├── test_attention.py            # equivalência com o framework

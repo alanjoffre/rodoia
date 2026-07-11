@@ -41,7 +41,9 @@ F1 **0,13 → 0,77** (base→FT), encostando no SOTA BERTimbau 0,89 (ver `docs/1
 generativo abaixo é o **baseline honesto** que motivou o pivot.
 **Forte (baseline generativo):** QLoRA em 6 GB, fp8 no vLLM, avaliação multi-facetada com controle de viés.
 
-**✅ Resolvido na 2ª rodada de rigor (`split_dataset.py` + re-treino 66 exemplos):**
+**✅ Resolvido na 2ª rodada de rigor (`split_dataset.py`).** *Nota: os números abaixo são
+da 2ª rodada (dataset 84→held-out −4%, n=25); foram **refinados** pela expansão a 158 ex.
+(held-out +8%, n=50) mais adiante nesta seção — os valores finais valem.*
 - [ALTA] **Held-out real** — 6 normas reservadas (nunca no treino); PPL **in-sample −16% × held-out −4%** ⇒ memorização ≫ generalização (o "−18%" antigo era só in-sample).
 - [ALTA] **Proveniência** — `carimbar()` (com `_LIBS` estendido p/ transformers/peft/trl/vllm) em todos os reports de FT + `dataset_stats.json`.
 - [MÉDIA] **`avaliar_ft.py` órfão** — grava em `avaliacao_ref_juiz.json` (não clobbera) e marcado INATIVO (precisa DVC).
@@ -95,5 +97,5 @@ RUNBOOK Fase 2 "futura" → concluída.
 
 **Também aplicadas:** "37 × 39 concessionárias" reconciliado (39 CSVs → 37 concessionárias) no
 RUNBOOK; proveniência carimbada nos JSON de `reports/fase0_*`.
-**Pendentes (baixo impacto):** `data/README` layout mostra `interim/` inexistente e a linha de
-Volume atribui "regressão" à F0 (foi classificação de severidade).
+**Pendentes:** nenhuma pendência de rigor nas Fases 0–2 (os itens de `data/README` — `interim/`
+e a atribuição do Volume — já foram corrigidos).

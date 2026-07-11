@@ -51,7 +51,8 @@ RTX 4050) foi atingido.
 
 - **Merge** (`merge_quantiza.py --pular-awq`) rodado **na CPU** (`CUDA_VISIBLE_DEVICES=""`)
   para não competir com os 6 GB: um 3B fp16 (~5.8 GB) não cabe na GPU junto do contexto
-  CUDA. Gerou `models/antt-merged/` (**5.8 GB fp16**, `model.safetensors`).
+  CUDA. Gerou `models/antt-merged/` (**5.8 GB fp16**, `model.safetensors`). *Nota:* este é o
+  run inicial (84 ex.); a avaliação rigorosa (§5) usa o re-treino com held-out, `antt-merged-ho`.
 
 - **AWQ → substituído por fp8.** O `autoawq` (previsto no handoff) está **descontinuado
   e fixa torch antigo**; instalá-lo rebaixaria o torch e **quebraria o vLLM 0.24/cu130**.
@@ -85,7 +86,7 @@ harness reprodutível `benchmark_vllm.py` (ver §5.5):
 ### 5.0 Desenho: split held-out (`split_dataset.py`)
 Para medir **generalização**, reservamos **6 normas inteiras** como *held-out* (split
 determinístico, seed=42) e re-treinamos nas demais. Dataset **expandido para 158 exemplos**
-(30 normas × ~5, `construir_dataset` com temperatura 0) → **124 treino / 34 held-out**. Split
+(29 normas × ~5, `construir_dataset` com temperatura 0) → **124 treino / 34 held-out**. Split
 versionado em `reports/fase2_ft/split_holdout.json`. O corpus `normas.jsonl` foi regenerado
 (Fase 1), então a **correção factual com referência** voltou a ser medível (§5.4).
 
