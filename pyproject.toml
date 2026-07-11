@@ -25,7 +25,7 @@ rag = ["fastapi>=0.111", "uvicorn>=0.30", "qdrant-client>=1.9", "sentence-transf
 # reports/fase2_ft/versoes_nitro.txt). Pisos elevados p/ a API nova (trl 1.x usa
 # SFTConfig.max_length; transformers 5.x usa dtype=). AWQ via autoawq foi DESCARTADO
 # (descontinuado, rebaixa o torch e quebra o vLLM 0.24/cu130) -> quantização = fp8 (docs/11).
-ft = ["transformers>=5.0", "peft>=0.19", "trl>=1.0", "bitsandbytes>=0.45", "accelerate>=1.0", "datasets>=3.0", "vllm>=0.24"]
+ft = ["transformers>=5.0", "peft>=0.19", "trl>=1.0", "bitsandbytes>=0.45", "accelerate>=1.0", "datasets>=3.0", "vllm>=0.24", "seqeval>=1.2"]
 # Fase 4 — agente
 agente = ["langgraph>=0.1"]
 # MLOps (transversal)

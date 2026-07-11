@@ -68,3 +68,4 @@ Thumbs.db
 .vscode/
 *.swp
 env.sh
+data/raw/lener_br/
