@@ -47,28 +47,33 @@ Funções tipadas e **parametrizadas** (placeholders `?`, nunca concatenação �
 **incluindo um caso adversarial** (`"PA'; DROP TABLE …"` é tratado como valor literal, não executa).
 Pronto para ser chamado como ferramenta pelo agente da Fase 4.
 
-## 5. Previsão de demanda — avaliação robusta (backtest + IC) — `dados/previsao.py`
+## 5. Previsão de demanda — backtest multi-step + teste pareado — `dados/previsao.py`
 
-Avaliação **robusta** (não uma praça só): **backtest em 63 praças** com histórico mensal
-**contíguo ≥ 100 meses**; para cada uma, holdout dos últimos 12 meses (split temporal, sem
-vazamento) e MAPE de cada modelo; depois **agrega com IC95 por bootstrap** sobre as praças.
-Compara baselines (naïve, sazonal-naïve), o clássico **Holt-Winters** e um **Gradient Boosting**
-(lags 1/2/3/12 + médias móveis + mês).
+Avaliação **robusta e justa**: **backtest em 63 praças** com histórico mensal **contíguo ≥ 100
+meses**; para cada uma, **todos os modelos preveem 12 meses à frente a partir do fim do treino,
+sem ver o teste** (multi-step honesto — a tarefa real de planejamento). O naïve vira *random walk*
+(repete o último valor), o GB é **recursivo** (realimenta as próprias previsões) e o Holt-Winters
+faz `forecast(12)`. MAPE por praça, **agregado com IC95 por bootstrap**; e a comparação decisiva —
+o **teste pareado** melhor-modelo vs naïve (diferença por praça).
 
 | Modelo | MAPE médio | IC95 (bootstrap, n=63) |
 |---|---|---|
-| **Holt-Winters** | **13,25%** | [8,36; 19,32] |
-| naïve (mês anterior) | 13,72% | [9,12; 19,74] |
-| Gradient Boosting | 13,80% | [9,11; 19,65] |
-| sazonal-naïve | 17,87% | [12,98; 24,35] |
+| **Holt-Winters** | **13,25%** | [8,48; 19,57] |
+| Gradient Boosting (recursivo) | 15,43% | [11,06; 21,38] |
+| naïve (random walk) | 16,26% | [11,31; 22,89] |
+| sazonal-naïve | 17,87% | [12,96; 24,28] |
 
-→ **Leitura honesta (o que o rigor revelou):** com 63 séries e IC, os modelos sofisticados
-**não batem o naïve de forma estatisticamente significativa** — os ICs se sobrepõem fortemente; o
-Holt-Winters apenas *encosta* (13,25 vs 13,72). Só o **sazonal-naïve é claramente pior**. Numa
-única praça bem-comportada (P 04) o GB dava MAPE 5,93% — mas isso era **cereja**: a mediana entre
-praças é ~13%. **Backtest + IC** mostraram que o "ganho" não generaliza — o mesmo tipo de correção
-que o held-out fez na Fase 2. A entrega aqui é a **avaliação rigorosa e honesta**, não um número
-inflado. Gráfico da praça mais longa em `reports/fase3_dados/previsao.png`.
+**Comparação pareada Holt-Winters vs naïve:** Δ = **3,01 pp** de MAPE, **IC95 [1,76; 4,40]** —
+**não cruza 0 → o ganho é estatisticamente significativo**; o HW vence em **73% das praças**
+(≈ **18% de redução relativa** de erro).
+
+→ **Leitura honesta:** na tarefa realista (prever 12 meses à frente), o clássico **Holt-Winters
+bate o baseline de forma significativa** (teste pareado, não só ICs marginais que se sobrepõem por
+variância entre praças). Nota metodológica de rigor: uma versão anterior comparava o naïve/GB em
+*1-passo-à-frente* (alimentados com o valor real recente) contra um HW *multi-step* — maçãs com
+laranjas, que inflava o naïve para 13,7% e mascarava o ganho. Padronizar **todos em 12-passos** é o
+justo **e** revelou o resultado que convence — mesma disciplina do held-out na Fase 2 (deixar o
+rigor corrigir o próprio número). Gráfico da praça mais longa em `reports/fase3_dados/previsao.png`.
 
 ## 6. Reproduzir
 
@@ -85,7 +90,7 @@ python -m rodoia.dados.previsao       # previsão -> reports/fase3_dados/previsa
 - [x] Datasets modelados com **schema justificado** (estrela, grão documentado) + licença/pipeline
 - [x] **Queries analíticas** com CTEs + window functions (LAG/RANK/médias) versionadas
 - [x] **Camada de acesso** tipada, parametrizada (anti-injection) e testada — ferramenta do agente
-- [x] **Resultado objetivo**: previsão de demanda avaliada com **rigor** — backtest em 63 praças, **MAPE + IC95**, 4 modelos (incl. Holt-Winters); achado honesto: o naïve é forte e os modelos não o batem de forma significativa
+- [x] **Resultado objetivo**: previsão de demanda avaliada com **rigor** — backtest multi-step (12m à frente) em 63 praças, **MAPE + IC95**, 4 modelos; **Holt-Winters bate o naïve de forma significativa** (teste pareado Δ=3,01pp, IC95 [1,76; 4,40], vence em 73% das praças)
 - [x] README do modelo de dados (este doc) + observabilidade de ingestão + reprodução
 - [x] Testes dos caminhos críticos (acesso, ingestão, métricas)
 

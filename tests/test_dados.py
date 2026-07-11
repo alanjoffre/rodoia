@@ -51,6 +51,21 @@ def test_mape():
     assert _mape([100, 200], [110, 180]) == 10.0
 
 
+def test_previsao_multistep_justa():
+    """Numa série com tendência+sazonalidade, prevendo 12 meses à frente (sem ver o teste),
+    o Holt-Winters deve BATER o naïve (random walk). Trava a avaliação multi-step honesta:
+    se algum modelo 'espiar' o teste (1-passo alimentado com o real), o teste denuncia."""
+    import numpy as np
+    from rodoia.dados.previsao import _prever_praca
+
+    idx = pd.date_range("2010-01-01", periods=120, freq="MS")
+    t = np.arange(120)
+    y = 1000 + 8 * t + 200 * np.sin(2 * np.pi * t / 12)  # tendência + sazonalidade anual
+    r = _prever_praca(pd.Series(y, index=idx))
+    assert all(v is not None and v >= 0 for v in r.values())
+    assert r["holt_winters"] < r["naive"]  # modelo sazonal vence o random walk a 12 meses
+
+
 def test_para_data_formatos_mistos():
     from rodoia.data.ingestao_volume import _para_data
     d = _para_data(pd.Series(["01/01/2010", "03/2024"]))

@@ -1,16 +1,16 @@
 {
-  "tarefa": "previsão de volume mensal (backtest 12 meses em múltiplas praças)",
+  "tarefa": "previsão de volume mensal 12 meses à frente (multi-step, backtest em múltiplas praças)",
   "n_pracas": 63,
   "n_teste": 12,
   "min_meses": 100,
   "metrica": "MAPE (%) — média entre praças com IC95 por bootstrap",
   "modelos": {
     "naive": {
-      "mape_medio": 13.72,
-      "mape_mediano": 8.43,
+      "mape_medio": 16.26,
+      "mape_mediano": 10.29,
       "ic95": [
-        9.12,
-        19.743
+        11.306,
+        22.888
       ],
       "n_pracas": 63
     },
@@ -18,8 +18,8 @@
       "mape_medio": 17.87,
       "mape_mediano": 11.52,
       "ic95": [
-        12.982,
-        24.354
+        12.963,
+        24.284
       ],
       "n_pracas": 63
     },
@@ -27,25 +27,37 @@
       "mape_medio": 13.25,
       "mape_mediano": 7.71,
       "ic95": [
-        8.359,
-        19.321
+        8.481,
+        19.567
       ],
       "n_pracas": 63
     },
     "gradient_boosting": {
-      "mape_medio": 13.8,
-      "mape_mediano": 7.63,
+      "mape_medio": 15.43,
+      "mape_mediano": 9.13,
       "ic95": [
-        9.113,
-        19.645
+        11.061,
+        21.382
       ],
       "n_pracas": 63
     }
   },
+  "comparacao_pareada": {
+    "modelo": "holt_winters",
+    "vs": "naive",
+    "delta_mape_medio": 3.01,
+    "ic95_delta": [
+      1.762,
+      4.402
+    ],
+    "n_pracas": 63,
+    "vence_naive_em_pct_pracas": 73.0,
+    "significativo": true
+  },
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "96fd7b9",
-    "timestamp_utc": "2026-07-11T17:39:52+00:00",
+    "git_sha": "74b57fc",
+    "timestamp_utc": "2026-07-11T17:58:26+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",
