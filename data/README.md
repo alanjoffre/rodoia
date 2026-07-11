@@ -13,7 +13,6 @@
 ```
 data/
 ├── raw/         # baixado pelos pipelines; ignorado pelo Git, versionado por DVC
-├── interim/     # intermediário; idem
 └── processed/   # pronto para treino/indexação; idem
 ```
 
@@ -56,8 +55,9 @@ da proteção autoral (Lei 9.610/98, art. 8º, IV). Datasets = **CC-BY** (Decret
 | ANTTlegis — normas ANTT | RAG (texto) | 1 | HTML (latin-1), URL determinística, sem API | Ato oficial (domínio público, Lei 9.610/98) | scraping; OCR p/ normas antigas |
 | LexML (dados abertos) | metadados/URN | 1 | JSON/dumps (SRU ao vivo tem anti-bot) | Licença aberta declarada | atribuir a base |
 | Acidentes em rodovias concedidas | ML clássico (classificação) ⭐ | 0 | CSV (latin-1, `;`, decimal `,`) | CC-BY (confirmar por dataset) | 1 linha = 1 acidente; ~100k+/concessionária |
-| Volume de Tráfego de Pedágio | SQL analítico + regressão | 3/0 | CSV (latin-1, `;`, decimal `,`) | CC-BY (confirmar por dataset) | ~142k linhas/ano |
+| Volume de Tráfego de Pedágio | SQL analítico + previsão de demanda (série temporal) | 3 | CSV (latin-1, `;`, decimal `,`) | CC-BY (confirmar por dataset) | ~142k linhas/ano; dados.antt.gov.br |
 | Praça de Pedágio / Receita | dimensão + SQL | 3 | CSV + KMZ | CC-BY | JOINs geográficos/financeiros |
+| LeNER-Br (NER jurídico PT-BR) | fine-tuning c/ rótulo objetivo | 2 | CoNLL | **MIT** (citar PROPOR 2018) | 7.827/1.176/1.389 sentenças; `rodoia.ner.lener` baixa |
 
 > **Ler CSV da ANTT:** `pandas.read_csv(sep=';', encoding='latin-1', decimal=',')`.
 

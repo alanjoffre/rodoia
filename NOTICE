@@ -10,18 +10,23 @@ DADOS
 --------------------------------------------------------------------------------
 - Legislação, resoluções e portarias da ANTT — Agência Nacional de Transportes
   Terrestres. Fonte pública (gov.br/antt). Verificar termos de uso na obtenção.
-- Dados abertos estruturados da ANTT (frota, fiscalização, tarifas etc.) —
-  publicados via portais de dados abertos. Licença confirmada por fonte em
-  data/README.md antes de qualquer uso.
+- Dados abertos estruturados da ANTT (acidentes, volume de tráfego de pedágio etc.) —
+  publicados via portais de dados abertos (dados.antt.gov.br). Licença confirmada por
+  fonte em data/README.md antes de qualquer uso.
+- LeNER-Br — dataset de NER jurídico brasileiro (Luz de Araujo et al., PROPOR 2018),
+  sob licença MIT. Usado na Fase 2 (tarefa de rótulo objetivo); citação do artigo
+  requerida pelos autores.
 
 --------------------------------------------------------------------------------
 MODELOS E BIBLIOTECAS
 --------------------------------------------------------------------------------
-- Modelo aberto usado no fine-tuning/serving (família Llama/Mistral/Qwen a
-  definir na Fase 2) — sujeito à licença do modelo escolhido, a ser citada aqui
-  quando fixada.
-- Bibliotecas OSS (PyTorch, transformers, vLLM, LangGraph, etc.) — sob suas
-  respectivas licenças.
+- Qwen2.5-3B-Instruct (Alibaba) — modelo aberto fine-tunado/servido na Fase 2, sob
+  licença Apache-2.0.
+- BERTimbau (`neuralmind/bert-base-portuguese-cased`) — encoder PT-BR usado como
+  referência SOTA no estudo de NER (Fase 2), sob licença do modelo (MIT).
+- Juízes locais de avaliação (qwen2.5:7b, llama3.1:8b via Ollama) — sob suas licenças.
+- Bibliotecas OSS (PyTorch, transformers, vLLM, sentence-transformers, LangGraph, etc.)
+  — sob suas respectivas licenças.
 
 --------------------------------------------------------------------------------
 FRONTEIRA DE DADOS

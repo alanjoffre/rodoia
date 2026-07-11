@@ -20,7 +20,7 @@ A maioria dos portfólios de IA para em "chamei a API da OpenAI e funcionou". O 
 | Eixo | O que prova |
 |---|---|
 | **Fundamentos de ML/DL** | Modelo treinado do zero + atenção/backprop implementados à mão |
-| **RAG avaliado** | Recuperação sobre a legislação da ANTT com medição de qualidade (RAGAS) |
+| **RAG avaliado** | Recuperação sobre a legislação da ANTT com medição de qualidade (LLM-juiz independente + IC) |
 | **Fine-tuning & serving** | LLM aberto adaptado (LoRA/QLoRA), quantizado e servido em vLLM |
 | **Agente orquestrado** | Raciocínio multi-etapa (LangGraph) combinando RAG + modelo próprio + dados estruturados |
 | **MLOps & Cloud** | Versionamento, CI/CD, observabilidade, avaliação contínua e deploy em cloud |
@@ -36,7 +36,7 @@ A maioria dos portfólios de IA para em "chamei a API da OpenAI e funcionou". O 
                  │ RAG regulatório │  │  Modelo  │
                  │  (Fase 1)       │  │ fine-tun.│
                  │ embeddings +    │  │ (Fase 2, │
-                 │ hybrid + rerank │  │  vLLM)   │
+                 │ híbrido (RRF)   │  │  vLLM)   │
                  └────────┬────────┘  └──────────┘
                           │                 ▲
               ┌───────────▼──────┐   ┌───────┴────────┐

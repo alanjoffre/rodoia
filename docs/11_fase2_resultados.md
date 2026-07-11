@@ -64,16 +64,16 @@ fp8 ~ metade da memória dos pesos → cabe o 3B **e** o KV cache do vLLM em 6 G
 
 ## 4. Serving no vLLM — throughput / latência
 
-FT servido: `vllm serve models/antt-merged --quantization fp8 --max-model-len 2048
---gpu-memory-utilization 0.80 --enforce-eager` (endpoint OpenAI-compat).
+FT servido: `vllm serve models/antt-merged-ho --quantization fp8 --max-model-len 2048
+--gpu-memory-utilization 0.80 --enforce-eager` (endpoint OpenAI-compat), medido pelo
+harness reprodutível `benchmark_vllm.py` (ver §5.5):
 
 | Métrica (24 req, concorrência 6, `max_tokens` 128) | Valor |
 |---|---|
-| Throughput | **101.1 tokens/s** |
-| Requisições/s | 1.38 |
-| Latência p50 | **3.35 s** |
-| Latência p95 | 6.67 s |
-| Tempo de carga do modelo | ~50 s |
+| Throughput | **205.5 tokens/s** |
+| Requisições/s | 2.05 |
+| Latência p50 / p95 | **3.08 s** / 3.59 s |
+| VRAM em uso | 5168 / 6141 MiB |
 
 ## 5. Avaliação base vs. fine-tunado — rigorosa, com held-out e IC
 
@@ -164,7 +164,7 @@ definitiva (era small-data). Reports carimbados com proveniência em `reports/fa
 # WSL2 Ubuntu, dentro do repo, com env preparado (venv + CUDA_HOME=nvidia/cu13 +
 # VLLM_ATTENTION_BACKEND=TORCH_SDPA + VLLM_USE_FLASHINFER_SAMPLER=0 -> ver env.sh):
 R=reports/fase2_ft
-python -m rodoia.ft.split_dataset                                    # split held-out (66/18)
+python -m rodoia.ft.split_dataset                                    # split held-out (124/34)
 python -m rodoia.ft.treino_qlora --dataset data/processed/ft_dataset_treino.jsonl \
     --saida models/qlora-antt-ho --epocas 3
 CUDA_VISIBLE_DEVICES="" python -m rodoia.ft.merge_quantiza \
@@ -204,7 +204,7 @@ python -m rodoia.ft.benchmark_vllm antt-ft http://localhost:8001/v1 $R/benchmark
 - [x] Funções puras testadas (split/PPL/citação/win-rate/benchmark); execução real na Nitro
 
 ### Próximos passos sugeridos
-1. **Combinar FT + RAG** (Fase 1) — o FT dá o estilo, o RAG dá a fonte correta.
-2. **Expandir o dataset** (de 84 p/ centenas de exemplos) e reavaliar.
-3. Disponibilizar `data/raw/normas.jsonl` (DVC) na máquina para reativar o juiz-LLM
-   com referência do `avaliar_ft.py`.
+1. **Combinar FT + RAG** (Fase 1) — o FT dá o estilo, o RAG dá a fonte factual.
+2. **Reformular a tarefa de FT para rótulo objetivo** — este experimento (injetar
+   conhecimento) prova o *pipeline* mas dá resultado fraco por design; a Fase 2 seguiu
+   para um estudo de **NER no LeNER-Br** (métrica dura, FT vence) — ver `docs/13`.

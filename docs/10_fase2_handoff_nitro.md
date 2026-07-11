@@ -44,7 +44,7 @@ que sabe *operar* modelo, não só consumir API. Entregáveis:
 
 | Arquivo | O que faz | Onde roda |
 |---|---|---|
-| `data/processed/ft_dataset.jsonl` | 84 exemplos instrução→resposta (formato chat `messages`) | pronto |
+| `data/processed/ft_dataset.jsonl` | 84 exemplos no plano original; **hoje 158** (ver docs/11) | pronto |
 | `src/rodoia/ft/construir_dataset.py` | (re)gera/expande o dataset via Ollama | Mac ou Nitro |
 | `src/rodoia/ft/treino_qlora.py` | fine-tuning QLoRA (NF4 + LoRA) | **Nitro** |
 | `src/rodoia/ft/merge_quantiza.py` | funde LoRA + quantiza AWQ | **Nitro** |
