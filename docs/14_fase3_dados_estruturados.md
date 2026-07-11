@@ -47,21 +47,28 @@ Funções tipadas e **parametrizadas** (placeholders `?`, nunca concatenação �
 **incluindo um caso adversarial** (`"PA'; DROP TABLE …"` é tratado como valor literal, não executa).
 Pronto para ser chamado como ferramenta pelo agente da Fase 4.
 
-## 5. Previsão de demanda — o resultado objetivo — `dados/previsao.py`
+## 5. Previsão de demanda — avaliação robusta (backtest + IC) — `dados/previsao.py`
 
-Série mensal da praça de histórico mais longo (**P 04, 197 meses, 2010–2026**); **split temporal**
-(últimos 12 meses = teste, sem vazamento — features usam só lags passados). Baselines vs. ML:
+Avaliação **robusta** (não uma praça só): **backtest em 63 praças** com histórico mensal
+**contíguo ≥ 100 meses**; para cada uma, holdout dos últimos 12 meses (split temporal, sem
+vazamento) e MAPE de cada modelo; depois **agrega com IC95 por bootstrap** sobre as praças.
+Compara baselines (naïve, sazonal-naïve), o clássico **Holt-Winters** e um **Gradient Boosting**
+(lags 1/2/3/12 + médias móveis + mês).
 
-| Modelo | RMSE | MAPE |
+| Modelo | MAPE médio | IC95 (bootstrap, n=63) |
 |---|---|---|
-| naïve (mês anterior) | 9.998 | 6,88% |
-| sazonal-naïve (mesmo mês do ano anterior) | 46.785 | 27,99% |
-| **Gradient Boosting** (lags 1/2/3/12 + médias móveis + mês + tendência) | **9.610** | **5,93%** |
+| **Holt-Winters** | **13,25%** | [8,36; 19,32] |
+| naïve (mês anterior) | 13,72% | [9,12; 19,74] |
+| Gradient Boosting | 13,80% | [9,11; 19,65] |
+| sazonal-naïve | 17,87% | [12,98; 24,35] |
 
-→ **O ML vence** os dois baselines: MAPE **5,93%** vs. naïve 6,88% vs. sazonal 28%. Leitura honesta:
-o volume mensal é **persistente** (o naïve é um baseline forte), então o ganho do ML sobre o naïve é
-**modesto porém real** (RMSE −4%, MAPE −1 p.p.); o valor claro é **esmagar o sazonal-naïve** e provar
-o pipeline de forecasting com métrica dura. Gráfico em `reports/fase3_dados/previsao.png`.
+→ **Leitura honesta (o que o rigor revelou):** com 63 séries e IC, os modelos sofisticados
+**não batem o naïve de forma estatisticamente significativa** — os ICs se sobrepõem fortemente; o
+Holt-Winters apenas *encosta* (13,25 vs 13,72). Só o **sazonal-naïve é claramente pior**. Numa
+única praça bem-comportada (P 04) o GB dava MAPE 5,93% — mas isso era **cereja**: a mediana entre
+praças é ~13%. **Backtest + IC** mostraram que o "ganho" não generaliza — o mesmo tipo de correção
+que o held-out fez na Fase 2. A entrega aqui é a **avaliação rigorosa e honesta**, não um número
+inflado. Gráfico da praça mais longa em `reports/fase3_dados/previsao.png`.
 
 ## 6. Reproduzir
 
@@ -78,7 +85,7 @@ python -m rodoia.dados.previsao       # previsão -> reports/fase3_dados/previsa
 - [x] Datasets modelados com **schema justificado** (estrela, grão documentado) + licença/pipeline
 - [x] **Queries analíticas** com CTEs + window functions (LAG/RANK/médias) versionadas
 - [x] **Camada de acesso** tipada, parametrizada (anti-injection) e testada — ferramenta do agente
-- [x] **Resultado objetivo**: previsão de demanda com **RMSE/MAPE** e split temporal (ML bate baselines)
+- [x] **Resultado objetivo**: previsão de demanda avaliada com **rigor** — backtest em 63 praças, **MAPE + IC95**, 4 modelos (incl. Holt-Winters); achado honesto: o naïve é forte e os modelos não o batem de forma significativa
 - [x] README do modelo de dados (este doc) + observabilidade de ingestão + reprodução
 - [x] Testes dos caminhos críticos (acesso, ingestão, métricas)
 

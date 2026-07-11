@@ -56,6 +56,9 @@ def consolidar(destino=None) -> dict:
         df = df[COLUNAS].copy()
         for c in ("concessionaria", "sentido", "praca", "tipo_cobranca", "categoria", "tipo_de_veiculo"):
             df[c] = df[c].str.strip()
+        # normaliza caixa das categóricas (a fonte mistura 'Passeio'/'PASSEIO' etc.)
+        for c in ("sentido", "tipo_cobranca", "categoria", "tipo_de_veiculo"):
+            df[c] = df[c].str.upper()
         df["data"] = _para_data(df["mes_ano"])
         df["volume_total"] = pd.to_numeric(df["volume_total"].str.replace(".", "", regex=False)
                                            .str.replace(",", ".", regex=False), errors="coerce")

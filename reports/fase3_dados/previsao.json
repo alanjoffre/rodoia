@@ -1,29 +1,51 @@
 {
-  "praca": "P 04",
-  "n_meses": 197,
+  "tarefa": "previsão de volume mensal (backtest 12 meses em múltiplas praças)",
+  "n_pracas": 63,
   "n_teste": 12,
-  "periodo": [
-    "2010-01-01",
-    "2026-05-01"
-  ],
+  "min_meses": 100,
+  "metrica": "MAPE (%) — média entre praças com IC95 por bootstrap",
   "modelos": {
     "naive": {
-      "rmse": 9998,
-      "mape_pct": 6.88
+      "mape_medio": 13.72,
+      "mape_mediano": 8.43,
+      "ic95": [
+        9.12,
+        19.743
+      ],
+      "n_pracas": 63
     },
     "sazonal_naive": {
-      "rmse": 46785,
-      "mape_pct": 27.99
+      "mape_medio": 17.87,
+      "mape_mediano": 11.52,
+      "ic95": [
+        12.982,
+        24.354
+      ],
+      "n_pracas": 63
+    },
+    "holt_winters": {
+      "mape_medio": 13.25,
+      "mape_mediano": 7.71,
+      "ic95": [
+        8.359,
+        19.321
+      ],
+      "n_pracas": 63
     },
     "gradient_boosting": {
-      "rmse": 9610,
-      "mape_pct": 5.93
+      "mape_medio": 13.8,
+      "mape_mediano": 7.63,
+      "ic95": [
+        9.113,
+        19.645
+      ],
+      "n_pracas": 63
     }
   },
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "8e0e800",
-    "timestamp_utc": "2026-07-11T16:46:41+00:00",
+    "git_sha": "96fd7b9",
+    "timestamp_utc": "2026-07-11T17:39:52+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

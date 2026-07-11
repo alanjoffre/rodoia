@@ -83,7 +83,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
 | **2** | Fine-tuning e serving de modelo próprio | ✅ concluída — **QLoRA vence com métrica dura**: NER jurídico (LeNER-Br), F1 **0,13 → 0,77** (base→FT), encostando no SOTA BERTimbau 0,89 ([resultados NER](docs/13_fase2_ner.md)). Serving fp8 no vLLM (205 tok/s). Antes, um *estudo-baseline* honesto ([docs/11](docs/11_fase2_resultados.md)) mostrou que FT **não** injeta conhecimento factual — o arco (negativo rigoroso → pivot p/ tarefa objetiva) é o diferencial. |
-| **3** | Ingestão de dados estruturados abertos da ANTT | ✅ concluída ([docs/14](docs/14_fase3_dados_estruturados.md)) — Volume de Pedágio (2010–2026, 741k linhas) · **esquema estrela DuckDB** + SQL analítico (window) · camada de acesso testada (anti-injection) · **previsão de demanda**: Gradient Boosting MAPE **5,93%** (bate naïve 6,88% e sazonal 28%) |
+| **3** | Ingestão de dados estruturados abertos da ANTT | ✅ concluída ([docs/14](docs/14_fase3_dados_estruturados.md)) — Volume de Pedágio (2010–2026, 741k linhas) · **esquema estrela DuckDB** + SQL analítico (window) · camada de acesso testada (anti-injection) · **previsão de demanda** com backtest em 63 praças + IC (Holt-Winters/GB ≈ naïve — achado honesto: naïve é forte) |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |
 

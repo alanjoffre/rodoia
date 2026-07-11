@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from rodoia.dados.acesso import ranking_pracas, serie_mensal, volume_praca
-from rodoia.dados.previsao import _metricas
+from rodoia.dados.previsao import _mape
 
 
 @pytest.fixture
@@ -46,10 +46,9 @@ def test_serie_mensal_ordenada(db_fixture):
     assert [r["volume"] for r in s] == [100, 150]
 
 
-def test_metricas_rmse_mape():
-    m = _metricas([100, 200], [110, 180])
-    # erros 10 e 20 -> RMSE=sqrt((100+400)/2)=~15.8 ; MAPE=(10/100+20/200)/2=10%
-    assert m["rmse"] == 16 and m["mape_pct"] == 10.0
+def test_mape():
+    # erros 10/100 e 20/200 -> MAPE = (10% + 10%)/2 = 10%
+    assert _mape([100, 200], [110, 180]) == 10.0
 
 
 def test_para_data_formatos_mistos():
