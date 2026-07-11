@@ -69,3 +69,6 @@ Thumbs.db
 *.swp
 env.sh
 data/raw/lener_br/
+data/raw/volume_pedagio/
+data/processed/volume.duckdb
+data/processed/volume_pedagio.parquet

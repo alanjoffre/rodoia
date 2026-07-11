@@ -1,0 +1,43 @@
+{
+  "praca": "P 04",
+  "n_meses": 197,
+  "n_teste": 12,
+  "periodo": [
+    "2010-01-01",
+    "2026-05-01"
+  ],
+  "modelos": {
+    "naive": {
+      "rmse": 9998,
+      "mape_pct": 6.88
+    },
+    "sazonal_naive": {
+      "rmse": 46785,
+      "mape_pct": 27.99
+    },
+    "gradient_boosting": {
+      "rmse": 9610,
+      "mape_pct": 5.93
+    }
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "8e0e800",
+    "timestamp_utc": "2026-07-11T16:46:41+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
+}

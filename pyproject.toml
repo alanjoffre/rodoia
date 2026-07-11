@@ -27,6 +27,7 @@ rag = ["fastapi>=0.111", "uvicorn>=0.30", "qdrant-client>=1.9", "sentence-transf
 # (descontinuado, rebaixa o torch e quebra o vLLM 0.24/cu130) -> quantização = fp8 (docs/11).
 ft = ["transformers>=5.0", "peft>=0.19", "trl>=1.0", "bitsandbytes>=0.45", "accelerate>=1.0", "datasets>=3.0", "vllm>=0.24", "seqeval>=1.2"]
 # Fase 4 — agente
+estruturados = ["duckdb>=1.0", "pandas>=2.2", "scikit-learn>=1.5", "matplotlib>=3.9"]
 agente = ["langgraph>=0.1"]
 # MLOps (transversal)
 mlops = ["mlflow>=2.14", "dvc[s3]>=3.51"]

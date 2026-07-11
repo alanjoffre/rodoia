@@ -1,0 +1,214 @@
+{
+  "crescimento_mom_yoy": [
+    {
+      "data": "2026-05-01 00:00:00",
+      "volume": 67027794.0,
+      "mom_pct": -14.48,
+      "yoy_pct": -3.68
+    },
+    {
+      "data": "2026-04-01 00:00:00",
+      "volume": 78372342.0,
+      "mom_pct": -3.05,
+      "yoy_pct": 8.23
+    },
+    {
+      "data": "2026-03-01 00:00:00",
+      "volume": 80834801.0,
+      "mom_pct": 10.09,
+      "yoy_pct": 10.34
+    },
+    {
+      "data": "2026-02-01 00:00:00",
+      "volume": 73423126.0,
+      "mom_pct": -20.15,
+      "yoy_pct": 10.26
+    },
+    {
+      "data": "2026-01-01 00:00:00",
+      "volume": 91954914.0,
+      "mom_pct": 31.28,
+      "yoy_pct": 19.72
+    },
+    {
+      "data": "2025-12-01 00:00:00",
+      "volume": 70042475.0,
+      "mom_pct": -7.95,
+      "yoy_pct": -5.46
+    }
+  ],
+  "ranking_pracas": [
+    {
+      "posicao": 1,
+      "praca": "P4",
+      "concessionaria": "AUTOPISTA LITORAL SUL",
+      "volume": 281040645.0
+    },
+    {
+      "posicao": 2,
+      "praca": "Praça 01 BR-116/SP km 204,50",
+      "concessionaria": "NOVADUTRA",
+      "volume": 269603711.0
+    },
+    {
+      "posicao": 3,
+      "praca": "P3",
+      "concessionaria": "AUTOPISTA LITORAL SUL",
+      "volume": 243196531.0
+    },
+    {
+      "posicao": 4,
+      "praca": "Praça 03 BR-116/SP km 165,30",
+      "concessionaria": "NOVADUTRA",
+      "volume": 240906615.0
+    },
+    {
+      "posicao": 5,
+      "praca": "NITEROÍ-1",
+      "concessionaria": "ECOPONTE",
+      "volume": 230834042.0
+    },
+    {
+      "posicao": 6,
+      "praca": "P1",
+      "concessionaria": "AUTOPISTA LITORAL SUL",
+      "volume": 208076269.0
+    },
+    {
+      "posicao": 7,
+      "praca": "2 (Vargem)",
+      "concessionaria": "AUTOPISTA FERNÃO DIAS",
+      "volume": 193265004.0
+    },
+    {
+      "posicao": 8,
+      "praca": "P2",
+      "concessionaria": "AUTOPISTA LITORAL SUL",
+      "volume": 190525549.0
+    },
+    {
+      "posicao": 9,
+      "praca": "1 Sul (Mairiporã)",
+      "concessionaria": "AUTOPISTA FERNÃO DIAS",
+      "volume": 180006234.0
+    },
+    {
+      "posicao": 10,
+      "praca": "Praça 1",
+      "concessionaria": "VIA BAHIA",
+      "volume": 177969391.0
+    }
+  ],
+  "sazonalidade": [
+    {
+      "mes": 1,
+      "nome_mes": "Janeiro",
+      "volume_medio": 56359639.0
+    },
+    {
+      "mes": 2,
+      "nome_mes": "Fevereiro",
+      "volume_medio": 48024967.0
+    },
+    {
+      "mes": 3,
+      "nome_mes": "Março",
+      "volume_medio": 49788469.0
+    },
+    {
+      "mes": 4,
+      "nome_mes": "Abril",
+      "volume_medio": 48071224.0
+    },
+    {
+      "mes": 5,
+      "nome_mes": "Maio",
+      "volume_medio": 47106913.0
+    },
+    {
+      "mes": 6,
+      "nome_mes": "Junho",
+      "volume_medio": 46259702.0
+    },
+    {
+      "mes": 7,
+      "nome_mes": "Julho",
+      "volume_medio": 51965819.0
+    },
+    {
+      "mes": 8,
+      "nome_mes": "Agosto",
+      "volume_medio": 49553495.0
+    },
+    {
+      "mes": 9,
+      "nome_mes": "Setembro",
+      "volume_medio": 49533866.0
+    },
+    {
+      "mes": 10,
+      "nome_mes": "Outubro",
+      "volume_medio": 51547439.0
+    },
+    {
+      "mes": 11,
+      "nome_mes": "Novembro",
+      "volume_medio": 50500171.0
+    },
+    {
+      "mes": 12,
+      "nome_mes": "Dezembro",
+      "volume_medio": 56554378.0
+    }
+  ],
+  "composicao_veiculo": [
+    {
+      "tipo_de_veiculo": "Passeio",
+      "pct": 63.5
+    },
+    {
+      "tipo_de_veiculo": "Comercial",
+      "pct": 34.2
+    },
+    {
+      "tipo_de_veiculo": "Moto",
+      "pct": 2.1
+    },
+    {
+      "tipo_de_veiculo": "PASSEIO",
+      "pct": 0.1
+    },
+    {
+      "tipo_de_veiculo": "MOTO",
+      "pct": 0.0
+    },
+    {
+      "tipo_de_veiculo": "COMERCIAL",
+      "pct": 0.0
+    },
+    {
+      "tipo_de_veiculo": "Veículo Pequeno",
+      "pct": 0.0
+    }
+  ],
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "8e0e800",
+    "timestamp_utc": "2026-07-11T16:49:05+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
+}

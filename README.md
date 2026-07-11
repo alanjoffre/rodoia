@@ -56,7 +56,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | Python sólido (async, tipagem, produção) | Todas | Código tipado, testado, `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
-| SQL avançado e modelagem | Fase 3 | Schema modelado, queries analíticas (DuckDB/Postgres) |
+| SQL avançado e modelagem | Fase 3 | Esquema **estrela** (DuckDB, 741k linhas), window functions (LAG/RANK), camada de acesso testada + **previsão de demanda** (RMSE/MAPE) |
 | ML clássico (regressão, árvores, ensembles, clustering) | Fase 0 | Modelos treinados sobre dado tabular ANTT, com métricas |
 | Redes neurais, backprop, arquitetura Transformer | Fase 0 | MLP em PyTorch puro + self-attention/backprop à mão (CNN/RNN fora de escopo) |
 | PyTorch | Fase 0 + 2 | Treino (F0) + fine-tuning QLoRA (F2) |
@@ -83,7 +83,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
 | **2** | Fine-tuning e serving de modelo próprio | ✅ concluída — **QLoRA vence com métrica dura**: NER jurídico (LeNER-Br), F1 **0,13 → 0,77** (base→FT), encostando no SOTA BERTimbau 0,89 ([resultados NER](docs/13_fase2_ner.md)). Serving fp8 no vLLM (205 tok/s). Antes, um *estudo-baseline* honesto ([docs/11](docs/11_fase2_resultados.md)) mostrou que FT **não** injeta conhecimento factual — o arco (negativo rigoroso → pivot p/ tarefa objetiva) é o diferencial. |
-| **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
+| **3** | Ingestão de dados estruturados abertos da ANTT | ✅ concluída ([docs/14](docs/14_fase3_dados_estruturados.md)) — Volume de Pedágio (2010–2026, 741k linhas) · **esquema estrela DuckDB** + SQL analítico (window) · camada de acesso testada (anti-injection) · **previsão de demanda**: Gradient Boosting MAPE **5,93%** (bate naïve 6,88% e sazonal 28%) |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |
 
