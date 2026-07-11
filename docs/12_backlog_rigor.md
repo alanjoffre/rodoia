@@ -47,7 +47,11 @@ posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segu
 - [MÉDIA] **Dataset determinístico** (temperatura 0) + `dataset_stats.json`.
 - [BAIXA] **AWQ** deixou de ser default do merge (`--com-awq` opt-in); `_agregar_ppl`/`percentil`/`dividir` puras e testadas.
 
-**Pendente:** [MÉDIA] **custo de qualidade fp16×fp8 não medido** — o 3B fp16 não cabe em 6 GB no mesmo caminho (limite de hardware; exigiria GPU maior/CPU-offload). [BAIXA] reativar juiz factual quando o DVC de `normas.jsonl` existir; expandir o dataset além de 84.
+**✅ Ressalvas residuais também resolvidas:**
+- **Custo de qualidade da quantização** medido (`quantizacao_qualidade.py`): PPL fp32 8.44 → NF4 9.64 (**ΔPPL +14%**); fp8 servido é mais preciso ⇒ custo ≤ 14% (cross-check fp8≈+4%).
+- **Juiz factual com referência** reativado (`normas.jsonl` regenerado na F1): correção factual **base 0.88 [0.78;0.96] × FT 0.52 [0.34;0.70]** — o FT é **factualmente pior** (significativo), a métrica que a citação só aproximava.
+
+**Pendente (não-bloqueia):** expandir golden (≥50) e dataset FT (>84) para estreitar ICs — melhoria incremental.
 
 ## Fase 3 — Ingestão de dados estruturados (a implementar, mesmo padrão)
 - **Dados/licença:** Volume de Tráfego de Pedágio (carro-chefe), Praça+KMZ (geo), Receita; confirmar licença por dataset; pipeline `baixar_*` reproduzível (`sep=';'`, `latin-1`, `decimal=','`); brutos fora do Git (DVC).

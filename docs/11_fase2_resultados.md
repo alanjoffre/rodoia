@@ -122,23 +122,39 @@ isolar o viés de comprimento (o base é ~4× mais longo):
 **vence 21×1** e o **IC exclui 0.5** — a igual conteúdo, a resposta concisa e assertiva do FT
 é **significativamente** preferida.
 
-### 5.4 Serving fp8 — benchmark reprodutível (`benchmark_vllm.py`)
-**205 tokens/s**, latência **p50 3.08s / p95 3.59s**, **VRAM 5168 / 6141 MiB** (24 req,
-concorrência 6). *Trade-off de quantização:* a memória está medida (fp16 5.8 GB não cabe →
-fp8 cabe); o **custo de qualidade fp16×fp8 não foi medido** — o 3B em fp16 não carrega em
-6 GB pelo mesmo caminho de serving (a própria restrição que forçou a quantização). Fica como
-limite de hardware documentado.
+### 5.4 Correção factual por juiz com referência (`juiz_factual.py`) — n=25, IC
+Com o corpus `normas.jsonl` disponível, o juiz **independente** (llama3.1:8b) pontua 0–1 a
+**correção factual** de cada resposta contra o TEXTO da norma-fonte (a métrica que a citação
+só aproximava):
+
+| Correção factual (↑ melhor) | Base | Fine-tunado |
+|---|---|---|
+| média [IC95 bootstrap] | **0.88 [0.78; 0.96]** | **0.52 [0.34; 0.70]** |
+
+→ **O FT é factualmente PIOR que o base** (ganho **−0.36**, ICs **não se sobrepõem**). É o
+outro lado da moeda do §5.3: o FT ganha em *estilo* (conciso/assertivo) mas **perde em fato** —
+aprendeu a citar números com confiança, muitas vezes errados, que o juiz-com-referência
+penaliza como alucinação; o base, mais cauteloso, acerta mais.
+
+### 5.5 Serving fp8 + trade-off de quantização (`benchmark_vllm.py`, `quantizacao_qualidade.py`)
+Serving: **205 tokens/s**, **p50 3.08s / p95 3.59s**, **VRAM 5168 / 6141 MiB**. Trade-off da
+quantização medido nos **dois eixos**: *memória* (fp16 5.8 GB não cabe → fp8 cabe) e
+*qualidade* — PPL held-out do merged em **fp32 8.44 → 4-bit NF4 9.64 (ΔPPL +14%)**; o fp8
+servido é mais preciso que NF4, logo seu custo de qualidade é **≤ 14%** (cross-check: fp8 via
+vLLM ≈ +4% vs. fp32).
 
 ### Interpretação (o resultado científico)
 Coerente e **não-óbvia**: o fine-tuning **mudou a distribuição** (PPL in-sample −16%, respostas
-−77% mais curtas, cita mais) e, **a igual comprimento, é significativamente preferido** pelo
-juiz (0.84 [0.65; 0.94]) — mas **não injetou conhecimento factual** (citação 0/25) e
-**generaliza fraco** a normas novas (PPL held-out só −4%). Com 66 exemplos e **sem RAG**, o
-QLoRA ensinou o modelo a *soar* como especialista da ANTT sem *saber* a norma certa. É a
-demonstração de manual de **adaptação de estilo ≠ injeção de conhecimento** — e a justificativa
-quantitativa para **(a) FT + RAG** (a Fase 1 dá a fonte) e **(b) dataset muito maior**. Lição de
-método: o win-rate (bruto 0.04 → controlado 0.84) prova que **medir sem controlar o confundidor
-diz o oposto da verdade**. Todos os reports carimbados com proveniência em `reports/fase2_ft/`.
+−77% mais curtas) e, **a igual comprimento, é preferido em estilo** (win-rate 0.84 [0.65;0.94]) —
+mas **degradou o fato**: correção factual **0.88 → 0.52** (juiz com referência), não acerta a
+citação (0/25) e **generaliza fraco** a normas novas (PPL held-out só −4%). Com 66 exemplos e
+**sem RAG**, o QLoRA ensinou o modelo a *soar* como especialista da ANTT — e a **alucinar com
+confiança** — sem *saber* a norma. É a demonstração de manual de **adaptação de estilo ≠ injeção
+de conhecimento** (aqui o estilo até *prejudica* o fato), e a justificativa quantitativa para
+**(a) FT + RAG** (a Fase 1 dá a fonte) e **(b) dataset muito maior**. Lição de método: sem
+controlar o confundidor (comprimento) o win-rate diria o oposto; e a citação sozinha não
+revelava a **piora factual** que só o juiz-com-referência mostra. Reports carimbados em
+`reports/fase2_ft/`.
 
 ## 6. Como reproduzir (na Nitro)
 
@@ -179,8 +195,8 @@ python -m rodoia.ft.benchmark_vllm antt-ft http://localhost:8001/v1 $R/benchmark
 
 - [x] Dataset de fine-tuning documentado (84 exemplos, `ft_dataset.jsonl`)
 - [x] Modelo fine-tunado com QLoRA, hiperparâmetros versionados
-- [x] Modelo quantizado com trade-off de memória medido (**fp16 não-servível → fp8 5168 MiB**; custo de qualidade = limite de hardware documentado)
-- [x] Avaliação base vs. fine-tunado com **held-out + IC**: PPL in-sample −16% × held-out −4% · citação 0/25 [0;0.13] · win-rate controlado **0.84 [0.65;0.94]**
+- [x] Modelo quantizado com trade-off medido nos **dois eixos**: memória (fp16 não cabe → fp8 5168 MiB) e qualidade (NF4 ΔPPL +14%)
+- [x] Avaliação base vs. fine-tunado com **held-out + IC**: PPL in-sample −16% × held-out −4% · citação 0/25 · **correção factual 0.88 → 0.52** (juiz c/ referência) · win-rate estilo controlado **0.84 [0.65;0.94]**
 - [x] Modelo servido via vLLM, throughput/latência por **harness reprodutível** (**205 tok/s; p50 3.08 s**)
 - [x] `docs/11` com todas as decisões; reports carimbados com proveniência
 - [x] Funções puras testadas (split/PPL/citação/win-rate/benchmark); execução real na Nitro

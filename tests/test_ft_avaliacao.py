@@ -1,6 +1,16 @@
 """Testes das funções puras de avaliação da Fase 2 (sem GPU, sem rede)."""
 from rodoia.ft.aval_cite import cita_alguma, cita_correta
+from rodoia.ft.juiz_factual import _nota
 from rodoia.ft.juiz_winrate import _decidir, _parse_veredito, _truncar_par
+
+
+# ---- juiz_factual: parsing/clamp da nota ----
+
+def test_nota_extrai_e_clampeia():
+    assert _nota('{"nota": 0.9}') == 0.9
+    assert _nota('lixo {"nota": 1.5} x') == 1.0   # clamp topo
+    assert _nota('{"nota": -0.2}') == 0.0          # clamp piso
+    assert _nota("sem json") == 0.0
 
 
 # ---- aval_cite ----

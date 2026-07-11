@@ -82,7 +82,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 |---|---|---|
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
-| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM · avaliação com **held-out**: memoriza o registro (PPL in-sample −16%) mas **generaliza fraco** (held-out −4%) e **não** injeta fato (citação 0/25); a igual comprimento o juiz prefere o FT (0.84 [0.65;0.94]). Reportado honestamente. Ver [backlog](docs/12_backlog_rigor.md) |
+| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM (205 tok/s; quantização NF4 ΔPPL +14%) · avaliação com **held-out+IC**: FT ganha em estilo (win-rate controlado 0.84 [0.65;0.94]) mas **piora o fato** (correção factual **0.88→0.52**, juiz com referência) e generaliza fraco (held-out −4%). Motiva FT+RAG. Ver [backlog](docs/12_backlog_rigor.md) |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |

@@ -514,6 +514,27 @@
     "lat_p50_s": 3.079,
     "lat_p95_s": 3.586,
     "vram_usada_mb": 5168,
-    "quantizacao": "fp8 in-flight (AWQ descartado); custo de qualidade fp16xfp8 nao medido: 3B fp16 nao cabe em 6GB"
+    "quantizacao": "fp8 in-flight (AWQ descartado); custo de qualidade fp16xfp8 nao medido: 3B fp16 nao cabe em 6GB",
+    "custo_qualidade_quantizacao": {
+      "ppl_fp32_ref": 8.441,
+      "ppl_nf4": 9.644,
+      "delta_ppl_nf4_pct": 14.25,
+      "nota": "NF4 (QLoRA) +14%; fp8 servido e mais preciso -> custo <= este"
+    }
+  },
+  "correcao_factual": {
+    "juiz": "llama3.1:8b",
+    "base_media": 0.88,
+    "base_ic95": [
+      0.78,
+      0.96
+    ],
+    "ft_media": 0.516,
+    "ft_ic95": [
+      0.336,
+      0.7
+    ],
+    "ganho": -0.364,
+    "nota": "juiz com referencia (normas.jsonl): FT PIOR que base nos fatos (ICs nao se sobrepoem)"
   }
 }
