@@ -1,4 +1,9 @@
-# 11 — Fase 2: resultados e fecho da fase (fine-tuning + quantização + serving na Nitro)
+# 11 — Fase 2: estudo-baseline (fine-tuning generativo + quantização + serving na Nitro)
+
+> 📌 **Enquadramento:** este é o **estudo-baseline** da Fase 2 — fine-tunar um LLM para
+> *responder* sobre a ANTT (injetar conhecimento). Seu resultado é um **negativo honesto**
+> (FT muda estilo, não injeta fato) que **motivou o pivot** para uma tarefa de rótulo
+> objetivo onde o FT vence: **NER jurídico**, o resultado principal em [`docs/13`](13_fase2_ner.md).
 
 > Execução real na **Acer Nitro V15 (RTX 4050 Laptop, 6 GB VRAM)** dentro do
 > **WSL2/Ubuntu 24.04 + CUDA 13**. Este documento registra as decisões de treino e

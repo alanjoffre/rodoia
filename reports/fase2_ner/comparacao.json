@@ -1,0 +1,64 @@
+{
+  "tarefa": "NER juridico LeNER-Br (teste, 1389 sentencas)",
+  "metrica": "F1-micro de entidade (match exato texto+tipo)",
+  "modelos": {
+    "base_zero_shot": {
+      "f1_micro": 0.1306,
+      "por_entidade": {
+        "ORGANIZACAO": 0.2209,
+        "PESSOA": 0.1736,
+        "TEMPO": 0.0886,
+        "LOCAL": 0.1,
+        "LEGISLACAO": 0.0052,
+        "JURISPRUDENCIA": 0.0212
+      },
+      "abordagem": "LLM Qwen2.5-3B sem treino"
+    },
+    "ft_qlora": {
+      "f1_micro": 0.7735,
+      "por_entidade": {
+        "ORGANIZACAO": 0.7075,
+        "PESSOA": 0.8565,
+        "TEMPO": 0.8193,
+        "LOCAL": 0.6,
+        "LEGISLACAO": 0.8226,
+        "JURISPRUDENCIA": 0.7393
+      },
+      "abordagem": "LLM Qwen2.5-3B QLoRA (1500 ex., fp8/vLLM)"
+    },
+    "bertimbau_sota": {
+      "f1_micro": 0.8948,
+      "por_entidade": {
+        "ORGANIZACAO": 0.8643,
+        "PESSOA": 0.9264,
+        "TEMPO": 0.9431,
+        "LOCAL": 0.6792,
+        "LEGISLACAO": 0.9477,
+        "JURISPRUDENCIA": 0.8468
+      },
+      "abordagem": "encoder token-classification (7827 ex.)"
+    }
+  },
+  "ganho_ft_vs_base": 0.6429,
+  "nota": "FT vence o base zero-shot por +0.64 (metrica objetiva); encosta no SOTA treinando em 1/5 dos dados por via generativa",
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "f9384e5",
+    "timestamp_utc": "2026-07-11T15:44:57+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
+}

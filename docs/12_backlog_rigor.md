@@ -35,8 +35,11 @@ posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segu
 **✅ também:** golden **expandido para 50** (ICs mais estreitos): hit@5 híbrido **0,64 [0,50;0,76]**; confirmado com n=50 que o **rerank não ajuda** (MRR 0,47 < 0,51) → recomenda-se desligar (camada opcional).
 **Pendente (baixo):** golden por terceiro (des-enviesar autoria); ablação de hiperparâmetros (k_rrf/candidatos/chunk); `/perguntar` sem rate-limit (dívida p/ Fase 5).
 
-## Fase 2 — Fine-tuning/serving (concluída; avaliação rigorosa com held-out)
-**Forte:** QLoRA em 6 GB, fp8 no vLLM, avaliação multi-facetada honesta com controle de viés.
+## Fase 2 — Fine-tuning/serving (concluída; NER é a manchete)
+**Resultado principal:** o QLoRA vence com **métrica dura** no **NER jurídico (LeNER-Br)** —
+F1 **0,13 → 0,77** (base→FT), encostando no SOTA BERTimbau 0,89 (ver `docs/13`). O estudo
+generativo abaixo é o **baseline honesto** que motivou o pivot.
+**Forte (baseline generativo):** QLoRA em 6 GB, fp8 no vLLM, avaliação multi-facetada com controle de viés.
 
 **✅ Resolvido na 2ª rodada de rigor (`split_dataset.py` + re-treino 66 exemplos):**
 - [ALTA] **Held-out real** — 6 normas reservadas (nunca no treino); PPL **in-sample −16% × held-out −4%** ⇒ memorização ≫ generalização (o "−18%" antigo era só in-sample).

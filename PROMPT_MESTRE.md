@@ -109,9 +109,9 @@ Repo público desde o primeiro commit; histórico Git imutável (vazamento é pe
 
 **Objetivo:** adaptar e hospedar um modelo, não só consumir API. **Só começa quando a Fase 1 fechar.**
 
-**Escopo:** dataset de instrução/resposta do domínio ANTT · fine-tuning LoRA/QLoRA em modelo aberto pequeno compatível com o hardware · quantização com trade-off medido · avaliação base vs. fine-tunado com número · serving em vLLM com throughput/latência.
+**Escopo:** fine-tuning LoRA/QLoRA em modelo aberto pequeno compatível com o hardware · quantização com trade-off medido · serving em vLLM com throughput/latência · **avaliação com métrica dura e benchmark**. Lição aprendida (docs/11→13): FT para *injetar conhecimento* dá negativo honesto; a entrega principal é uma **tarefa de rótulo objetivo onde o FT vence** — NER jurídico (LeNER-Br), F1 vs. SOTA.
 
-**Conclusão:** dataset documentado ✓ · modelo fine-tunado com config versionada ✓ · quantizado com trade-off ✓ · base vs. fine-tunado numérico ✓ · servido em vLLM com métrica ✓ · README ✓ · testes de treino e serving ✓
+**Conclusão:** fine-tuning com config versionada ✓ · quantizado com trade-off (memória+qualidade) ✓ · **vitória objetiva mensurável** (NER F1 0,13→0,77 vs. SOTA 0,89) ✓ · servido em vLLM com métrica ✓ · README ✓ · testes ✓ · (baseline generativo com avaliação rigorosa, held-out+IC, documentado)
 
 ---
 

@@ -21,7 +21,7 @@ A maioria dos portfólios de IA para em "chamei a API da OpenAI e funcionou". O 
 |---|---|
 | **Fundamentos de ML/DL** | Modelo treinado do zero + atenção/backprop implementados à mão |
 | **RAG avaliado** | Recuperação sobre a legislação da ANTT com medição de qualidade (LLM-juiz independente + IC) |
-| **Fine-tuning & serving** | LLM aberto adaptado (LoRA/QLoRA), quantizado e servido em vLLM |
+| **Fine-tuning & serving** | LLM aberto adaptado (QLoRA) para NER jurídico — F1 0,13→0,77 vs. SOTA — quantizado (fp8) e servido em vLLM |
 | **Agente orquestrado** | Raciocínio multi-etapa (LangGraph) combinando RAG + modelo próprio + dados estruturados |
 | **MLOps & Cloud** | Versionamento, CI/CD, observabilidade, avaliação contínua e deploy em cloud |
 
@@ -64,7 +64,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
 | RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) · avaliado com IC (hit@5 0,64 [0,50–0,76], n=50; rerank não ajuda) · precisão de citação 0,91 |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo com estado e arestas condicionais |
-| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B, RTX 4050) · **fp8** no vLLM (205 tok/s, NF4 ΔPPL +14%) · base vs. FT **held-out+IC** (n=50): PPL in-sample −16% × held-out +8%, citação 0/50, factual em paridade, win-rate estilo 0.88 |
+| Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B) p/ **NER jurídico**: F1 **0,13→0,77** vs. SOTA BERTimbau 0,89 ([docs/13](docs/13_fase2_ner.md)) · **fp8** no vLLM (205 tok/s, NF4 ΔPPL +14%) · estudo-baseline (FT≠conhecimento) em [docs/11](docs/11_fase2_resultados.md) |
 | Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · juiz pareado c/ controle de viés (F2) · guardrails |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
 | CI/CD para ML, versionamento (MLflow/DVC/W&B) | Fase 5 | GitHub Actions com avaliação como gate + MLflow + DVC |
@@ -82,7 +82,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 |---|---|---|
 | **0** | Fundamentos de ML/DL + higiene de repo público | ✅ concluída ([docs 00–05](docs/)) |
 | **1** | RAG avaliado sobre a regulação da ANTT | ✅ concluída ([docs 06–09](docs/)) |
-| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída ([resultados](docs/11_fase2_resultados.md)) — QLoRA na RTX 4050 · fp8 no vLLM (205 tok/s; NF4 ΔPPL +14%) · avaliação **held-out+IC** (n=50, dataset 158): FT ganha em estilo (win-rate controlado **0.88 [0.76;0.94]**), fica em paridade factual (0.85 vs 0.79) mas **generaliza pior** (PPL held-out **+8%**) e não acerta a citação (0/50). Motiva FT+RAG. Ver [backlog](docs/12_backlog_rigor.md) |
+| **2** | Fine-tuning e serving de modelo próprio | ✅ concluída — **QLoRA vence com métrica dura**: NER jurídico (LeNER-Br), F1 **0,13 → 0,77** (base→FT), encostando no SOTA BERTimbau 0,89 ([resultados NER](docs/13_fase2_ner.md)). Serving fp8 no vLLM (205 tok/s). Antes, um *estudo-baseline* honesto ([docs/11](docs/11_fase2_resultados.md)) mostrou que FT **não** injeta conhecimento factual — o arco (negativo rigoroso → pivot p/ tarefa objetiva) é o diferencial. |
 | **3** | Ingestão de dados estruturados abertos da ANTT | ⚪ não iniciada |
 | **4** | Agente de orquestração (LangGraph) | ⚪ não iniciada |
 | **5** | MLOps, Cloud e operação | ⚪ não iniciada |
