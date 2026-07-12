@@ -1,4 +1,4 @@
-"""Ingestão consolidada dos Acidentes da ANTT: junta as 39 concessionárias,
+"""Ingestão consolidada dos Acidentes da ANTT: junta os 39 CSVs (37 concessionárias),
 deriva o alvo de severidade e faz engenharia de features, gravando um único
 `data/processed/acidentes.parquet`.
 

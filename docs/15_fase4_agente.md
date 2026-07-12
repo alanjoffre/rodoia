@@ -117,7 +117,10 @@ cérebro vai para um endpoint hosted (`OpenAICompatLLM` já suporta), liberando 
 → **Leitura:** o 7B entrega a melhor qualidade mas exige a GPU (time-slice com o FT); o **3B na CPU**
 roda os **três tools simultaneamente** (viável pelos 32 GB de RAM) de forma rápida, ao custo de um
 roteamento levemente pior. É a mesma disciplina do projeto: caracterizar o trade-off com número, não
-esconder. O report versionado usa a config de melhor qualidade (7B).
+esconder. O report versionado (`reports/fase4_agente/avaliacao.json`) usa a config de melhor
+qualidade (**7B na GPU** — as únicas métricas commitadas). As linhas **7B-CPU** e **3B-CPU** são
+medições pontuais desta sessão (não versionadas), reprodutíveis com o mesmo comando trocando o
+cérebro: `CUDA_VISIBLE_DEVICES="" LLM_MODEL=qwen2.5:3b python -m rodoia.agente.avaliar`.
 
 ## 5. Guardrails e tratamento de falha
 

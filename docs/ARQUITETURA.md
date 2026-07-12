@@ -40,7 +40,7 @@ src/rodoia/
 | `ml/diagnostico.py` | Diagnóstico (curvas de aprendizado/validação, calibração, clustering) | `diagnosticar`, `curva_aprendizado`, `diagrama_calibracao` |
 | `data/baixar_acidentes.py` | Download reprodutível dos CSVs de Acidentes (CKAN) | `baixar_acidentes`, `listar_recursos_csv`, `baixar_recurso` |
 | `data/esquema_acidentes.py` | Schema canônico + leitura robusta (latin-1, `;`, decimal `,`) | `validar_esquema`, `ler_csv_acidentes` |
-| `data/ingestao_acidentes.py` | Consolida 39 concessionárias, deriva alvo e features | `consolidar`, `derivar_alvo`, `engenharia_features` |
+| `data/ingestao_acidentes.py` | Consolida 39 CSVs (37 concessionárias), deriva alvo e features | `consolidar`, `derivar_alvo`, `engenharia_features` |
 
 ## Fase 1 — RAG avaliado (`rag/`)
 
@@ -71,6 +71,7 @@ src/rodoia/
 | `ft/quantizacao_qualidade.py` | Custo de qualidade da quantização (fp32 vs NF4) | `ppl` |
 | `ft/gen_offline.py` | Gera respostas offline (vLLM) para o golden | `montar_conversas`, `montar_respostas` |
 | `ft/aval_cite.py` | Métrica objetiva de citação, base vs. FT, com IC | `avaliar`, `cita_correta`, `cita_alguma` |
+| `ft/avaliar_ft.py` | Avaliação antes/depois do FT por juiz-com-referência | `comparar_modelos`, `julgar_correcao`, `carregar_referencias` |
 | `ft/juiz_factual.py` | Juiz factual com referência (correção base vs. FT) | `avaliar`, `_julgar_factual` |
 | `ft/juiz_winrate.py` | LLM-as-judge win-rate com controle de comprimento | `comparar`, `_parse_veredito`, `_decidir` |
 | `ft/benchmark_vllm.py` | Observabilidade de serving (tok/s, p50/p95, VRAM) | `benchmark`, `percentil`, `vram_usada_mb` |
