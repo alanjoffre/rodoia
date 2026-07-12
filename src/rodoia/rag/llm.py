@@ -31,7 +31,7 @@ class OllamaLLM:
         modelo: str | None = None,
         base_url: str | None = None,
         temperatura: float = 0.1,
-        timeout: int = 120,
+        timeout: int = 300,   # tolera inferência em CPU (brain fora da GPU) sem estourar
     ):
         self.modelo = modelo or settings.llm_model
         self.base_url = (base_url or settings.ollama_base_url).rstrip("/")

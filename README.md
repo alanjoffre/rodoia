@@ -85,7 +85,7 @@ O projeto é faseado; **cada fase é um marco publicável por si só**. Nenhuma 
 | **4** | Agente de orquestração (LangGraph) | ✅ concluída ([docs/15](docs/15_fase4_agente.md)) — grafo com **arestas condicionais reais** (guardrail + roteador) que combina RAG (F1) + modelo FT NER (F2) + dados (F3) · **roteamento objetivo 1,0** (6 casos: puros, combinado, fora-de-escopo, adversarial) · juiz independente (rota 2,0/2) · guardrails + degradação graciosa testados · demo `POST /agente` |
 | **5** | MLOps, Cloud e operação | ✅ concluída ([docs/16](docs/16_fase5_mlops.md)) — **gate de avaliação** (regressão de métrica reprova o CI) · **GitHub Actions** (lint+testes+gate) · **MLflow** (sqlite) + **DVC** · **container** (Dockerfile+compose) · **drift** por PSI (0,005, estável) · **deploy em cloud = runbook** (Cloud Run justificado, não executado por decisão de orçamento) |
 
-O plano completo, os critérios de conclusão de cada fase e as regras de condução estão em **[PROMPT_MESTRE.md](PROMPT_MESTRE.md)**.
+O plano completo, os critérios de conclusão de cada fase e as regras de condução estão em **[PROMPT_MESTRE.md](PROMPT_MESTRE.md)**. Para um **mapa módulo a módulo** de todo o código (`src/rodoia/**` → o que cada arquivo faz), ver **[docs/ARQUITETURA.md](docs/ARQUITETURA.md)**. Não é da área? O **[guia didático](docs/GUIA_ENGENHARIA_IA.md)** explica cada termo e o fluxo mental de um Engenheiro de IA em linguagem acessível.
 
 ## Higiene de repositório público
 

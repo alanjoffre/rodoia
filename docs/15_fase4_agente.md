@@ -97,10 +97,16 @@ isoladamente contra o vLLM** (`reports/fase4_agente/entidades_smoke.json`):
    → PESSOA: "luiz fux" · ORGANIZACAO: "supremo tribunal federal" · TEMPO: "março de 2019"
 ```
 
-**Nota de arquitetura (realidade de hardware):** em produção o cérebro é um endpoint hosted
-(a interface `OpenAICompatLLM` já suporta), liberando a GPU local para servir o modelo FT; no dev
-box de 6 GB, **time-slicing** entre os dois. Provar cada ferramenta + a orquestração ponta a ponta
-é a evidência honesta possível no hardware.
+**Nota de arquitetura (realidade de hardware — atualizada):** com **32 GB de RAM**, dá para rodar
+os **três tools ao mesmo tempo**: o cérebro (Ollama) na **CPU** (`CUDA_VISIBLE_DEVICES=""`) e o
+modelo FT no **vLLM/GPU** — comprovado (roteamento **1,0** e ferramenta de entidades **ao vivo**
+simultaneamente; VRAM ~5,2 GB só do vLLM, cérebro na RAM). Isso **fecha o time-slicing**.
+Ressalva honesta de **latência**: o cérebro **7B na CPU** é lento e chega a estourar timeouts em
+gerações longas — então o número de *qualidade de resposta* (juiz **1,5/2**) é medido com o cérebro
+em velocidade plena (GPU), e o `timeout` do cliente foi elevado (300 s) para a CPU. Em 6 GB, o
+trade-off é claro: **ou** 7B na GPU com time-slicing, **ou** os três juntos com um cérebro **menor**
+(3B) na CPU. Em produção, o cérebro vai para um endpoint hosted (`OpenAICompatLLM` já suporta),
+liberando a GPU para o modelo FT.
 
 ## 5. Guardrails e tratamento de falha
 

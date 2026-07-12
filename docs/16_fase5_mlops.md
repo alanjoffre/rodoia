@@ -102,9 +102,16 @@ A escolha da coorte comum foi deliberada: sobre o volume **agregado** o PSI dava
 cresceu ~10× desde 2010) — um artefato de expansão, não drift de demanda. Corrigir o alvo para a
 coorte estacionária é a mesma disciplina de rigor das fases anteriores.
 
-## 7. Deploy em cloud — runbook (NÃO executado, por decisão de orçamento)
+## 7. Deploy — runbook
 
-Tudo acima roda local. O deploy em nuvem fica documentado e pronto:
+Tudo acima roda local. Há **dois caminhos**, e o gratuito está pronto:
+
+**(0) Demo pública GRÁTIS — HuggingFace Spaces (recomendado p/ portfólio).** Hospeda o RAG da
+Fase 1 no CPU free-tier (R$0, HTTPS + URL pública), com citação de fonte e guardrails; geração
+opcional via Inference API. Arquivos e passo a passo em [`deploy/hf_space/`](../deploy/hf_space/README.md).
+Resolve o "não tem demo viva" sem custo de nuvem.
+
+**(1) Cloud gerenciada (produção/escala) — NÃO executado, por decisão de orçamento:**
 
 1. **Build e push da imagem**
    ```bash
