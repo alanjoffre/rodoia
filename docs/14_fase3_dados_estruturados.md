@@ -16,7 +16,8 @@
 - **Dois formatos de data**: anuais `DD/MM/AAAA`, consolidados `MM/AAAA` — normalizados.
 - **Coluna divergente** (`categoria` vs `categoria_eixo`) — reconciliada.
 - **Granularidade mista** (alguns anos vêm diários) → **normalizado ao mês** (trunc + soma),
-  gerando série mensal consistente: **741.205 linhas, 197 meses, 50 concessionárias, 292 praças**.
+  gerando série mensal consistente: **741.205 linhas, 197 meses, 50 concessionárias, 292 praças**
+  (nomes distintos; 383 pares praça×concessionária — ver `dim_praca` no §2).
 
 ## 2. Modelagem — esquema estrela (DuckDB)
 
@@ -26,7 +27,8 @@ agregações por praça/tempo/categoria — a estrela dá JOINs baratos e SQL le
 
 - **`fato_volume`** (741.205) — grão: praça × mês × sentido × cobrança × categoria × tipo de
   veículo → `volume_total` (o grão mais fino da fonte; o agregado sai no SQL).
-- **`dim_praca`** (383: praça → concessionária) · **`dim_tempo`** (197 meses → ano/mês/trimestre)
+- **`dim_praca`** (383 linhas — uma por praça×concessionária; 292 nomes de praça distintos) ·
+  **`dim_tempo`** (197 meses → ano/mês/trimestre)
   · **`dim_categoria`** (categoria → tipo de veículo).
 
 ## 3. SQL analítico (CTEs + window functions) — `dados/consultas.py`
@@ -37,7 +39,7 @@ Resultados versionados em `reports/fase3_dados/analitico.json`:
 - **Ranking de praças** (RANK): 1º **P4 (Litoral Sul)** 281 M · 2º **Praça 01 BR-116/SP (NovaDutra)** 270 M.
 - **Sazonalidade** (média por mês do ano): picos de **dezembro/janeiro** (~56 M, férias) e vale
   no meio do ano (~46 M) — padrão plausível de viagens.
-- **Composição por veículo**: Passeio **63,5%** · Comercial **34,2%** · Moto **2,1%** (a fonte tem
+- **Composição por veículo**: Passeio **63,7%** · Comercial **34,3%** · Moto **2,1%** (a fonte tem
   variantes de caixa residuais — observação de qualidade de dado).
 
 ## 4. Camada de acesso — `dados/acesso.py` (ferramenta do agente)

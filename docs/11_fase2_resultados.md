@@ -160,7 +160,7 @@ Retrato coerente, **não-óbvio** e — após a expansão do dataset — **mais 
   quantitativa para **FT + RAG** (o RAG da Fase 1 dá a fonte factual).
 
 Lições de método que só o rigor revelou: (1) sem **controlar o comprimento**, o win-rate diria o
-oposto (0.06 → 0.88); (2) sem **held-out**, o "−18% de PPL" parecia generalização (era memorização
+oposto (0.06 → 0.88); (2) sem **held-out**, o "−16% de PPL" parecia generalização (era memorização
 — o held-out ficou **+8%**); (3) sem **expandir o dataset**, a "piora factual" pareceria
 definitiva (era small-data). Reports carimbados com proveniência em `reports/fase2_ft/`.
 

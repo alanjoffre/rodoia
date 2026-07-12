@@ -18,6 +18,9 @@ service-account*.json
 *.sqlite
 # Índice vetorial local do RAG (regenerável a partir do corpus + código).
 /data/processed/qdrant_normas/
+# Datasets processados (regeneráveis pelo pipeline). Fora do Git também porque o
+# LeNER-Br carrega PII de registros judiciais públicos — não redistribuímos no repo.
+/data/processed/*.jsonl
 
 # Trilha de auditoria da API (dados de runtime).
 /logs/

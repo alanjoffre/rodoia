@@ -91,9 +91,9 @@ pip install -e ".[ft,dev]"        # transformers, peft, trl, bitsandbytes, autoa
 python -c "import torch; print('CUDA:', torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 ```
 
-> **Versões:** o pyproject fixa mínimos (transformers>=4.44, peft>=0.12, trl>=0.11,
-> bitsandbytes>=0.43, autoawq>=0.2, vllm>=0.6). As APIs do TRL/vLLM mudam com
-> frequência — se algo quebrar, **fixar** a versão que funcionou e anotar aqui.
+> **Versões (SUPERADO — ver [docs/11](11_fase2_resultados.md) §stack):** este handoff supunha
+> pins antigos e **AWQ**; o stack final usa **transformers>=5.0, vllm>=0.24** e **quantização fp8**
+> (o autoawq foi descartado — incompatível com torch 2.11/cu130). Ver os pins reais no `pyproject.toml`.
 
 ## 5. Passo a passo de execução (na Nitro)
 
@@ -152,6 +152,10 @@ python -m rodoia.ft.avaliar_ft
    documentar como reproduzir.
 
 ## 8. Critérios de conclusão da Fase 2
+
+> Este é o checklist **de planejamento** do handoff (pré-execução). O checklist **efetivo,
+> marcado**, com as evidências, está em [docs/11 §7](11_fase2_resultados.md) e [docs/13](13_fase2_ner.md).
+> Mantido aqui como registro do plano original.
 
 - [ ] Dataset de fine-tuning documentado ✅ (feito)
 - [ ] Modelo fine-tunado com LoRA/QLoRA, config versionada (o script já versiona os hiperparâmetros)

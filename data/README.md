@@ -25,7 +25,19 @@ Pipelines de obtenção já publicados (reproduzíveis, dados brutos fora do Git
 python -m rodoia.data.baixar_acidentes && python -m rodoia.data.ingestao_acidentes
 # Fase 1 — resoluções da ANTT (RAG):
 python -m rodoia.rag.baixar_normas
-# Fase 3 — dados estruturados (volume/receita de pedágio): (a preencher)
+# Fase 3 — dados estruturados (volume de pedágio):
+python -m rodoia.data.baixar_volume && python -m rodoia.data.ingestao_volume
+```
+
+### Datasets processados (`data/processed/*.jsonl`) — fora do Git, regeneráveis
+
+Coerente com a regra de ouro, os datasets processados **não são versionados** (regeneram-se
+pelo pipeline). Além disso, o **LeNER-Br** carrega **PII** (CPF/CNPJ/nomes) de decisões judiciais
+públicas — legítimo sob a licença MIT, mas não redistribuímos num repo público. Regenerar:
+
+```bash
+python -m rodoia.ner.generativo          # -> ner_train.jsonl / ner_test.jsonl (baixa o LeNER-Br)
+python -m rodoia.ft.construir_dataset    # -> ft_dataset*.jsonl (Q&A sintético das normas, via Ollama)
 ```
 
 ## Remote DVC (local-first)

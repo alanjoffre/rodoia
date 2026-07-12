@@ -16,7 +16,7 @@ em segundos no GitHub Actions.
 $ python -m rodoia.mlops.gate
   [✓] F0 · MLP ROC-AUC                   0.813 >= 0.78
   [✓] F1 · RAG hit@5 (híbrido)           0.64 >= 0.58
-  [✓] F1 · precisão de citação           0.909 >= 0.85
+  [✓] F1 · precisão de citação           0.917 >= 0.85
   [✓] F2 · NER F1 (FT QLoRA)             0.7735 >= 0.72
   [✓] F2 · ganho FT vs base              0.6429 >= 0.55
   [✓] F3 · Holt-Winters MAPE             13.25 <= 15.0
@@ -119,7 +119,7 @@ Tudo acima roda local. O deploy em nuvem fica documentado e pronto:
 3. **Cérebro em endpoint hosted** — em produção o roteamento/síntese vai para uma API hosted
    (a interface `OpenAICompatLLM` já suporta), liberando GPU e removendo o Ollama do caminho crítico.
 4. **Segredos** — via secret manager do provedor (nunca no Git; `.env` só local).
-5. **Custo/latência** — Cloud Run: cobra por request/CPU-s; p95 de geração ~17 s (medido na F1)
+5. **Custo/latência** — Cloud Run: cobra por request/CPU-s; p95 de geração ~30 s (medido na F1)
    domina a latência → tuning de `max_tokens` e cache de respostas frequentes antes de escalar.
 6. **Observabilidade em produção** — logs estruturados + as métricas do §6 exportadas; alerta se
    o gate (rodado periodicamente sobre uma amostra rotulada) cair, ou se o PSI de drift subir.

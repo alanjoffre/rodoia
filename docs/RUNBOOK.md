@@ -23,7 +23,7 @@ pip install -e ".[dev,fundamentos]"  # núcleo + ferramentas + libs de ML/DL da 
 
 Os "extras" separam o peso por fase — quem só quer ler o RAG (Fase 1) não instala
 PyTorch. Extras disponíveis: `fundamentos` (Fase 0), `rag` (Fase 1), `ft` (Fase 2),
-`agente` (Fase 4), `mlops` (transversal), `dev` (lint/teste).
+`estruturados` (Fase 3), `agente` (Fase 4), `mlops` (transversal), `dev` (lint/teste).
 
 ## 2. Ativar a barreira anti-segredo (pre-commit)
 

@@ -21,6 +21,7 @@ import json
 import re
 import statistics
 
+from rodoia.proveniencia import carimbar
 from rodoia.rag.gerar import montar_contexto, responder
 from rodoia.rag.recuperador import RecuperadorHibrido
 
@@ -133,7 +134,8 @@ def main() -> None:
     print(f"observabilidade: {res['observabilidade']}")
     saida = REPO_ROOT / "reports" / "fase1_geracao"
     saida.mkdir(parents=True, exist_ok=True)
-    (saida / "avaliacao_geracao.json").write_text(json.dumps(res, ensure_ascii=False, indent=2))
+    (saida / "avaliacao_geracao.json").write_text(
+        json.dumps(carimbar(res), ensure_ascii=False, indent=2))
     print(f"relatório: {saida / 'avaliacao_geracao.json'}")
 
 

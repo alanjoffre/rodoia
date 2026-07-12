@@ -17,6 +17,7 @@ import json
 from rodoia.config import REPO_ROOT, settings
 from rodoia.estat import bootstrap_ic as _bootstrap_ic
 from rodoia.estat import wilson as _wilson
+from rodoia.proveniencia import carimbar
 from rodoia.rag.recuperador import RecuperadorHibrido
 
 # Conjunto dourado: perguntas de INTENÇÃO REAL (como um usuário pergunta, não
@@ -189,7 +190,7 @@ def main() -> None:
     saida = REPO_ROOT / "reports" / "fase1_retrieval"
     saida.mkdir(parents=True, exist_ok=True)
     (saida / "avaliacao_retrieval.json").write_text(
-        json.dumps(resultados, ensure_ascii=False, indent=2)
+        json.dumps(carimbar(resultados), ensure_ascii=False, indent=2)
     )
     print(f"\nrelatório: {saida / 'avaliacao_retrieval.json'}")
 
