@@ -6,9 +6,10 @@ determinísticos, na demo injetamos as ferramentas reais das Fases 1–3.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from operator import add
-from typing import Annotated, Callable, TypedDict
+from typing import Annotated, TypedDict
 
 # Rotas válidas = as três ferramentas (fases anteriores). "fora_de_escopo" é tratada à parte.
 ROTAS = ("regulatorio", "entidades", "dados")

@@ -68,7 +68,8 @@ def _coletar_fontes(evidencias: dict) -> list[str]:
 def _no_sintetizar(estado: EstadoAgente, deps: DepsAgente) -> dict:
     evidencias = estado.get("evidencias", {})
     contexto = "\n".join(f"[{k}] {v}" for k, v in evidencias.items())
-    prompt = f"Pergunta: {estado['pergunta']}\n\nEvidências das ferramentas:\n{contexto}\n\nResposta:"
+    prompt = (f"Pergunta: {estado['pergunta']}\n\n"
+              f"Evidências das ferramentas:\n{contexto}\n\nResposta:")
     try:
         resposta = deps.llm_cerebro.gerar(prompt, sistema=_SISTEMA_SINTESE)
     except Exception as e:

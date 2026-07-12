@@ -48,12 +48,12 @@ def _metricas(pred):
     logits, labels = pred
     preds = np.argmax(logits, axis=-1)
     y_pred, y_true = [], []
-    for p_seq, l_seq in zip(preds, labels):
+    for p_seq, l_seq in zip(preds, labels, strict=False):
         yp, yt = [], []
-        for p, l in zip(p_seq, l_seq):
-            if l != -100:
+        for p, rot in zip(p_seq, l_seq, strict=False):
+            if rot != -100:
                 yp.append(ID2LABEL[int(p)])
-                yt.append(ID2LABEL[int(l)])
+                yt.append(ID2LABEL[int(rot)])
         y_pred.append(yp)
         y_true.append(yt)
     rel = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
@@ -97,8 +97,8 @@ def treinar(epocas: int = 3, batch: int = 16, lr: float = 3e-5) -> dict:
 
     pred = trainer.predict(dsets["test"])
     m = _metricas((pred.predictions, pred.label_ids))
-    por_entidade = {e: round(m["relatorio"].get(e, {}).get("f1-score", 0.0), 4)
-                    for e in ("ORGANIZACAO", "PESSOA", "TEMPO", "LOCAL", "LEGISLACAO", "JURISPRUDENCIA")}
+    tipos = ("ORGANIZACAO", "PESSOA", "TEMPO", "LOCAL", "LEGISLACAO", "JURISPRUDENCIA")
+    por_entidade = {e: round(m["relatorio"].get(e, {}).get("f1-score", 0.0), 4) for e in tipos}
     res = carimbar({
         "modelo": MODELO_BASE, "abordagem": "encoder token-classification (SOTA)",
         "epocas": epocas, "n_teste": len(dsets["test"]),

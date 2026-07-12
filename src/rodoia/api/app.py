@@ -83,9 +83,8 @@ def _carregar_agente() -> None:
     """Monta o agente (Fase 4) reusando o recuperador/LLM já carregados p/ o RAG."""
     if "agente_deps" not in _estado:
         _carregar()
-        from rodoia.agente.ferramentas import (dados_real, entidades_real,
-                                                regulatorio_real)
         from rodoia.agente.estado import DepsAgente
+        from rodoia.agente.ferramentas import dados_real, entidades_real, regulatorio_real
         from rodoia.rag.llm import OpenAICompatLLM
 
         cerebro = _estado["llm"]

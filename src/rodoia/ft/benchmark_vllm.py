@@ -5,7 +5,8 @@ OpenAI-compat já no ar. Antes os números existiam sem o harness que os gerou; 
 script fica versionado e o report é carimbado com proveniência.
 
 Uso (com o vLLM servindo em :8001):
-    python -m rodoia.ft.benchmark_vllm antt-ft http://localhost:8001/v1 reports/fase2_ft/benchmark_vllm.json
+    python -m rodoia.ft.benchmark_vllm antt-ft http://localhost:8001/v1 \
+        reports/fase2_ft/benchmark_vllm.json
 """
 from __future__ import annotations
 
@@ -20,7 +21,8 @@ import requests
 
 from rodoia.proveniencia import carimbar
 
-PROMPT = "Explique de forma detalhada as obrigacoes do transportador rodoviario de cargas segundo a ANTT."
+PROMPT = ("Explique de forma detalhada as obrigacoes do transportador rodoviario "
+          "de cargas segundo a ANTT.")
 
 
 def percentil(valores: list[float], p: float) -> float:

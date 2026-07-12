@@ -9,8 +9,6 @@ Uso:  python -m rodoia.data.ingestao_volume
 """
 from __future__ import annotations
 
-import json
-
 import pandas as pd
 
 from rodoia.config import settings
@@ -54,7 +52,8 @@ def consolidar(destino=None) -> dict:
             rejeitadas += len(df)
             continue
         df = df[COLUNAS].copy()
-        for c in ("concessionaria", "sentido", "praca", "tipo_cobranca", "categoria", "tipo_de_veiculo"):
+        for c in ("concessionaria", "sentido", "praca", "tipo_cobranca",
+                  "categoria", "tipo_de_veiculo"):
             df[c] = df[c].str.strip()
         # normaliza caixa das categóricas (a fonte mistura 'Passeio'/'PASSEIO' etc.)
         for c in ("sentido", "tipo_cobranca", "categoria", "tipo_de_veiculo"):

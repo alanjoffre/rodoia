@@ -40,7 +40,8 @@ def _julgar(caso: dict, res: dict, juiz) -> dict:
         import re
         m = re.search(r"\{.*\}", saida, re.S)
         obj = json.loads(m.group(0)) if m else {}
-        return {"rota_ok": int(obj.get("rota_ok", 0)), "resposta_ok": int(obj.get("resposta_ok", 0)),
+        return {"rota_ok": int(obj.get("rota_ok", 0)),
+                "resposta_ok": int(obj.get("resposta_ok", 0)),
                 "justificativa": str(obj.get("justificativa", ""))[:200]}
     except Exception as e:
         return {"erro": f"{type(e).__name__}: {e}"}
@@ -87,9 +88,10 @@ def avaliar(deps, juiz=None) -> dict:
     saida = REPO_ROOT / "reports" / "fase4_agente"
     saida.mkdir(parents=True, exist_ok=True)
     (saida / "avaliacao.json").write_text(json.dumps(res, ensure_ascii=False, indent=2))
-    print(f"roteamento: acerto exato={resumo['acerto_roteamento']} | Jaccard={resumo['jaccard_medio']}")
+    print(f"roteamento: acerto={resumo['acerto_roteamento']} | Jaccard={resumo['jaccard_medio']}")
     if "resposta_ok_medio" in resumo:
-        print(f"juiz: rota_ok={resumo['rota_ok_medio']}/2 resposta_ok={resumo['resposta_ok_medio']}/2")
+        print(f"juiz: rota_ok={resumo['rota_ok_medio']}/2 "
+              f"resposta_ok={resumo['resposta_ok_medio']}/2")
     print(f"relatório: {saida / 'avaliacao.json'}")
     return res
 

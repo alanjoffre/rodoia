@@ -27,8 +27,8 @@ CASOS = [
     },
     {
         "id": "combinado_regulatorio_dados",
-        "pergunta": ("O que a regulação da ANTT diz sobre reajuste de tarifa de pedágio, e qual foi "
-                     "o crescimento de volume da praça líder?"),
+        "pergunta": ("O que a regulação da ANTT diz sobre reajuste de tarifa de pedágio, e qual "
+                     "foi o crescimento de volume da praça líder?"),
         "rotas_esperadas": ["regulatorio", "dados"],
         "descricao": "Raciocínio combinado → RAG (regra) + dados (crescimento) e síntese.",
     },

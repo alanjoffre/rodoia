@@ -1,0 +1,39 @@
+name: CI
+
+# Lint + testes + GATE de avaliação (regressão de métrica falha o pipeline).
+# Roda em CPU: os testes de fundamentos que exigem PyTorch são pulados na coleta
+# (tests/conftest.py) — validados localmente na Nitro. Todo o resto roda aqui.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências (CPU — sem torch/vLLM/transformers)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,agente,estruturados]"
+          # deps leves usadas só nos testes (RAG faked): cliente Qdrant em memória, BM25, API
+          pip install qdrant-client rank-bm25 fastapi httpx uvicorn
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Testes (pytest)
+        run: pytest -q
+
+      - name: Gate de avaliação (regressão de métrica reprova)
+        run: python -m rodoia.mlops.gate

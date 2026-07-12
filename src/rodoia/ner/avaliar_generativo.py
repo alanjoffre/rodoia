@@ -12,7 +12,7 @@ import json
 import re
 import sys
 
-from rodoia.config import REPO_ROOT, settings
+from rodoia.config import settings
 from rodoia.ner.generativo import SISTEMA, TIPOS, como_conjunto
 from rodoia.proveniencia import carimbar
 
@@ -39,8 +39,10 @@ def metricas_ner(preds: list[set], golds: list[set]) -> dict:
     """P/R/F1 micro + F1 por entidade a partir de conjuntos (texto,tipo). Pura/testável."""
     tp = fp = fn = 0
     por_tipo = {t: [0, 0, 0] for t in TIPOS}  # tp, fp, fn
-    for p, g in zip(preds, golds):
-        tp += len(p & g); fp += len(p - g); fn += len(g - p)
+    for p, g in zip(preds, golds, strict=False):
+        tp += len(p & g)
+        fp += len(p - g)
+        fn += len(g - p)
         for t in TIPOS:
             pt = {e for e in p if e[1] == t}
             gt = {e for e in g if e[1] == t}
@@ -62,7 +64,8 @@ def metricas_ner(preds: list[set], golds: list[set]) -> dict:
 def avaliar(modelo: str, saida: str, rotulo: str = "") -> dict:
     from vllm import LLM, SamplingParams
 
-    teste = [json.loads(l) for l in (settings.data_processed / "ner_test.jsonl").open(encoding="utf-8")]
+    caminho = settings.data_processed / "ner_test.jsonl"
+    teste = [json.loads(linha) for linha in caminho.open(encoding="utf-8")]
     llm = LLM(model=modelo, quantization="fp8", max_model_len=2048,
               gpu_memory_utilization=0.80, enforce_eager=True)
     convs = [[{"role": "system", "content": SISTEMA}, {"role": "user", "content": t["texto"]}]

@@ -22,8 +22,10 @@ WITH serie AS (
     FROM fato_volume GROUP BY data
 )
 SELECT data, volume,
-       round(100.0 * (volume - lag(volume, 1)  OVER (ORDER BY data)) / lag(volume, 1)  OVER (ORDER BY data), 2) AS mom_pct,
-       round(100.0 * (volume - lag(volume, 12) OVER (ORDER BY data)) / lag(volume, 12) OVER (ORDER BY data), 2) AS yoy_pct
+       round(100.0 * (volume - lag(volume, 1)  OVER (ORDER BY data))
+                    / lag(volume, 1)  OVER (ORDER BY data), 2) AS mom_pct,
+       round(100.0 * (volume - lag(volume, 12) OVER (ORDER BY data))
+                    / lag(volume, 12) OVER (ORDER BY data), 2) AS yoy_pct
 FROM serie ORDER BY data DESC LIMIT 6
 """
 
@@ -75,7 +77,8 @@ def main() -> None:
     res = carimbar({nome: rodar(sql) for nome, sql in CONSULTAS.items()})
     saida = REPO_ROOT / "reports" / "fase3_dados"
     saida.mkdir(parents=True, exist_ok=True)
-    (saida / "analitico.json").write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str))
+    (saida / "analitico.json").write_text(
+        json.dumps(res, ensure_ascii=False, indent=2, default=str))
     print("=== sazonalidade (volume médio por mês) ===")
     for r in res["sazonalidade"]:
         print(f"  {r['nome_mes']:10} {r['volume_medio']:>14,.0f}")

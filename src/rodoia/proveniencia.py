@@ -7,7 +7,7 @@ resultado deixa de ser um número solto e passa a ser reproduzível/rastreável.
 from __future__ import annotations
 
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 
 from rodoia.config import settings
@@ -46,7 +46,7 @@ def proveniencia() -> dict:
     return {
         "seed": settings.seed,
         "git_sha": _git_sha(),
-        "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "timestamp_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "versoes": _versoes(),
     }
 

@@ -100,7 +100,7 @@ def comparar(base_path: str, ft_path: str, saida: str, controlar_comprimento: bo
     ft = json.load(open(ft_path, encoding="utf-8"))
     casos = []
     ft_wins = base_wins = empates = 0
-    for b, f in zip(base, ft):
+    for b, f in zip(base, ft, strict=False):
         rb, rf = b["resposta"], f["resposta"]
         if controlar_comprimento:
             rb, rf = _truncar_par(rb, rf)

@@ -1,0 +1,46 @@
+# Sobe a plataforma RodoIA localmente: API (RAG + agente) + Ollama (cérebro).
+# O índice vetorial (Qdrant embutido) e o DuckDB da Fase 3 são montados de data/processed.
+#
+#   docker compose up --build           # API em http://localhost:8080
+#   # 1ª vez: puxar o modelo do cérebro dentro do serviço ollama
+#   docker compose exec ollama ollama pull qwen2.5:7b
+#
+# O modelo fine-tunado (NER, Fase 2) é servido por vLLM em GPU — ver o serviço `vllm`
+# (comentado; exige NVIDIA Container Toolkit). Sem ele, a rota de entidades degrada.
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      - ollama
+    volumes:
+      # índice do RAG (qdrant_normas) + volume.duckdb — regeneráveis pelo pipeline das fases
+      - ./data/processed:/app/data/processed:ro
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  # Modelo fine-tunado (Fase 2) servido em GPU — descomente com NVIDIA Container Toolkit.
+  # vllm:
+  #   image: vllm/vllm-openai:latest
+  #   command: >
+  #     --model /models/antt-ner-merged --quantization fp8 --port 8001
+  #     --served-model-name rodoia-ner-ft --max-model-len 2048 --gpu-memory-utilization 0.80
+  #   ports: ["8001:8001"]
+  #   volumes: ["./models:/models:ro"]
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+
+volumes:
+  ollama_data:

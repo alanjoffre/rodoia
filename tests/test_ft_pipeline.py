@@ -7,7 +7,6 @@ from rodoia.ft.gen_offline import montar_conversas, montar_respostas
 from rodoia.ft.perplexidade import _agregar_ppl
 from rodoia.ft.split_dataset import dividir
 
-
 # ---- split held-out ----
 
 def _exemplos():

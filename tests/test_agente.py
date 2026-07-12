@@ -5,8 +5,6 @@ controle do grafo — arestas condicionais, combinação de ferramentas e tratam
 """
 import json
 
-import pytest
-
 from rodoia.agente.estado import DepsAgente
 from rodoia.agente.grafo import responder
 from rodoia.agente.roteador import rotear

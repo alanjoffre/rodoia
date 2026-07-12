@@ -55,7 +55,8 @@ def _nota(saida: str) -> float:
 def _julgar_factual(pergunta: str, ref: str, resposta: str) -> float:
     r = requests.post(OLLAMA, json={
         "model": JUIZ, "format": "json", "stream": False, "options": {"temperature": 0.0},
-        "messages": [{"role": "user", "content": _PROMPT.format(pergunta=pergunta, ref=ref, resp=resposta)}],
+        "messages": [{"role": "user",
+                      "content": _PROMPT.format(pergunta=pergunta, ref=ref, resp=resposta)}],
     }, timeout=180)
     r.raise_for_status()
     return _nota(r.json()["message"]["content"])

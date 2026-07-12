@@ -56,6 +56,7 @@ def test_previsao_multistep_justa():
     o Holt-Winters deve BATER o naïve (random walk). Trava a avaliação multi-step honesta:
     se algum modelo 'espiar' o teste (1-passo alimentado com o real), o teste denuncia."""
     import numpy as np
+
     from rodoia.dados.previsao import _prever_praca
 
     idx = pd.date_range("2010-01-01", periods=120, freq="MS")

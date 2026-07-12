@@ -141,11 +141,11 @@ def avaliar() -> dict:
         "delta_mape_medio": round(float(np.mean(deltas)), 2),  # pp de MAPE que o naïve perde
         "ic95_delta": ic_delta, "n_pracas": len(deltas),
         "vence_naive_em_pct_pracas": round(100 * np.mean([x > 0 for x in deltas]), 1),
-        "significativo": ic_delta[0] > 0,   # IC não cruza 0 → melhor bate naïve de forma significativa
+        "significativo": ic_delta[0] > 0,   # IC não cruza 0 → bate naïve de forma significativa
     }
 
     res = carimbar({
-        "tarefa": "previsão de volume mensal 12 meses à frente (multi-step, backtest em múltiplas praças)",
+        "tarefa": "previsão de volume mensal 12 meses à frente (multi-step, backtest multi-praça)",
         "n_pracas": len(series), "n_teste": N_TESTE, "min_meses": MIN_MESES,
         "metrica": "MAPE (%) — média entre praças com IC95 por bootstrap",
         "modelos": agg, "comparacao_pareada": pareado,
@@ -181,7 +181,8 @@ def _plotar(alvo) -> None:
     ax.plot(s.index, s.values, label="real", lw=1)
     ax.plot(teste.index, gb.predict(teste[cols]), "o-", color="crimson", label="previsão (GB)")
     ax.set(title=f"Previsão de volume mensal — {nome[:40]}", xlabel="mês", ylabel="volume")
-    ax.legend(); fig.tight_layout()
+    ax.legend()
+    fig.tight_layout()
     fig.savefig(REPO_ROOT / "reports" / "fase3_dados" / "previsao.png", dpi=110)
     plt.close(fig)
 

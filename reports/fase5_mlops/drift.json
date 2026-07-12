@@ -1,0 +1,29 @@
+{
+  "metrica": "PSI do volume mensal por praça (coorte comum), 12m recentes vs. 12m anteriores",
+  "n_pracas_coorte": 161,
+  "n_base": 1845,
+  "n_recente": 1868,
+  "psi": 0.0051,
+  "classificacao": "estável",
+  "acao": "monitorar",
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "a93c00d",
+    "timestamp_utc": "2026-07-12T01:56:45+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "3.0.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
+}

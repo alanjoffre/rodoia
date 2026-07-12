@@ -68,7 +68,8 @@ def main() -> None:
         "ppl_fp32_ref": ppl_fp32,
         "ppl_nf4": ppl_nf4,
         "delta_ppl_pct": round(100 * (ppl_nf4 - ppl_fp32) / ppl_fp32, 2),
-        "nota": "NF4 = quantizacao do QLoRA; fp8 servido e mais preciso -> custo de qualidade <= este",
+        "nota": "NF4 = quantizacao do QLoRA; fp8 servido e mais preciso "
+                "-> custo de qualidade <= este",
     })
     open(saida, "w", encoding="utf-8").write(json.dumps(res, ensure_ascii=False, indent=2))
     print(f"PPL fp32(ref)={ppl_fp32} | nf4={ppl_nf4} | ΔPPL={res['delta_ppl_pct']}%  -> {saida}")

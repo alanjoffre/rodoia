@@ -62,8 +62,10 @@ if __name__ == "__main__":
     res = carimbar({
         "metrica": "citacao da resolucao-fonte no CONJUNTO_DOURADO (com IC de Wilson)",
         "n": base["n"],
-        "base": {k: base[k] for k in ("acuracia_citacao", "acuracia_ic95", "taxa_citacao", "taxa_ic95")},
-        "ft": {k: ft[k] for k in ("acuracia_citacao", "acuracia_ic95", "taxa_citacao", "taxa_ic95")},
+        "base": {k: base[k] for k in
+                 ("acuracia_citacao", "acuracia_ic95", "taxa_citacao", "taxa_ic95")},
+        "ft": {k: ft[k] for k in
+               ("acuracia_citacao", "acuracia_ic95", "taxa_citacao", "taxa_ic95")},
         "ganho_acuracia": round(ft["acuracia_citacao"] - base["acuracia_citacao"], 3),
         "casos_base": base["casos"],
         "casos_ft": ft["casos"],
@@ -71,6 +73,7 @@ if __name__ == "__main__":
     out = Path(sys.argv[3])
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"BASE acuracia={base['acuracia_citacao']} {base['acuracia_ic95']} taxa={base['taxa_citacao']}")
+    print(f"BASE acuracia={base['acuracia_citacao']} {base['acuracia_ic95']} "
+          f"taxa={base['taxa_citacao']}")
     print(f"FT   acuracia={ft['acuracia_citacao']} {ft['acuracia_ic95']} taxa={ft['taxa_citacao']}")
     print("relatorio:", out)

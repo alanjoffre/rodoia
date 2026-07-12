@@ -22,7 +22,8 @@ from rodoia.proveniencia import carimbar
 N_HOLDOUT = 6  # ~18 de 84 exemplos (~21%), 6 de 29 normas
 
 
-def dividir(exemplos: list[dict], n_holdout: int = N_HOLDOUT, seed: int = 42) -> tuple[list, list, list]:
+def dividir(exemplos: list[dict], n_holdout: int = N_HOLDOUT,
+            seed: int = 42) -> tuple[list, list, list]:
     """Separa exemplos por norma (`fonte`); reserva `n_holdout` normas p/ held-out.
     Determinístico dado o seed. Retorna (treino, holdout, normas_holdout)."""
     por_norma: dict[str, list] = defaultdict(list)

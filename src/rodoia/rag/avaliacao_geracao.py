@@ -128,7 +128,8 @@ def main() -> None:
     res = avaliar_geracao(rec, gerador, juiz, dourados)
     res["gerador"], res["juiz"] = "qwen2.5:7b", "llama3.1:8b"
     print(f"faithfulness={res['faithfulness_media']} relevancy={res['relevancy_media']} "
-          f"precisao_citacao={res['precisao_citacao_media']} citou_esperada={res['taxa_citou_esperada']}")
+          f"precisao_citacao={res['precisao_citacao_media']} "
+          f"citou_esperada={res['taxa_citou_esperada']}")
     print(f"observabilidade: {res['observabilidade']}")
     saida = REPO_ROOT / "reports" / "fase1_geracao"
     saida.mkdir(parents=True, exist_ok=True)

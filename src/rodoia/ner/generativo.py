@@ -24,7 +24,7 @@ SISTEMA = (
 def entidades_bio(tokens: list[str], tags: list[int]) -> list[tuple[str, str]]:
     """Extrai entidades (texto, tipo) de uma sentença anotada em BIO."""
     ents, atual, tipo = [], [], None
-    for tok, tid in zip(tokens, tags):
+    for tok, tid in zip(tokens, tags, strict=False):
         rot = LABELS[tid]
         if rot.startswith("B-"):
             if atual:

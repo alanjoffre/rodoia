@@ -24,7 +24,7 @@ def montar_respostas(golden: list[dict], textos: list[str]) -> list[dict]:
     """Casa cada pergunta do golden com o texto gerado (preserva TODAS as fontes)."""
     return [
         {"consulta": g["consulta"], "fontes": g["fontes"], "resposta": t.strip()}
-        for g, t in zip(golden, textos)
+        for g, t in zip(golden, textos, strict=False)
     ]
 
 

@@ -3,7 +3,6 @@ from rodoia.ft.aval_cite import cita_alguma, cita_correta
 from rodoia.ft.juiz_factual import _nota
 from rodoia.ft.juiz_winrate import _decidir, _parse_veredito, _truncar_par
 
-
 # ---- juiz_factual: parsing/clamp da nota ----
 
 def test_nota_extrai_e_clampeia():
