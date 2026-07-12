@@ -103,10 +103,21 @@ modelo FT no **vLLM/GPU** — comprovado (roteamento **1,0** e ferramenta de ent
 simultaneamente; VRAM ~5,2 GB só do vLLM, cérebro na RAM). Isso **fecha o time-slicing**.
 Ressalva honesta de **latência**: o cérebro **7B na CPU** é lento e chega a estourar timeouts em
 gerações longas — então o número de *qualidade de resposta* (juiz **1,5/2**) é medido com o cérebro
-em velocidade plena (GPU), e o `timeout` do cliente foi elevado (300 s) para a CPU. Em 6 GB, o
-trade-off é claro: **ou** 7B na GPU com time-slicing, **ou** os três juntos com um cérebro **menor**
-(3B) na CPU. Em produção, o cérebro vai para um endpoint hosted (`OpenAICompatLLM` já suporta),
-liberando a GPU para o modelo FT.
+em velocidade plena (GPU), e o `timeout` do cliente foi elevado (300 s) para a CPU. Em produção, o
+cérebro vai para um endpoint hosted (`OpenAICompatLLM` já suporta), liberando a GPU para o modelo FT.
+
+**Trade-off medido (mesmos 6 casos, juiz llama3.1 independente):**
+
+| Config do cérebro | 3 tools juntos? | Roteamento (exato) | Juiz resposta_ok | Nota |
+|---|---|---|---|---|
+| **qwen 7B na GPU** (time-slice) | não (FT à parte) | **1,00** | **1,5/2** | melhor qualidade; entidades provada à parte |
+| qwen 7B na CPU | sim | 1,00 | 0,75/2* | *artefato: 7B na CPU estoura timeout na geração longa |
+| **qwen 3B na CPU** | **sim** | 0,83 | 1,25/2 | rápido e com os 3 tools ao vivo; roteia 5/6 (super-inclui 1) |
+
+→ **Leitura:** o 7B entrega a melhor qualidade mas exige a GPU (time-slice com o FT); o **3B na CPU**
+roda os **três tools simultaneamente** (viável pelos 32 GB de RAM) de forma rápida, ao custo de um
+roteamento levemente pior. É a mesma disciplina do projeto: caracterizar o trade-off com número, não
+esconder. O report versionado usa a config de melhor qualidade (7B).
 
 ## 5. Guardrails e tratamento de falha
 
