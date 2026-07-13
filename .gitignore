@@ -31,6 +31,8 @@ service-account*.json
 # Exceções que DEVEM ser versionadas:
 !data/**/README.md
 !data/**/*.dvc
+# o KIT de anotação (template, domínio público) — versionado apesar do *.csv acima
+!anotacao/relevancia.csv
 
 # === Artefatos de modelo / experimentos (via DVC/MLflow, não no Git) ===
 /models/

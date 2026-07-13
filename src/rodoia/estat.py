@@ -39,7 +39,7 @@ def cohen_kappa(a: list, b: list) -> float:
     if n == 0 or len(b) != n:
         return 0.0
     cats = set(a) | set(b)
-    p_obs = sum(1 for x, y in zip(a, b) if x == y) / n
+    p_obs = sum(1 for x, y in zip(a, b, strict=True) if x == y) / n
     p_esp = sum((a.count(c) / n) * (b.count(c) / n) for c in cats)
     return round((p_obs - p_esp) / (1 - p_esp), 4) if p_esp < 1 else 1.0
 
