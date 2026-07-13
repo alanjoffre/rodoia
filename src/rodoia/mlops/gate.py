@@ -40,6 +40,7 @@ GATES: tuple[Meta, ...] = (
     Meta("F0 · MLP ROC-AUC", "reports/fase0_mlp/mlp.json", "roc_auc", ">=", 0.78),
     Meta("F1 · RAG hit@5 (híbrido)", "reports/fase1_retrieval/avaliacao_retrieval.json",
          "hibrido.hit_rate_at_k", ">=", 0.58),
+    Meta("F1 · corpus (nº de normas)", "reports/fase1_rag/corpus.json", "n_normas", ">=", 100),
     Meta("F1 · precisão de citação", "reports/fase1_geracao/avaliacao_geracao.json",
          "precisao_citacao_media", ">=", 0.85),
     Meta("F2 · NER F1 (FT QLoRA)", "reports/fase2_ner/comparacao.json",

@@ -106,7 +106,7 @@ E como levar isso a produção sem gastar?
 qualquer métrica-chave cair; **GitHub Actions** (lint + testes + gate); MLflow + DVC; **drift por
 PSI** (corrigido de um sinal enganoso sobre agregado para a coorte estacionária de praças).
 
-**Resultado.** **CI verde** com o gate barrando regressão (9/9 portões); drift **0,005 (estável)**.
+**Resultado.** **CI verde** com o gate barrando regressão (10/10 portões); drift **0,005 (estável)**.
 O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, pronta no HuggingFace Spaces.
 
 ---

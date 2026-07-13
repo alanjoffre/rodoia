@@ -41,9 +41,9 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 
 | Camada | Entrega | Doc |
 |---|---|---|
-| Ingestão | ANTTlegis (45 resoluções, 3.432 chunks), chunking por artigo | 06 |
+| Ingestão | ANTTlegis (**125 resoluções, 4100 chunks**; ver `reports/fase1_rag/corpus.json`) | 06 |
 | Indexação | E5 local + Qdrant, filtro de vigência | 06 |
-| Retrieval | híbrido (BM25+RRF) **sem rerank** — hit@5 **0,64** [IC 0,50–0,76], MRR 0,51, n=50 | 07 |
+| Retrieval | híbrido (BM25+RRF) **sem rerank** — hit@5 **0,64** [IC 0,50–0,76], MRR **0,485**, n=50 | 07 |
 
 > **Decisão honesta (rerank × híbrido × denso).** No corpus ampliado (**125 normas, 4100 chunks** —
 > ~2,8× o anterior) o **híbrido empata com o denso no hit@5 (0,64 = 0,64) e ganha no MRR (0,485 vs

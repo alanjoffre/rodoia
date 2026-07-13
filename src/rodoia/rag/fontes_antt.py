@@ -12,8 +12,9 @@ HTTP, MAS tem dois endpoints públicos e STATELESS:
 Cuidados confirmados no teste:
 - `sgl_orgao` (ministério supervisor) varia por ano → usar SEMPRE o que veio do
   `LinkTexto`, nunca deduzir.
-- Se a tupla não bater exata, o servidor devolve a 'casca' do portal (~15 KB, sem
-  o cabeçalho 'RESOLUÇÃO Nº'). Detector de sucesso: cabeçalho presente E texto > 18 KB.
+- Se a tupla não bater exata, o servidor devolve a 'casca' do portal (sem o cabeçalho
+  'RESOLUÇÃO Nº'). Detector de sucesso: cabeçalho presente E texto > `MIN_CHARS_NORMA`
+  (2.500 — inclui resoluções curtas legítimas; um piso alto descartava metade do corpus).
 - Servidor Apache lento → ser educado (delay, concorrência baixa).
 """
 

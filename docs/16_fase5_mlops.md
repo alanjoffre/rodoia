@@ -16,6 +16,7 @@ em segundos no GitHub Actions.
 $ python -m rodoia.mlops.gate
   [✓] F0 · MLP ROC-AUC                   0.813 >= 0.78
   [✓] F1 · RAG hit@5 (híbrido)           0.64 >= 0.58
+  [✓] F1 · corpus (nº de normas)         125 >= 100
   [✓] F1 · precisão de citação           0.917 >= 0.85
   [✓] F2 · NER F1 (FT QLoRA)             0.7735 >= 0.72
   [✓] F2 · ganho FT vs base              0.6429 >= 0.55
@@ -23,7 +24,7 @@ $ python -m rodoia.mlops.gate
   [✓] F3 · HW bate naïve (pareado)       True == True
   [✓] F4 · roteamento (n=21, exato)      0.952 >= 0.85
   [✓] F4 · juiz rota adequada            2.0 >= 1.5
-  9/9 portões OK — APROVADO
+  10/10 portões OK — APROVADO
 ```
 
 Os pisos ficam **abaixo** dos valores atuais (toleram ruído de reexecução, pegam regressão real).
@@ -56,9 +57,10 @@ fica num job separado que **re-executa o pipeline** e falha se o resultado diver
 commitado — respondendo diretamente a "seu CI só lê números que você mesmo commitou".
 
 - **Âncoras (2):** (1) `hit@5` do retrieval híbrido e (2) `MAPE` do Holt-Winters na previsão —
-  ambas **determinísticas** e **CPU**, sem LLM; reproduzem **exatas** (Δ=0,0 contra os reports). A
-  âncora de previsão **pula sem falhar** no runner hosted (que não tem o DuckDB de volume) e roda
-  onde o dado existe. Evidência (com carimbo `git_sha`/`git_dirty`) em
+  ambas **determinísticas** e **CPU**, sem LLM; reproduzem **exatas** (Δ=0,0 contra os reports).
+  O workflow **reconstrói do zero** tanto o índice (corpus público) quanto o DuckDB (volume público),
+  então **as duas âncoras rodam no CI hosted**; a de previsão **pula graciosamente** (sem reprovar o
+  job) só se o CKAN da ANTT estiver fora do ar. Evidência (com carimbo `git_sha`/`git_dirty`) em
   `reports/fase1_retrieval/reproducao.json`.
 - **Onde roda:** runner **github-hosted** (`ubuntu-latest`), `workflow_dispatch` + agendado semanal.
   O job **baixa o corpus público** (`baixar_normas`), **reconstrói o índice** (`construir_indice`) e

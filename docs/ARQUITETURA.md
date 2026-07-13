@@ -28,6 +28,7 @@ src/rodoia/
 | `config.py` | Config central (pydantic-settings); caminhos, modelos, `seed`, override por env | `Settings` |
 | `estat.py` | ICs compartilhados (n pequeno) + concordância inter-anotador | `wilson`, `bootstrap_ic`, `fleiss_kappa` |
 | `proveniencia.py` | Carimbo de reprodutibilidade em todo report (seed/git_sha/**git_dirty**/versões/timestamp) | `carimbar`, `proveniencia`, `_git_sha`, `_git_dirty`, `_versoes` |
+| `observabilidade.py` | Cache LRU (corta p95) + métrica estruturada por requisição (serving) | `CacheLRU`, `registrar_metrica` |
 
 ## Fase 0 — Fundamentos, ML clássico e dados de acidentes
 
@@ -51,7 +52,7 @@ src/rodoia/
 | `rag/chunking.py` | Chunking consciente da estrutura jurídica (por artigos + janela) | `chunk_norma`, `dividir_por_artigos`, `empacotar` |
 | `rag/embeddings.py` | Embeddings locais (E5 multilingual, custo zero) | `E5Embedder`, `Embedder` (Protocol) |
 | `rag/indice.py` | Índice vetorial Qdrant (modo local, sem servidor) | `criar_cliente`, `indexar`, `buscar` |
-| `rag/construir_indice.py` | Constrói o índice a partir do corpus chunkado | `construir`, `carregar_chunks` |
+| `rag/construir_indice.py` | Constrói o índice + emite a composição do corpus versionada | `construir`, `carregar_chunks`, `escrever_stats_corpus` |
 | `rag/recuperador.py` | Recuperação híbrida densa+BM25 com fusão RRF + reranker | `RecuperadorHibrido`, `fundir_rrf`, `Reranker`, `tokenizar` |
 | `rag/llm.py` | Interface `LLM` (Protocol) + backends Ollama e OpenAI-compat (vLLM) | `LLM`, `OllamaLLM`, `OpenAICompatLLM` |
 | `rag/gerar.py` | Monta prompt ancorado, gera resposta com fontes, versão segura | `responder`, `responder_seguro`, `montar_prompt`, `montar_contexto` |

@@ -22,15 +22,22 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Instalar (.[rag] — E5 + Qdrant + BM25, CPU)
-        run: pip install -e ".[rag]"
+      - name: Instalar (.[rag,estruturados] — E5/Qdrant/BM25 + DuckDB, CPU)
+        run: pip install -e ".[rag,estruturados]"
 
-      - name: Baixar o corpus público + reconstruir o índice
+      - name: Âncora 1 — corpus público + índice (retrieval)
         run: |
           python -m rodoia.rag.baixar_normas
           python -m rodoia.rag.construir_indice
 
-      - name: Reproduzir a âncora (re-executa o retrieval e confere; grava evidência)
+      - name: Âncora 2 — volume + DuckDB (previsão; tolerante a CKAN fora do ar)
+        run: |
+          python -m rodoia.data.baixar_volume \
+            && python -m rodoia.data.ingestao_volume \
+            && python -m rodoia.dados.estrela \
+            || echo "volume indisponível — a âncora de previsão pulará (sem falhar)"
+
+      - name: Reproduzir as âncoras (re-executa o pipeline e confere; grava evidência)
         run: python -m rodoia.mlops.reproduzir
 
       - name: Publicar a evidência da reprodução

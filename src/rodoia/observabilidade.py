@@ -3,8 +3,8 @@
 Duas peças que atacam o p95 alto da geração e dão visibilidade de produção:
 - **CacheLRU**: cache de respostas por consulta (a geração é o gargalo, ~p95 30 s; uma consulta
   repetida passa a ser instantânea). LRU simples, sem dependência externa.
-- **registrar_metrica**: emite uma linha JSON por requisição (latência, cache_hit, rota, tokens)
-  — observabilidade estruturada, além da trilha de auditoria.
+- **registrar_metrica**: emite uma linha JSON por requisição (latência, cache_hit, taxa de hit,
+  nº de fontes, bloqueado) — observabilidade estruturada, além da trilha de auditoria.
 """
 from __future__ import annotations
 
