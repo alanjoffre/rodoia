@@ -19,28 +19,50 @@ token, a demo roda em modo *retrieval-only* (mostra os trechos citados) — leve
 
 > Este diretório **não** faz parte do pacote; são os arquivos que sobem para o Space.
 
-## Como subir (uma vez, na conta HuggingFace do dono do projeto)
+## Passo a passo (uma vez, na sua conta HuggingFace)
 
-```bash
-# 1) Crie um Space (SDK Gradio) em huggingface.co/new-space  ->  ex.: alanjoffre/rodoia-rag
-# 2) Clone o repo do Space e copie estes arquivos:
-git clone https://huggingface.co/spaces/<seu-usuario>/rodoia-rag && cd rodoia-rag
-cp /caminho/rodoia/deploy/hf_space/{app.py,requirements.txt,README.md} .
+**Pré-requisito:** uma conta grátis em huggingface.co e o `git` instalado. O `app.py` é **turnkey**:
+na 1ª subida ele **baixa o corpus da ANTT e constrói o índice sozinho** (ver `_preparar_dados`). Você
+só precisa subir os 3 arquivos.
 
-# 3) O corpus de normas (data/raw/normas/normas.jsonl) NÃO está no Git público.
-#    Opção A (recomendada): rode o pipeline e inclua o arquivo no Space:
-#        python -m rodoia.rag.baixar_normas   # gera normas.jsonl
-#        mkdir -p data/raw/normas && cp .../normas.jsonl data/raw/normas/
-#    Opção B: adicione um subconjunto curado de resoluções para uma demo leve.
+1. **Crie o Space.** Em https://huggingface.co/new-space → dê um nome (ex.: `rodoia-rag`) → **SDK:
+   Gradio** → **Hardware: CPU basic (free)** → Create.
 
-# 4) (Opcional) Ative a geração: no Space, Settings -> Secrets -> HF_TOKEN=<seu token de leitura>
-# 5) Suba:
-git add . && git commit -m "deploy: RodoIA RAG demo" && git push
-```
+2. **Clone o repositório do Space** (o HF cria um repo git para ele):
+   ```bash
+   git clone https://huggingface.co/spaces/<seu-usuario>/rodoia-rag
+   cd rodoia-rag
+   ```
 
-O Space builda a imagem (instala `rodoia[rag]` do GitHub), sobe o Gradio e fica **público numa
-URL** `https://huggingface.co/spaces/<seu-usuario>/rodoia-rag` — a demo viva que faltava, **sem
-custo de nuvem**.
+3. **Copie os 3 arquivos deste diretório** para o repo do Space:
+   ```bash
+   cp /caminho/para/rodoia/deploy/hf_space/{app.py,requirements.txt,README.md} .
+   ```
+   > O `README.md` daqui já traz o cabeçalho YAML que o HF precisa (`sdk: gradio`, `app_file: app.py`).
+
+4. **(Opcional, recomendado) Acelere o 1º boot** subindo o corpus junto (evita o scrape de ~10 min):
+   ```bash
+   # no seu clone do rodoia, gere o corpus e copie para o Space:
+   python -m rodoia.rag.baixar_normas
+   mkdir -p data/raw/normas && cp <rodoia>/data/raw/normas/normas.jsonl data/raw/normas/
+   ```
+   Sem este passo, o Space baixa o corpus sozinho na 1ª subida (só mais lento).
+
+5. **(Opcional) Ligue a geração** de resposta: no Space → **Settings → Variables and secrets →
+   New secret** → `HF_TOKEN` = um token de leitura (huggingface.co/settings/tokens). Sem token, a
+   demo funciona em modo *retrieval-only* (mostra os trechos citados).
+
+6. **Suba:**
+   ```bash
+   git add . && git commit -m "deploy: RodoIA RAG demo" && git push
+   ```
+
+7. **Acompanhe o build** na aba **Logs** do Space. Na 1ª vez ele instala as libs, (baixa o corpus) e
+   constrói o índice — pode levar alguns minutos. Quando ficar **"Running"**, sua demo está no ar em
+   `https://huggingface.co/spaces/<seu-usuario>/rodoia-rag`.
+
+Pronto: a **demo viva** que faltava, **URL pública + HTTPS, sem custo de nuvem**. Cole o link no
+README principal do projeto (badge/linha "Demo ao vivo").
 
 ## Por que Spaces (e não Cloud Run) para a demo
 - **Grátis** (CPU free-tier) e **HTTPS + URL pública** prontos — ideal para portfólio.

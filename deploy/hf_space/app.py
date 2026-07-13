@@ -16,8 +16,21 @@ import gradio as gr
 _estado: dict = {}
 
 
+def _preparar_dados():
+    """Turnkey: garante corpus + índice na 1ª subida do Space. Se você já subiu
+    `data/raw/normas/normas.jsonl` no Space, o download é pulado (boot rápido)."""
+    from rodoia.config import settings
+    if not settings.normas_jsonl.exists():
+        from rodoia.rag.baixar_normas import baixar_corpus
+        baixar_corpus()                       # baixa o corpus público da ANTT (~10 min na 1ª vez)
+    if not settings.qdrant_path.exists():
+        from rodoia.rag.construir_indice import construir
+        construir()                           # constrói o índice (E5 + Qdrant), ~2 min
+
+
 def _carregar():
     if "rec" not in _estado:
+        _preparar_dados()
         from rodoia.rag.avaliacao_retrieval import carregar_recuperador
         # reranker desligado no free-tier (CPU) para latência; retrieval híbrido já é forte
         _estado["rec"] = carregar_recuperador(com_reranker=False)
