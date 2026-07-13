@@ -50,21 +50,45 @@ def _linha(nome: str, usd_h: float, req_s: float, cambio: float, util: float) ->
     }
 
 
+def _linha_latencia(nome: str, usd_h: float, lat_s: float, cambio: float, util: float) -> dict:
+    """Custo por latência single-stream (rota RAG: só temos o p50 por requisição, não a vazão
+    concorrente). Teto: sem batching medido, 1 requisição ocupa a GPU por ~lat_s. Batching
+    baixaria o número."""
+    marginal_brl = (lat_s * 1000 / 3600.0) * usd_h * cambio        # 1k req single-stream
+    return {
+        "gpu": nome,
+        "usd_h": usd_h,
+        "brl_por_1k_marginal": round(marginal_brl, 2),
+        "brl_por_1k_alwayson": round(marginal_brl / util, 2),
+    }
+
+
 def calcular(raiz=None) -> dict:
     raiz = raiz or REPO_ROOT
     bench = json.loads((raiz / "reports/fase2_ft/benchmark_vllm.json").read_text(encoding="utf-8"))
     req_s = bench["req_por_s"]
-    linhas = [_linha(n, p, req_s, CAMBIO_BRL_POR_USD, UTILIZACAO_REALISTA) for n, p in GPUS]
+    ger = json.loads((raiz / "reports/fase1_geracao/avaliacao_geracao.json").read_text(
+        encoding="utf-8"))
+    lat_rag = ger["observabilidade"]["geracao_p50_s"]
+    ft = [_linha(n, p, req_s, CAMBIO_BRL_POR_USD, UTILIZACAO_REALISTA) for n, p in GPUS]
+    rag = [_linha_latencia(n, p, lat_rag, CAMBIO_BRL_POR_USD, UTILIZACAO_REALISTA) for n, p in GPUS]
     return carimbar({
-        "fonte_vazao": "reports/fase2_ft/benchmark_vllm.json (medido, vLLM, modelo FT)",
-        "req_por_s_medido": req_s,
+        "fontes": {
+            "vazao_ft": "reports/fase2_ft/benchmark_vllm.json (medido, vLLM, modelo FT 3B)",
+            "latencia_rag": "reports/fase1_geracao/avaliacao_geracao.json (p50 medido, geração 7B)",
+        },
+        "req_por_s_ft_medido": req_s,
+        "latencia_p50_rag_medida_s": lat_rag,
         "premissas": {
             "cambio_brl_por_usd": CAMBIO_BRL_POR_USD,
             "utilizacao_realista": UTILIZACAO_REALISTA,
-            "escopo": "rota FT (NER, max_tokens=128); RAG completa custa proporcionalmente mais",
             "natureza": "modelo de custo — premissas explícitas, NÃO cotação ao vivo",
+            "cold_start": ("scale-to-zero adiciona cold-start (carregar o modelo na VRAM, ~dezenas "
+                           "de s p/ o 7B) na 1ª req após ociosidade — trade-off vs. always-on"),
         },
-        "cenarios": linhas,
+        "rota_ft": {"nota": "vazão concorrente medida (req/s)", "cenarios": ft},
+        "rota_rag": {"nota": "latência single-stream p50 (teto; batching baixaria)",
+                     "cenarios": rag},
     })
 
 
@@ -73,11 +97,16 @@ def main() -> int:
     saida = REPO_ROOT / "reports" / "fase5_mlops" / "custo.json"
     saida.parent.mkdir(parents=True, exist_ok=True)
     saida.write_text(json.dumps(res, ensure_ascii=False, indent=2))
-    print(f"Custo de serving (vazão medida {res['req_por_s_medido']} req/s):")
-    for c in res["cenarios"]:
+    print(f"Custo de serving — rota FT (vazão medida {res['req_por_s_ft_medido']} req/s):")
+    for c in res["rota_ft"]["cenarios"]:
         print(f"  {c['gpu']:24} R$ {c['brl_por_1k_marginal']:>6}/1k (marginal) · "
               f"R$ {c['brl_por_1k_alwayson']:>6}/1k (always-on 30%) · "
               f"R$ {c['brl_mensal_1_instancia']:>6.0f}/mês")
+    print(f"Custo de serving — rota RAG (p50 medido {res['latencia_p50_rag_medida_s']}s, "
+          "single-stream, teto):")
+    for c in res["rota_rag"]["cenarios"]:
+        print(f"  {c['gpu']:24} R$ {c['brl_por_1k_marginal']:>6}/1k (marginal) · "
+              f"R$ {c['brl_por_1k_alwayson']:>6}/1k (always-on 30%)")
     print(f"-> {saida}")
     return 0
 

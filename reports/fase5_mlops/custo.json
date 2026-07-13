@@ -1,48 +1,84 @@
 {
-  "fonte_vazao": "reports/fase2_ft/benchmark_vllm.json (medido, vLLM, modelo FT)",
-  "req_por_s_medido": 2.05,
+  "fontes": {
+    "vazao_ft": "reports/fase2_ft/benchmark_vllm.json (medido, vLLM, modelo FT 3B)",
+    "latencia_rag": "reports/fase1_geracao/avaliacao_geracao.json (p50 medido, geração 7B)"
+  },
+  "req_por_s_ft_medido": 2.05,
+  "latencia_p50_rag_medida_s": 20.685,
   "premissas": {
     "cambio_brl_por_usd": 5.4,
     "utilizacao_realista": 0.3,
-    "escopo": "rota FT (NER, max_tokens=128); RAG completa custa proporcionalmente mais",
-    "natureza": "modelo de custo — premissas explícitas, NÃO cotação ao vivo"
+    "natureza": "modelo de custo — premissas explícitas, NÃO cotação ao vivo",
+    "cold_start": "scale-to-zero adiciona cold-start (carregar o modelo na VRAM, ~dezenas de s p/ o 7B) na 1ª req após ociosidade — trade-off vs. always-on"
   },
-  "cenarios": [
-    {
-      "gpu": "L4 24GB (spot)",
-      "usd_h": 0.28,
-      "brl_por_1k_marginal": 0.205,
-      "brl_por_1k_alwayson": 0.683,
-      "brl_mensal_1_instancia": 1089.0
-    },
-    {
-      "gpu": "RTX 4090 (comunidade)",
-      "usd_h": 0.44,
-      "brl_por_1k_marginal": 0.322,
-      "brl_por_1k_alwayson": 1.073,
-      "brl_mensal_1_instancia": 1711.0
-    },
-    {
-      "gpu": "L4 24GB (on-demand)",
-      "usd_h": 0.7,
-      "brl_por_1k_marginal": 0.512,
-      "brl_por_1k_alwayson": 1.707,
-      "brl_mensal_1_instancia": 2722.0
-    },
-    {
-      "gpu": "A10G 24GB (on-demand)",
-      "usd_h": 1.0,
-      "brl_por_1k_marginal": 0.732,
-      "brl_por_1k_alwayson": 2.439,
-      "brl_mensal_1_instancia": 3888.0
-    }
-  ],
+  "rota_ft": {
+    "nota": "vazão concorrente medida (req/s)",
+    "cenarios": [
+      {
+        "gpu": "L4 24GB (spot)",
+        "usd_h": 0.28,
+        "brl_por_1k_marginal": 0.205,
+        "brl_por_1k_alwayson": 0.683,
+        "brl_mensal_1_instancia": 1089.0
+      },
+      {
+        "gpu": "RTX 4090 (comunidade)",
+        "usd_h": 0.44,
+        "brl_por_1k_marginal": 0.322,
+        "brl_por_1k_alwayson": 1.073,
+        "brl_mensal_1_instancia": 1711.0
+      },
+      {
+        "gpu": "L4 24GB (on-demand)",
+        "usd_h": 0.7,
+        "brl_por_1k_marginal": 0.512,
+        "brl_por_1k_alwayson": 1.707,
+        "brl_mensal_1_instancia": 2722.0
+      },
+      {
+        "gpu": "A10G 24GB (on-demand)",
+        "usd_h": 1.0,
+        "brl_por_1k_marginal": 0.732,
+        "brl_por_1k_alwayson": 2.439,
+        "brl_mensal_1_instancia": 3888.0
+      }
+    ]
+  },
+  "rota_rag": {
+    "nota": "latência single-stream p50 (teto; batching baixaria)",
+    "cenarios": [
+      {
+        "gpu": "L4 24GB (spot)",
+        "usd_h": 0.28,
+        "brl_por_1k_marginal": 8.69,
+        "brl_por_1k_alwayson": 28.96
+      },
+      {
+        "gpu": "RTX 4090 (comunidade)",
+        "usd_h": 0.44,
+        "brl_por_1k_marginal": 13.65,
+        "brl_por_1k_alwayson": 45.51
+      },
+      {
+        "gpu": "L4 24GB (on-demand)",
+        "usd_h": 0.7,
+        "brl_por_1k_marginal": 21.72,
+        "brl_por_1k_alwayson": 72.4
+      },
+      {
+        "gpu": "A10G 24GB (on-demand)",
+        "usd_h": 1.0,
+        "brl_por_1k_marginal": 31.03,
+        "brl_por_1k_alwayson": 103.43
+      }
+    ]
+  },
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "d31db9d",
+    "git_sha": "2b36e19",
     "git_dirty": true,
-    "git_diff_sha1": "da39a3ee5e6b",
-    "timestamp_utc": "2026-07-13T23:41:01+00:00",
+    "git_diff_sha1": "5a885301c1b6",
+    "timestamp_utc": "2026-07-13T23:52:45+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

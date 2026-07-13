@@ -21,6 +21,7 @@ import json
 import re
 import statistics
 
+from rodoia.estat import bootstrap_ic
 from rodoia.proveniencia import carimbar
 from rodoia.rag.gerar import montar_contexto, responder
 from rodoia.rag.recuperador import RecuperadorHibrido
@@ -68,6 +69,17 @@ def julgar(consulta: str, resposta: str, contexto: str, juiz) -> dict:
     return _parse_notas(juiz.gerar(prompt))
 
 
+def ics_geracao(casos: list[dict]) -> dict:
+    """IC 95% (bootstrap) das notas do juiz por caso. Com n=12 a régua do projeto exige a
+    faixa: uma média de juiz sem IC engana. Pura sobre `casos` — dá backfill sem re-rodar o LLM."""
+    prec = [c["precisao_citacao"] for c in casos if c["precisao_citacao"] is not None]
+    return {
+        "faithfulness_ic95": bootstrap_ic([c["faithfulness"] for c in casos]),
+        "relevancy_ic95": bootstrap_ic([c["relevancy"] for c in casos]),
+        "precisao_citacao_ic95": bootstrap_ic(prec) if prec else None,
+    }
+
+
 def avaliar_geracao(
     recuperador: RecuperadorHibrido, gerador, juiz, dourados: list[dict], k: int = 4
 ) -> dict:
@@ -108,13 +120,38 @@ def avaliar_geracao(
         "relevancy_media": round(sum(c["relevancy"] for c in casos) / n, 3),
         "precisao_citacao_media": round(sum(prec) / len(prec), 3) if prec else None,
         "taxa_citou_esperada": round(sum(c["citou_esperada"] for c in casos) / n, 3),
+        **ics_geracao(casos),
         "observabilidade": obs,
         "n": len(casos),
         "casos": casos,
     }
 
 
+def _backfill_ic() -> None:
+    """Recomputa os IC das notas do juiz a partir dos `casos` já versionados (sem LLM) e os
+    injeta no JSON — para adicionar a faixa sem reexecutar a geração cara."""
+    import sys
+
+    from rodoia.config import REPO_ROOT
+    p = REPO_ROOT / "reports" / "fase1_geracao" / "avaliacao_geracao.json"
+    dados = json.loads(p.read_text(encoding="utf-8"))
+    ics = ics_geracao(dados["casos"])
+    reconstruido = {}
+    for chave, valor in dados.items():                 # insere os IC logo após taxa_citou_esperada
+        reconstruido[chave] = valor
+        if chave == "taxa_citou_esperada":
+            reconstruido.update(ics)
+    p.write_text(json.dumps(reconstruido, ensure_ascii=False, indent=2))
+    print(f"IC injetados: faithfulness {ics['faithfulness_ic95']} "
+          f"relevancy {ics['relevancy_ic95']} -> {p}", file=sys.stderr)
+
+
 def main() -> None:
+    import sys
+    if len(sys.argv) >= 2 and sys.argv[1] == "ic":
+        _backfill_ic()
+        return
+
     from rodoia.config import REPO_ROOT
     from rodoia.rag.avaliacao_retrieval import CONJUNTO_DOURADO, carregar_recuperador
     from rodoia.rag.llm import OllamaLLM

@@ -155,6 +155,8 @@ ao vivo. A honestidade está em separar o **piso** (marginal, 100% de utilizaç�
 (always-on a ~30%, pagando GPU ociosa). Premissas explícitas: câmbio R$5,40/US$, preços-hora de
 GPU pequena ~2026 (`reports/fase5_mlops/custo.json`):
 
+**Rota FT** (NER, `max_tokens=128`) — da **vazão concorrente medida** (2,05 req/s):
+
 | GPU (premissa de preço) | R$/1k req (marginal) | R$/1k req (always-on 30%) | R$/mês (1 instância) |
 |---|---|---|---|
 | L4 24GB (spot) | **0,21** | 0,68 | 1.089 |
@@ -162,11 +164,23 @@ GPU pequena ~2026 (`reports/fase5_mlops/custo.json`):
 | L4 24GB (on-demand) | 0,51 | 1,71 | 2.722 |
 | A10G 24GB (on-demand) | 0,73 | 2,44 | 3.888 |
 
-→ **Achado:** servir o modelo FT é **barato por requisição** (centavos/1k) porque é pequeno (fp8,
-5,2 GB); o custo real de um endpoint de portfólio é **dominado pela GPU ociosa** (always-on ≈
-3,3× o marginal, = 1/utilização). Conclusão de engenharia: para tráfego baixo, **escala-a-zero /
-sob demanda** vence always-on — coerente com o runbook (§7, Cloud Run com scale-to-zero). Escopo:
-rota FT (geração curta); a rota RAG completa (p95≈30 s) custa proporcionalmente mais, mesma conta.
+**Rota RAG** (a de fato user-facing, 7B, geração longa) — da **latência p50 medida** (20,7 s),
+single-stream (teto: sem batching medido; batching baixaria):
+
+| GPU (premissa de preço) | R$/1k req (marginal) | R$/1k req (always-on 30%) |
+|---|---|---|
+| L4 24GB (spot) | **8,69** | 28,96 |
+| RTX 4090 (comunidade) | 13,65 | 45,51 |
+| L4 24GB (on-demand) | 21,72 | 72,40 |
+| A10G 24GB (on-demand) | 31,03 | 103,43 |
+
+→ **Achado:** servir o modelo FT é **barato** (centavos/1k) porque é pequeno (fp8, 5,2 GB); a rota
+RAG é **~40× mais cara** — os 20,7 s de geração do 7B dominam. Em ambas, o custo real de um endpoint
+de portfólio é **dominado pela GPU ociosa** (always-on ≈ 3,3× o marginal, = 1/utilização).
+Conclusão de engenharia: para tráfego baixo, **escala-a-zero / sob demanda** vence always-on —
+coerente com o runbook (§7, Cloud Run scale-to-zero). Ressalva honesta: scale-to-zero **adiciona
+cold-start** (carregar o 7B na VRAM, dezenas de s na 1ª req após ociosidade) — o trade-off de escalar
+a zero. Números em `reports/fase5_mlops/custo.json`.
 
 ## 7. Deploy — runbook
 

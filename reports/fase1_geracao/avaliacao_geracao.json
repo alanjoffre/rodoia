@@ -3,6 +3,18 @@
   "relevancy_media": 1.0,
   "precisao_citacao_media": 0.917,
   "taxa_citou_esperada": 0.667,
+  "faithfulness_ic95": [
+    0.625,
+    0.825
+  ],
+  "relevancy_ic95": [
+    1.0,
+    1.0
+  ],
+  "precisao_citacao_ic95": [
+    0.75,
+    1.0
+  ],
   "observabilidade": {
     "geracao_p50_s": 20.685,
     "geracao_p95_s": 29.523,
