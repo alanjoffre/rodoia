@@ -1,6 +1,11 @@
 """Testes das melhorias de rigor da Fase 1 (hermético: sem rede, modelos ou Qdrant):
 observabilidade, defesa de injeção no contexto, guardrail, PII, citação e IC."""
-from rodoia.estat import fleiss_kappa
+from rodoia.estat import cohen_kappa, fleiss_kappa
+
+
+def test_cohen_kappa():
+    assert cohen_kappa([1, 0, 1, 0], [1, 0, 1, 0]) == 1.0     # concordância perfeita
+    assert cohen_kappa([1, 1, 0, 0], [0, 0, 1, 1]) == -1.0    # oposto → pior que o acaso
 from rodoia.rag.avaliacao_geracao import citacoes
 from rodoia.rag.avaliacao_retrieval import _bootstrap_ic, _wilson
 from rodoia.rag.gerar import PROMPT_SISTEMA, montar_contexto, responder
