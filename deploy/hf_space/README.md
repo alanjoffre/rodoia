@@ -64,6 +64,30 @@ só precisa subir os 3 arquivos.
 Pronto: a **demo viva** que faltava, **URL pública + HTTPS, sem custo de nuvem**. Cole o link no
 README principal do projeto (badge/linha "Demo ao vivo").
 
+## Alternativa: SDK **Docker** (se a UI não oferecer Gradio) — também grátis
+
+Gradio é grátis no CPU basic; mas se a criação do Space só listar **Docker/Static**, escolha
+**Docker** (grátis) e use o `Dockerfile` deste diretório. Só muda o **cabeçalho YAML** do
+`README.md` do Space (o topo deste arquivo) para:
+
+```yaml
+---
+title: RodoIA — RAG ANTT
+emoji: 🛣️
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+```
+
+E copie **4 arquivos** para o Space (em vez de 3): `app.py`, `requirements.txt`, `README.md` e
+**`Dockerfile`**. O resto do passo a passo é idêntico (`git push`, acompanhar Logs até *Running*).
+O Space Docker builda a imagem, roda `python app.py` (Gradio na porta 7860) e fica público na
+mesma URL.
+
 ## Por que Spaces (e não Cloud Run) para a demo
 - **Grátis** (CPU free-tier) e **HTTPS + URL pública** prontos — ideal para portfólio.
 - Sem cartão de crédito / sem risco de fatura.
