@@ -1,9 +1,17 @@
 """Testes das melhorias de rigor da Fase 1 (hermético: sem rede, modelos ou Qdrant):
 observabilidade, defesa de injeção no contexto, guardrail, PII, citação e IC."""
+from rodoia.estat import fleiss_kappa
 from rodoia.rag.avaliacao_geracao import citacoes
 from rodoia.rag.avaliacao_retrieval import _bootstrap_ic, _wilson
 from rodoia.rag.gerar import PROMPT_SISTEMA, montar_contexto, responder
 from rodoia.rag.seguranca import detectar_injection, mascarar_pii
+
+
+def test_fleiss_kappa():
+    # concordância perfeita entre 3 juízes → κ = 1,0
+    assert fleiss_kappa([[2, 2, 2], [0, 0, 0], [1, 1, 1]]) == 1.0
+    # desacordo total num item (0/1/2) → pior que o acaso (κ < 0)
+    assert fleiss_kappa([[0, 1, 2]]) < 0
 
 
 class _FakeRecuperador:

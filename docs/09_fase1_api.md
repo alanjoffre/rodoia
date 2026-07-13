@@ -69,6 +69,26 @@ Um revisor cético atacaria — e tem razão em parte:
 
 **Fix real (backlog):** ampliar o corpus + anotação independente com κ. É trabalho de dados, não um
 ajuste rápido — por isso está registrado como limitação, não maquiado.
+
+### Banca de juízes independente + κ mensurável (`rag/painel_juizes.py`)
+
+Contra o ataque "você avaliando você": a fidelidade da resposta passa a ser julgada por uma **banca
+de 3 juízes de famílias distintas** — **llama3.1 (Meta), gemma2 (Google), mistral (Mistral)**, todos
+**≠ do gerador** (qwen2.5) — em escala 0/1/2, e reportamos a **concordância inter-anotador (κ de
+Fleiss)**. Resultado (`reports/fase1_geracao/painel_juizes.json`, n=12):
+
+| | Valor |
+|---|---|
+| Fidelidade média (banca, 0–1) | **0,82** |
+| **κ de Fleiss entre os 3 juízes** | **0,167** (concordância "leve", Landis-Koch) |
+| Calibragem por juiz (média 0–2) | gemma2 **1,92** (leniente) · llama3.1 1,58 · mistral **1,42** (duro) |
+
+→ **O achado mais honesto desta fase:** os juízes automáticos têm **calibragens bem diferentes** e
+**mal concordam** (κ=0,17). Ou seja, **nota de LLM-juiz único é ruidosa** — o `faithfulness=0,73` do
+juiz único não deve ser levado como verdade fina. Medir o κ **expõe** essa fragilidade em vez de
+escondê-la; a banca (média + voto majoritário) é mais robusta que um juiz só. Continua sendo
+**juiz automático, não humano** — o κ humano segue como backlog —, mas é um proxy rigoroso e
+**mensurável** de independência.
 | Governança | guardrail (direto+indireto+evasão) + PII + auditoria | 08 |
 | Geração | citação; **juiz independente** (llama3.1, **n=12, sem IC**): faithfulness 0,73 / relevancy 1,0 / precisão de citação 0,92 · geração p50 ~21s | — |
 | Interface | FastAPI async + UI de demo | 09 |

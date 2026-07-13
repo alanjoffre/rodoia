@@ -30,3 +30,30 @@ def bootstrap_ic(valores: list[float], n_boot: int = 2000, seed: int = 42) -> li
     medias = rng.choice(arr, size=(n_boot, arr.size), replace=True).mean(axis=1)
     lo, hi = np.percentile(medias, [2.5, 97.5])
     return [round(float(lo), 3), round(float(hi), 3)]
+
+
+def fleiss_kappa(avaliacoes: list[list], categorias=(0, 1, 2)) -> float:
+    """κ de Fleiss — concordância entre MÚLTIPLOS avaliadores (banca de juízes).
+
+    `avaliacoes`: uma lista de itens; cada item é a lista de rótulos dados pelos avaliadores
+    (ex.: [[2,2,1],[0,0,0],...] para 3 juízes numa escala 0/1/2). κ=1 concordância perfeita,
+    0 = ao acaso, <0 pior que o acaso. Interpreta a força da concordância inter-anotador.
+    """
+    n_itens = len(avaliacoes)
+    if n_itens == 0:
+        return 0.0
+    n = len(avaliacoes[0])                       # avaliadores por item (assume constante)
+    if n < 2:
+        return 1.0
+    idx = {c: j for j, c in enumerate(categorias)}
+    cont = [[0] * len(categorias) for _ in range(n_itens)]
+    for i, item in enumerate(avaliacoes):
+        for rotulo in item:
+            cont[i][idx[rotulo]] += 1
+    # concordância observada por item e média
+    p_i = [(sum(c * c for c in cont[i]) - n) / (n * (n - 1)) for i in range(n_itens)]
+    p_obs = sum(p_i) / n_itens
+    # concordância esperada ao acaso
+    p_j = [sum(cont[i][j] for i in range(n_itens)) / (n_itens * n) for j in range(len(categorias))]
+    p_esp = sum(p * p for p in p_j)
+    return round((p_obs - p_esp) / (1 - p_esp), 4) if p_esp < 1 else 1.0

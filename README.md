@@ -63,7 +63,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) · avaliado com IC (hit@5 0,64 [0,50–0,76], n=50; rerank não ajuda) · precisão de citação 0,92 |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo LangGraph (estado + arestas condicionais) combinando as 3 ferramentas · roteamento **0,95** (n=21, objetivo) · juiz independente ([docs/15](docs/15_fase4_agente.md)) |
 | Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B) p/ **NER jurídico**: F1 **0,13→0,77** vs. SOTA BERTimbau 0,89 ([docs/13](docs/13_fase2_ner.md)) · **fp8** no vLLM (205 tok/s, NF4 ΔPPL +14%) · estudo-baseline (FT≠conhecimento) em [docs/11](docs/11_fase2_resultados.md) |
-| Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · juiz pareado c/ controle de viés (F2) · guardrails |
+| Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · **banca de 3 juízes diversos com κ de Fleiss** (achado: juízes concordam pouco, κ=0,17 → juiz único é ruidoso) · juiz pareado c/ controle de viés (F2) · guardrails |
 | Deploy/serving (FastAPI, vLLM, containers, k8s) | Fase 2 + 5 | vLLM + container + (opcional) k8s |
 | CI/CD para ML, versionamento (MLflow/DVC/W&B) | Fase 5 | GitHub Actions (lint+testes+**gate de regressão**) · MLflow (sqlite, 5 runs) · DVC ([docs/16](docs/16_fase5_mlops.md)) |
 | Monitoramento, observabilidade, drift | Fase 1 + 5 | Latência/tokens medidos no RAG (F1) · **drift por PSI** (coorte, 0,005 estável) na F5 |

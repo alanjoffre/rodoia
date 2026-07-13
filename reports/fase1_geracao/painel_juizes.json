@@ -1,0 +1,155 @@
+{
+  "juizes": [
+    "llama3.1:8b",
+    "gemma2:9b",
+    "mistral:7b"
+  ],
+  "n": 12,
+  "fidelidade_media_banca": 1.639,
+  "fidelidade_media_norm": 0.82,
+  "fleiss_kappa": 0.1673,
+  "casos": [
+    {
+      "consulta": "Sou embarcador e contratei um caminhoneiro autônomo; preciso adiantar o pedágio da viagem?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 2.0
+    },
+    {
+      "consulta": "Vou mandar uma carga de caminhão para a Argentina; que regras da ANTT valem para essa viagem internacional?",
+      "notas": {
+        "llama3.1:8b": 0,
+        "gemma2:9b": 2,
+        "mistral:7b": 1
+      },
+      "voto_majoritario": 0,
+      "media": 1.0
+    },
+    {
+      "consulta": "Como faço para tirar o registro que me habilita a transportar cargas pela ANTT?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 0
+      },
+      "voto_majoritario": 2,
+      "media": 1.33
+    },
+    {
+      "consulta": "Vou levar produtos químicos inflamáveis na estrada; que documentos e exigências preciso cumprir?",
+      "notas": {
+        "llama3.1:8b": 1,
+        "gemma2:9b": 1,
+        "mistral:7b": 1
+      },
+      "voto_majoritario": 1,
+      "media": 1.0
+    },
+    {
+      "consulta": "Existe um valor mínimo que devo receber por um frete? Como esse piso é calculado?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 2.0
+    },
+    {
+      "consulta": "Tenho débitos com a ANTT que ainda não foram para a dívida ativa; consigo parcelar?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 2.0
+    },
+    {
+      "consulta": "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 0
+      },
+      "voto_majoritario": 2,
+      "media": 1.33
+    },
+    {
+      "consulta": "Quem dentro da ANTT tem competência delegada para decidir sobre esses assuntos?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 2.0
+    },
+    {
+      "consulta": "Existe algum programa para eu regularizar débitos não tributários com a agência?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 2.0
+    },
+    {
+      "consulta": "Qual regulamento rege as concessões de rodovias federais atualmente?",
+      "notas": {
+        "llama3.1:8b": 1,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 1.67
+    },
+    {
+      "consulta": "Que multas e penalidades a ANTT pode aplicar a quem transporta carga irregularmente?",
+      "notas": {
+        "llama3.1:8b": 1,
+        "gemma2:9b": 2,
+        "mistral:7b": 2
+      },
+      "voto_majoritario": 2,
+      "media": 1.67
+    },
+    {
+      "consulta": "O vale-pedágio precisa mesmo ser pago à parte do frete, ou pode ser descontado do motorista?",
+      "notas": {
+        "llama3.1:8b": 2,
+        "gemma2:9b": 2,
+        "mistral:7b": 1
+      },
+      "voto_majoritario": 2,
+      "media": 1.67
+    }
+  ],
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "1159053",
+    "git_dirty": true,
+    "git_diff_sha1": "55dc4a149b8e",
+    "timestamp_utc": "2026-07-13T16:24:52+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
+}

@@ -26,7 +26,7 @@ src/rodoia/
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
 | `config.py` | Config central (pydantic-settings); caminhos, modelos, `seed`, override por env | `Settings` |
-| `estat.py` | Intervalos de confiança compartilhados (n pequeno) | `wilson`, `bootstrap_ic` |
+| `estat.py` | ICs compartilhados (n pequeno) + concordância inter-anotador | `wilson`, `bootstrap_ic`, `fleiss_kappa` |
 | `proveniencia.py` | Carimbo de reprodutibilidade em todo report (seed/git_sha/**git_dirty**/versões/timestamp) | `carimbar`, `proveniencia`, `_git_sha`, `_git_dirty`, `_versoes` |
 
 ## Fase 0 — Fundamentos, ML clássico e dados de acidentes
@@ -58,6 +58,7 @@ src/rodoia/
 | `rag/seguranca.py` | Guardrails: anti-injection, PII masking, auditoria | `detectar_injection`, `mascarar_pii`, `registrar_auditoria` |
 | `rag/avaliacao_retrieval.py` | Compara modos (denso/BM25/híbrido/rerank): hit@5 + MRR com IC | `comparar`, `avaliar_modo`, `carregar_recuperador` |
 | `rag/avaliacao_geracao.py` | LLM-as-judge (estilo RAGAS): faithfulness/relevancy/citação | `avaliar_geracao`, `julgar`, `citacoes` |
+| `rag/painel_juizes.py` | Banca de 3 juízes diversos (≠ gerador) + κ de Fleiss (independência mensurável) | `avaliar_painel`, `julgar` |
 
 ## Fase 2 — Fine-tuning, serving e NER (`ft/`, `ner/`)
 
