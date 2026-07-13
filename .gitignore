@@ -21,6 +21,9 @@ service-account*.json
 # Datasets processados (regeneráveis pelo pipeline). Fora do Git também porque o
 # LeNER-Br carrega PII de registros judiciais públicos — não redistribuímos no repo.
 /data/processed/*.jsonl
+# Assets gerados da demo Static (embeddings ~MB) — sobem para o Space, não para o repo.
+/deploy/hf_space_static/dados.f32
+/deploy/hf_space_static/dados.json
 
 # Trilha de auditoria da API (dados de runtime).
 /logs/

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RodoIA — RAG sobre a regulação da ANTT (demo no navegador)</title>
+<style>
+  :root { color-scheme: light dark; --bg:#0b0e14; --fg:#e6e6e6; --mut:#8b94a3; --card:#141922;
+          --ac:#4a9eff; --bd:#232a36; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f7f8fa; --fg:#1a1a1a; --mut:#5a6472; --card:#fff; --ac:#0b6bcb; --bd:#e2e6ec; } }
+  * { box-sizing:border-box; }
+  body { font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg);
+         color:var(--fg); max-width:820px; margin:0 auto; padding:28px 18px; line-height:1.55; }
+  h1 { font-size:1.5rem; margin:0 0 4px; }
+  p.sub { color:var(--mut); margin:0 0 20px; }
+  .box { display:flex; gap:8px; }
+  input { flex:1; padding:11px 13px; border:1px solid var(--bd); border-radius:9px;
+          background:var(--card); color:var(--fg); font-size:1rem; }
+  button { padding:11px 18px; border:0; border-radius:9px; background:var(--ac); color:#fff;
+           font-size:1rem; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  #status { color:var(--mut); font-size:.9em; margin:12px 0; min-height:1.2em; }
+  .res { background:var(--card); border:1px solid var(--bd); border-radius:11px; padding:14px 16px;
+         margin:12px 0; }
+  .res b { color:var(--ac); }
+  .score { float:right; color:var(--mut); font-size:.82em; }
+  .exs { margin:14px 0; color:var(--mut); font-size:.9em; }
+  .exs a { color:var(--ac); cursor:pointer; text-decoration:underline; margin-right:12px; }
+  footer { color:var(--mut); font-size:.82em; margin-top:26px; border-top:1px solid var(--bd);
+           padding-top:14px; }
+  code { background:var(--card); padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <h1>🛣️ RodoIA — regulação da ANTT</h1>
+  <p class="sub">Busca semântica sobre <b id="ncorpus">…</b> resoluções da ANTT — <b>rodando 100% no
+     seu navegador</b> (embeddings E5 via Transformers.js, sem servidor). Cita a resolução-fonte.</p>
+
+  <div class="box">
+    <input id="q" placeholder="Ex.: Como funciona o vale-pedágio obrigatório?" autocomplete="off">
+    <button id="btn" disabled>Buscar</button>
+  </div>
+  <div class="exs">Exemplos:
+    <a data-q="Como funciona o vale-pedágio obrigatório?">vale-pedágio</a>
+    <a data-q="Quais as regras para transportar produtos perigosos?">produtos perigosos</a>
+    <a data-q="Como obter o RNTRC para transportar cargas?">RNTRC</a>
+    <a data-q="Existe piso mínimo de frete? Como é calculado?">piso de frete</a>
+  </div>
+  <div id="status">Carregando o modelo E5 (só na 1ª vez, ~30 MB)…</div>
+  <div id="out"></div>
+
+  <footer>
+    Demo <b>client-side</b> (Static Space, grátis): a pergunta é embutida no navegador e comparada
+    aos trechos das normas por similaridade de cosseno. É <b>retrieval-only</b> — a geração da
+    resposta (com citação) roda no serving completo do projeto (FastAPI + Ollama/vLLM). Código:
+    <a href="https://github.com/alanjoffre/rodoia">github.com/alanjoffre/rodoia</a>.
+  </footer>
+
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+env.allowLocalModels = false;                       // baixa o modelo do HF Hub
+
+const $ = s => document.querySelector(s);
+const status = m => { $('#status').textContent = m; };
+let extractor, EMB, META, DIM, N;
+
+async function init() {
+  // dados: metadados + embeddings dos chunks (pré-computados com o mesmo E5)
+  const meta = await (await fetch('dados.json')).json();
+  META = meta.meta; N = meta.n; DIM = meta.dim;
+  const buf = await (await fetch('dados.f32')).arrayBuffer();
+  EMB = new Float32Array(buf);
+  $('#ncorpus').textContent = new Set(META.map(m => m.numero)).size;
+  extractor = await pipeline('feature-extraction', 'Xenova/multilingual-e5-small');
+  status('Pronto. Faça uma pergunta sobre a regulação da ANTT.');
+  $('#btn').disabled = false;
+}
+
+async function buscar() {
+  const q = $('#q').value.trim();
+  if (!q || !extractor) return;
+  $('#btn').disabled = true; status('Buscando…'); $('#out').innerHTML = '';
+  // E5 exige o prefixo "query:"; mean-pooling + normalização (igual ao lado Python)
+  const out = await extractor('query: ' + q, { pooling: 'mean', normalize: true });
+  const qv = out.data;
+  const scores = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    let s = 0, off = i * DIM;
+    for (let d = 0; d < DIM; d++) s += qv[d] * EMB[off + d];
+    scores[i] = s;
+  }
+  const ord = [...scores.keys()].sort((a, b) => scores[b] - scores[a]);
+  const vistos = new Set(), res = [];
+  for (const i of ord) {
+    const num = META[i].numero;
+    if (vistos.has(num)) continue;
+    vistos.add(num); res.push({ i, s: scores[i] });
+    if (res.length >= 5) break;
+  }
+  $('#out').innerHTML = res.map(r =>
+    `<div class="res"><span class="score">sim ${r.s.toFixed(3)}</span>` +
+    `<b>Resolução ${META[r.i].numero}</b><br>${META[r.i].texto}…</div>`).join('');
+  status(`${res.length} normas mais relevantes (de ${new Set(META.map(m=>m.numero)).size}).`);
+  $('#btn').disabled = false;
+}
+
+$('#btn').addEventListener('click', buscar);
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+document.querySelectorAll('.exs a').forEach(a =>
+  a.addEventListener('click', () => { $('#q').value = a.dataset.q; buscar(); }));
+init().catch(e => status('Erro ao carregar: ' + e.message));
+</script>
+</body>
+</html>
