@@ -39,20 +39,53 @@ def reproduzir_retrieval(tol: float = TOL_HIT) -> tuple[bool, dict]:
     return ok, info
 
 
+def reproduzir_previsao(tol: float = 0.1) -> tuple[bool, dict]:
+    """2ª âncora: re-roda o backtest de previsão (determinístico, CPU) e compara o MAPE médio do
+    Holt-Winters contra o report. Pula (sem falhar) se o DuckDB da Fase 3 não existir."""
+    import numpy as np
+
+    from rodoia.dados.estrela import DB
+
+    rel = REPO_ROOT / "reports" / "fase3_dados" / "previsao.json"
+    if not DB.exists():
+        return True, {"ancora": "previsao_mape_holt_winters", "pulado": "DuckDB da Fase 3 ausente"}
+    esperado = json.loads(rel.read_text(encoding="utf-8"))["modelos"]["holt_winters"]["mape_medio"]
+
+    from rodoia.dados.previsao import _prever_praca, _series_completas
+    vals = [v for _, s in _series_completas()
+            if (v := _prever_praca(s).get("holt_winters")) is not None and np.isfinite(v)]
+    novo = round(float(np.mean(vals)), 2)
+
+    delta = abs(novo - esperado)
+    ok = delta <= tol
+    return ok, {"ancora": "previsao_mape_holt_winters", "commitado": esperado,
+                "reproduzido": novo, "delta": round(delta, 4), "tol": tol, "ok": ok}
+
+
+ANCORAS = (reproduzir_retrieval, reproduzir_previsao)
+
+
 def main() -> int:
     from rodoia.proveniencia import carimbar
 
-    print("Reprodução de métrica-âncora (re-executa o pipeline, não só lê o JSON):")
-    ok, info = reproduzir_retrieval()
+    print("Reprodução de métricas-âncora (re-executa o pipeline, não só lê o JSON):")
+    infos, tudo_ok = [], True
+    for fn in ANCORAS:
+        ok, info = fn()
+        infos.append(info)
+        if "pulado" in info:
+            print(f"  [–] {info['ancora']}: PULADO ({info['pulado']})")
+            continue
+        tudo_ok = tudo_ok and ok
+        marca = "✓" if ok else "✗"
+        print(f"  [{marca}] {info['ancora']}: commitado={info['commitado']} "
+              f"reproduzido={info['reproduzido']} (Δ={info['delta']} ≤ {info['tol']})")
     # Evidência VERSIONADA de que a reprodução rodou (com carimbo git_sha/git_dirty).
     saida = REPO_ROOT / "reports" / "fase1_retrieval" / "reproducao.json"
-    saida.write_text(json.dumps(carimbar(dict(info)), ensure_ascii=False, indent=2))
-    marca = "✓" if ok else "✗"
-    print(f"  [{marca}] {info['ancora']}: commitado={info['commitado']} "
-          f"reproduzido={info['reproduzido']} (Δ={info['delta']} ≤ {info['tol']})")
+    saida.write_text(json.dumps(carimbar({"ancoras": infos}), ensure_ascii=False, indent=2))
     print(f"evidência: {saida}")
-    print("REPRODUZIDO" if ok else "DIVERGIU — a métrica regenerada não bate com o commitado")
-    return 0 if ok else 1
+    print("REPRODUZIDO" if tudo_ok else "DIVERGIU — alguma métrica regenerada não bate")
+    return 0 if tudo_ok else 1
 
 
 if __name__ == "__main__":

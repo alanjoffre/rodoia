@@ -69,8 +69,10 @@ def test_vigencia_nao_confunde_referencia_no_corpo() -> None:
 def test_texto_valido_distingue_casca() -> None:
     corpo = "RESOLUÇÃO Nº 6.000 " + ("texto da norma " * 2000)  # > 18k chars
     casca = "Portal Gov.br Acesso rápido Menu " * 100  # sem título, curto
+    curta = "RESOLUÇÃO Nº 6.068 Altera a Resolução 5.999 " + ("art x " * 500)  # ~3k, título válido
     assert texto_valido(corpo) is True
     assert texto_valido(casca) is False
+    assert texto_valido(curta) is True  # norma curta legítima entra (piso antigo de 18k descartava)
 
 
 def test_ato_id_e_url() -> None:

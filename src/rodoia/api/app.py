@@ -13,6 +13,7 @@ chamada roda num threadpool (`asyncio.to_thread`). Os componentes pesados
 from __future__ import annotations
 
 import asyncio
+import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -20,9 +21,12 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from rodoia.config import REPO_ROOT
+from rodoia.observabilidade import CacheLRU, registrar_metrica
 
 _estado: dict = {}
 _AUDITORIA = REPO_ROOT / "logs" / "auditoria.jsonl"
+_METRICAS = REPO_ROOT / "logs" / "metricas.jsonl"      # observabilidade estruturada por requisição
+_CACHE = CacheLRU(maxsize=256)                          # respostas por (consulta, k) — corta o p95
 
 
 def _carregar() -> None:
@@ -68,9 +72,21 @@ async def perguntar(p: Pergunta) -> Resposta:
     from rodoia.rag.gerar import responder_seguro
 
     _carregar()
-    r = await asyncio.to_thread(
-        responder_seguro, p.consulta, _estado["rec"], _estado["llm"], p.k, _AUDITORIA
-    )
+    chave = (p.consulta.strip().lower(), p.k)
+    t0 = time.perf_counter()
+    r = _CACHE.get(chave)
+    cache_hit = r is not None
+    if not cache_hit:
+        r = await asyncio.to_thread(
+            responder_seguro, p.consulta, _estado["rec"], _estado["llm"], p.k, _AUDITORIA
+        )
+        _CACHE.set(chave, r)
+    # observabilidade estruturada: latência, cache, resultado — uma linha JSON por requisição
+    registrar_metrica({
+        "endpoint": "perguntar", "latencia_s": round(time.perf_counter() - t0, 3),
+        "cache_hit": cache_hit, "taxa_hit_cache": _CACHE.taxa_hit,
+        "bloqueado": r["bloqueado"], "n_fontes": len(r["fontes"]),
+    }, _METRICAS)
     return Resposta(resposta=r["resposta"], fontes=r["fontes"], bloqueado=r["bloqueado"])
 
 

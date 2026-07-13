@@ -154,9 +154,17 @@ def esta_vigente(texto: str) -> bool:
     return not _RE_REVOGADA.search(texto[:corte])
 
 
+# Mínimo de caracteres de uma norma real. A 'casca' do portal (tupla que não resolve) NÃO tem o
+# cabeçalho oficial "RESOLUÇÃO Nº ..." — o `_RE_TITULO` já a filtra; o tamanho mínimo apenas evita
+# stubs. 2.500 inclui resoluções curtas legítimas (ex.: as que só alteram outra), antes descartadas
+# por um piso de 18k que subestimava o corpus pela metade.
+MIN_CHARS_NORMA = 2_500
+
+
 def texto_valido(texto: str) -> bool:
-    """Distingue o corpo real da norma da 'casca' do portal."""
-    return bool(_RE_TITULO.search(texto)) and len(texto) > 18_000
+    """Distingue o corpo real da norma da 'casca' do portal: exige o cabeçalho oficial
+    (RESOLUÇÃO Nº ...) + tamanho mínimo — sem descartar normas curtas mas válidas."""
+    return bool(_RE_TITULO.search(texto)) and len(texto) > MIN_CHARS_NORMA
 
 
 def baixar_ato(ato: Ato) -> dict | None:

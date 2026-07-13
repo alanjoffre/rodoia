@@ -55,9 +55,11 @@ O gate do §1 é barato e honesto sobre seu limite: **não regenera métrica**. 
 fica num job separado que **re-executa o pipeline** e falha se o resultado divergir do JSON
 commitado — respondendo diretamente a "seu CI só lê números que você mesmo commitou".
 
-- **Âncora atual:** `hit@5` do retrieval híbrido — **determinística**, roda em **CPU**, sem LLM; a
-  reprodução bate exata (**Δ=0,0** contra o `avaliacao_retrieval.json`). A evidência (com carimbo
-  `git_sha`/`git_dirty`) é versionada em `reports/fase1_retrieval/reproducao.json`.
+- **Âncoras (2):** (1) `hit@5` do retrieval híbrido e (2) `MAPE` do Holt-Winters na previsão —
+  ambas **determinísticas** e **CPU**, sem LLM; reproduzem **exatas** (Δ=0,0 contra os reports). A
+  âncora de previsão **pula sem falhar** no runner hosted (que não tem o DuckDB de volume) e roda
+  onde o dado existe. Evidência (com carimbo `git_sha`/`git_dirty`) em
+  `reports/fase1_retrieval/reproducao.json`.
 - **Onde roda:** runner **github-hosted** (`ubuntu-latest`), `workflow_dispatch` + agendado semanal.
   O job **baixa o corpus público** (`baixar_normas`), **reconstrói o índice** (`construir_indice`) e
   **re-executa** o retrieval — sem esconder atrás de GPU. Fica fora do `ci.yml` de cada push porque é

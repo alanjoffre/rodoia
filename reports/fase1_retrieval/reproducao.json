@@ -1,16 +1,28 @@
 {
-  "ancora": "retrieval_hit@5_hibrido",
-  "commitado": 0.64,
-  "reproduzido": 0.64,
-  "delta": 0.0,
-  "tol": 0.02,
-  "ok": true,
+  "ancoras": [
+    {
+      "ancora": "retrieval_hit@5_hibrido",
+      "commitado": 0.64,
+      "reproduzido": 0.64,
+      "delta": 0.0,
+      "tol": 0.02,
+      "ok": true
+    },
+    {
+      "ancora": "previsao_mape_holt_winters",
+      "commitado": 13.25,
+      "reproduzido": 13.25,
+      "delta": 0.0,
+      "tol": 0.1,
+      "ok": true
+    }
+  ],
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "7ed17f7",
+    "git_sha": "9320171",
     "git_dirty": true,
-    "git_diff_sha1": "ce4aa359694f",
-    "timestamp_utc": "2026-07-13T15:39:34+00:00",
+    "git_diff_sha1": "36e2fd49a84a",
+    "timestamp_utc": "2026-07-13T16:54:35+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",
