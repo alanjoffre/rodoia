@@ -40,11 +40,17 @@ def reproduzir_retrieval(tol: float = TOL_HIT) -> tuple[bool, dict]:
 
 
 def main() -> int:
+    from rodoia.proveniencia import carimbar
+
     print("Reprodução de métrica-âncora (re-executa o pipeline, não só lê o JSON):")
     ok, info = reproduzir_retrieval()
+    # Evidência VERSIONADA de que a reprodução rodou (com carimbo git_sha/git_dirty).
+    saida = REPO_ROOT / "reports" / "fase1_retrieval" / "reproducao.json"
+    saida.write_text(json.dumps(carimbar(dict(info)), ensure_ascii=False, indent=2))
     marca = "✓" if ok else "✗"
     print(f"  [{marca}] {info['ancora']}: commitado={info['commitado']} "
           f"reproduzido={info['reproduzido']} (Δ={info['delta']} ≤ {info['tol']})")
+    print(f"evidência: {saida}")
     print("REPRODUZIDO" if ok else "DIVERGIU — a métrica regenerada não bate com o commitado")
     return 0 if ok else 1
 

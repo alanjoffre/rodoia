@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 
-from rodoia.agente.casos import CASOS
+from rodoia.agente.casos import CASOS_TRAJETORIA
 from rodoia.agente.grafo import responder
 from rodoia.config import REPO_ROOT
 from rodoia.proveniencia import carimbar
@@ -50,7 +50,7 @@ def _julgar(caso: dict, res: dict, juiz) -> dict:
 def avaliar(deps, juiz=None) -> dict:
     """Roda os casos, mede roteamento (objetivo) e, se `juiz` for dado, julga a qualidade."""
     linhas = []
-    for caso in CASOS:
+    for caso in CASOS_TRAJETORIA:
         res = responder(caso["pergunta"], deps)
         # rota "efetiva": vazia se bloqueado/fora de escopo (comparável ao esperado []).
         efetiva = [] if res["bloqueado"] or res["fora_de_escopo"] else res["rotas"]
@@ -96,19 +96,25 @@ def avaliar(deps, juiz=None) -> dict:
     return res
 
 
+def _rota_efetiva(pergunta: str, llm) -> list[str]:
+    """Rota que o agente tomaria: guardrail primeiro (injection → vazia), senão o roteador."""
+    from rodoia.agente.roteador import rotear
+    from rodoia.rag.seguranca import detectar_injection
+
+    inj, _ = detectar_injection(pergunta)
+    return [] if inj else rotear(pergunta, llm)["rotas"]
+
+
 def avaliar_roteamento(llm, casos=None) -> dict:
     """Avaliação OBJETIVA e barata do roteamento (guardrail + roteador), sem executar as
     ferramentas nem juiz — permite medir o roteamento num n maior (responde a "1,0? são 6 casos").
     """
     from rodoia.agente.casos import CASOS
-    from rodoia.agente.roteador import rotear
-    from rodoia.rag.seguranca import detectar_injection
 
     casos = casos or CASOS
     linhas = []
     for c in casos:
-        inj, _ = detectar_injection(c["pergunta"])   # injection → guardrail bloqueia (rota vazia)
-        efetiva = [] if inj else rotear(c["pergunta"], llm)["rotas"]
+        efetiva = _rota_efetiva(c["pergunta"], llm)
         linhas.append({"id": c["id"], "esperadas": c["rotas_esperadas"], "obtidas": efetiva,
                        "acerto_exato": sorted(efetiva) == sorted(c["rotas_esperadas"]),
                        "jaccard": round(_jaccard(efetiva, c["rotas_esperadas"]), 3)})

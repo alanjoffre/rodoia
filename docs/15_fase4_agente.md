@@ -48,7 +48,10 @@ O **cérebro** (roteamento + síntese) é o `OllamaLLM` (qwen2.5:7b), distinto d
 
 ## 3. Casos de domínio (`agente/casos.py`)
 
-Seis casos, cada um declarando a rota *esperada* (permite medir o roteamento objetivamente):
+Há dois conjuntos (separados para evitar drift): **`CASOS_TRAJETORIA`** — os **6 casos curados**
+abaixo, usados na avaliação de trajetória completa com juiz (cara); e **`CASOS`** — a **suíte de 21
+casos** (os 6 + 15 variações, incl. ambíguos) usada só no roteamento objetivo (§4). Cada caso
+declara a rota *esperada* (permite medir o roteamento objetivamente). Os 6 curados:
 
 1. **regulatório puro** — "vale-pedágio obrigatório" → `[regulatorio]`.
 2. **dados puro** — "praça de maior volume acumulado" → `[dados]`.
@@ -87,8 +90,9 @@ puxaria a média para baixo por um artefato de rubrica, não por erro do agente.
 > número é mais robusto. **Limitação assumida:** as notas do **juiz** (rota/resposta) seguem em n
 > pequeno (in-scope n=4), anotador único — a mesma limitação do retrieval ([docs/09](09_fase1_api.md#limitações-conhecidas-da-avaliação-assumidas-não-escondidas)); ampliar exige mais trajetórias rotuladas independentemente.
 
-O **roteamento é perfeito** nos seis casos, incluindo o combinado (2 ferramentas), o fora-de-escopo
-e o adversarial. O juiz confirma rota adequada em todos os in-scope; a fundamentação fica em 1,5/2
+No conjunto de **trajetória (6 casos curados)** o roteamento acerta todos; na **suíte objetiva de 21
+casos** (o número canônico, acima) é **0,952**. O juiz confirma rota adequada em todos os in-scope;
+a fundamentação fica em 1,5/2
 (o caso `dados` e o `combinado` recebem 1 quando o juiz quer mais detalhe numérico — honesto).
 
 ### Ferramenta de entidades provada no modelo FT real
@@ -107,14 +111,14 @@ isoladamente contra o vLLM** (`reports/fase4_agente/entidades_smoke.json`):
 
 **Nota de arquitetura (realidade de hardware — atualizada):** com **32 GB de RAM**, dá para rodar
 os **três tools ao mesmo tempo**: o cérebro (Ollama) na **CPU** (`CUDA_VISIBLE_DEVICES=""`) e o
-modelo FT no **vLLM/GPU** — comprovado (roteamento **1,0** e ferramenta de entidades **ao vivo**
+modelo FT no **vLLM/GPU** — comprovado (roteamento correto nos 6 casos de trajetória e ferramenta de entidades **ao vivo**
 simultaneamente; VRAM ~5,2 GB só do vLLM, cérebro na RAM). Isso **fecha o time-slicing**.
 Ressalva honesta de **latência**: o cérebro **7B na CPU** é lento e chega a estourar timeouts em
 gerações longas — então o número de *qualidade de resposta* (juiz **1,5/2**) é medido com o cérebro
 em velocidade plena (GPU), e o `timeout` do cliente foi elevado (300 s) para a CPU. Em produção, o
 cérebro vai para um endpoint hosted (`OpenAICompatLLM` já suporta), liberando a GPU para o modelo FT.
 
-**Trade-off medido (mesmos 6 casos, juiz llama3.1 independente):**
+**Trade-off medido (nos 6 casos de trajetória, juiz llama3.1 independente):**
 
 | Config do cérebro | 3 tools juntos? | Roteamento (exato) | Juiz resposta_ok | Nota |
 |---|---|---|---|---|
@@ -163,7 +167,7 @@ python -m rodoia.agente.avaliar        # -> reports/fase4_agente/avaliacao.json
 - [x] **Grafo LangGraph** com estado, nós e **arestas condicionais reais** (guardrail e roteador)
 - [x] **Integração das 3 ferramentas** (RAG F1 + modelo FT F2 + dados F3) + cálculo
 - [x] **Casos ponta a ponta** com raciocínio combinado (caso 4 aciona 2 ferramentas e sintetiza)
-- [x] **Avaliação de trajetória**: roteamento objetivo **1,0** + juiz independente (rota 2,0/2)
+- [x] **Avaliação de trajetória**: roteamento objetivo **0,952 (n=21)** + juiz independente (rota 2,0/2, trajetória n=6)
 - [x] **Tratamento de falha/fora-de-escopo/adversarial** (guardrail, escopo, degradação — testados)
 - [x] **Diagrama no README** + este doc
 - [x] **Testes** dos caminhos críticos do grafo (7 testes, com fakes — sem GPU)

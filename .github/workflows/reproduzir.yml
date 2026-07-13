@@ -1,27 +1,40 @@
 name: Reproduzir métrica-âncora
 
-# REPRODUÇÃO REAL (diferente do gate do ci.yml, que só lê o JSON commitado):
-# re-executa o pipeline e falha se a métrica regenerada divergir do report versionado.
-# Fecha o ataque "seu CI não reproduz nada". Exige o corpus/índice e (para âncoras de GPU)
-# uma placa — por isso roda num runner SELF-HOSTED (ex.: a Nitro/RTX 4050), não no GitHub-hosted.
-#
-# Pré-requisito no runner: corpus + índice presentes (ou regeneráveis):
-#   python -m rodoia.rag.baixar_normas && python -m rodoia.rag.construir_indice
+# REPRODUÇÃO REAL (diferente do gate do ci.yml, que só lê o JSON commitado): baixa o corpus
+# público, reconstrói o índice e RE-EXECUTA o retrieval, falhando se o hit@5 divergir do report
+# versionado. Fecha o ataque "seu CI não reproduz nada". A âncora é CPU-determinística, então roda
+# no runner GITHUB-HOSTED (sem esconder atrás de GPU) — depende apenas da fonte pública da ANTT
+# estar acessível no momento do scrape (por isso não fica no ci.yml de cada push: é lento e
+# depende de rede externa).
 
 on:
-  workflow_dispatch: {}        # sob demanda (botão "Run workflow")
+  workflow_dispatch: {}
   schedule:
     - cron: "0 6 * * 1"        # semanal (segunda, 06:00 UTC)
 
 jobs:
   reproduzir:
-    # Requer um runner com o rótulo abaixo registrado (self-hosted, com dados e GPU).
-    runs-on: [self-hosted, gpu]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
 
-      - name: Instalar
-        run: pip install -e ".[rag,estruturados]"
+      - name: Instalar (.[rag] — E5 + Qdrant + BM25, CPU)
+        run: pip install -e ".[rag]"
 
-      - name: Reproduzir a âncora (re-executa o pipeline e confere)
+      - name: Baixar o corpus público + reconstruir o índice
+        run: |
+          python -m rodoia.rag.baixar_normas
+          python -m rodoia.rag.construir_indice
+
+      - name: Reproduzir a âncora (re-executa o retrieval e confere; grava evidência)
         run: python -m rodoia.mlops.reproduzir
+
+      - name: Publicar a evidência da reprodução
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducao
+          path: reports/fase1_retrieval/reproducao.json

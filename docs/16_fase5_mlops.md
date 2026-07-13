@@ -55,12 +55,14 @@ O gate do §1 é barato e honesto sobre seu limite: **não regenera métrica**. 
 fica num job separado que **re-executa o pipeline** e falha se o resultado divergir do JSON
 commitado — respondendo diretamente a "seu CI só lê números que você mesmo commitou".
 
-- **Âncora atual:** `hit@5` do retrieval híbrido — **determinística**, roda em CPU, sem LLM; a
-  reprodução bate exata (Δ=0,0 contra o `avaliacao_retrieval.json`). Verificado localmente.
-- **Onde roda:** runner **self-hosted com GPU** (ex.: a Nitro), `workflow_dispatch` + agendado
-  semanal — porque exige o corpus/índice (e, para âncoras futuras como o NER F1, a placa). O
-  GitHub-hosted não tem dados nem GPU, então essa reprodução **não** cabe no CI barato.
-- **Extensível:** o mesmo harness recebe âncoras de GPU (NER F1 via vLLM) quando o runner tem placa.
+- **Âncora atual:** `hit@5` do retrieval híbrido — **determinística**, roda em **CPU**, sem LLM; a
+  reprodução bate exata (**Δ=0,0** contra o `avaliacao_retrieval.json`). A evidência (com carimbo
+  `git_sha`/`git_dirty`) é versionada em `reports/fase1_retrieval/reproducao.json`.
+- **Onde roda:** runner **github-hosted** (`ubuntu-latest`), `workflow_dispatch` + agendado semanal.
+  O job **baixa o corpus público** (`baixar_normas`), **reconstrói o índice** (`construir_indice`) e
+  **re-executa** o retrieval — sem esconder atrás de GPU. Fica fora do `ci.yml` de cada push porque é
+  lento e depende de rede externa (a fonte da ANTT).
+- **Extensível:** o mesmo harness recebe âncoras mais pesadas (NER F1 via vLLM) num runner com GPU.
 
 ## 3. MLflow — rastreio de experimentos (`mlops/rastreio.py`)
 
