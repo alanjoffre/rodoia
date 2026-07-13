@@ -38,6 +38,17 @@ def test_anotacao_ler(tmp_path):
     assert res["cohen_kappa"] == 1.0 and res["concordancia_percentual"] == 100.0
 
 
+def test_custo_serving():
+    """A aritmética do custo: marginal (100%) < always-on (30%), razão ≈ 1/util."""
+    from rodoia.mlops.custo import _linha
+
+    c = _linha("gpu", usd_h=0.70, req_s=2.05, cambio=5.40, util=0.30)
+    assert c["brl_por_1k_marginal"] < c["brl_por_1k_alwayson"]        # ociosidade encarece
+    razao = c["brl_por_1k_alwayson"] / c["brl_por_1k_marginal"]
+    assert abs(razao - 1 / 0.30) < 0.05                              # ≈ 1/utilização
+    assert c["brl_mensal_1_instancia"] == round(0.70 * 720 * 5.40)   # 1 instância always-on/mês
+
+
 def test_fleiss_kappa():
     # concordância perfeita entre 3 juízes → κ = 1,0
     assert fleiss_kappa([[2, 2, 2], [0, 0, 0], [1, 1, 1]]) == 1.0

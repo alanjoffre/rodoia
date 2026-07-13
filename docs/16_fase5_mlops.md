@@ -147,6 +147,27 @@ A escolha da coorte comum foi deliberada: sobre o volume **agregado** o PSI dava
 cresceu ~10× desde 2010) — um artefato de expansão, não drift de demanda. Corrigir o alvo para a
 coorte estacionária é a mesma disciplina de rigor das fases anteriores.
 
+### 6.1 Custo de serving — R$/1k req da vazão MEDIDA (`mlops/custo.py`)
+
+Um staff não diz "escala" sem cifra. Derivamos o custo **da vazão real** do modelo FT em vLLM
+(`benchmark_vllm.json`: **2,05 req/s**, 205 tok/s, 5,2 GB VRAM medidos) — aritmética, não cotação
+ao vivo. A honestidade está em separar o **piso** (marginal, 100% de utilização) da **realidade**
+(always-on a ~30%, pagando GPU ociosa). Premissas explícitas: câmbio R$5,40/US$, preços-hora de
+GPU pequena ~2026 (`reports/fase5_mlops/custo.json`):
+
+| GPU (premissa de preço) | R$/1k req (marginal) | R$/1k req (always-on 30%) | R$/mês (1 instância) |
+|---|---|---|---|
+| L4 24GB (spot) | **0,21** | 0,68 | 1.089 |
+| RTX 4090 (comunidade) | 0,32 | 1,07 | 1.711 |
+| L4 24GB (on-demand) | 0,51 | 1,71 | 2.722 |
+| A10G 24GB (on-demand) | 0,73 | 2,44 | 3.888 |
+
+→ **Achado:** servir o modelo FT é **barato por requisição** (centavos/1k) porque é pequeno (fp8,
+5,2 GB); o custo real de um endpoint de portfólio é **dominado pela GPU ociosa** (always-on ≈
+3,3× o marginal, = 1/utilização). Conclusão de engenharia: para tráfego baixo, **escala-a-zero /
+sob demanda** vence always-on — coerente com o runbook (§7, Cloud Run com scale-to-zero). Escopo:
+rota FT (geração curta); a rota RAG completa (p95≈30 s) custa proporcionalmente mais, mesma conta.
+
 ## 7. Deploy — runbook
 
 Tudo acima roda local. Há **dois caminhos**, e o gratuito está pronto:
@@ -171,8 +192,10 @@ Resolve o "não tem demo viva" sem custo de nuvem.
 3. **Cérebro em endpoint hosted** — em produção o roteamento/síntese vai para uma API hosted
    (a interface `OpenAICompatLLM` já suporta), liberando GPU e removendo o Ollama do caminho crítico.
 4. **Segredos** — via secret manager do provedor (nunca no Git; `.env` só local).
-5. **Custo/latência** — Cloud Run: cobra por request/CPU-s; p95 de geração ~30 s (medido na F1)
-   domina a latência → tuning de `max_tokens` e cache de respostas frequentes antes de escalar.
+5. **Custo/latência** — cifra derivada da vazão medida (§6.1): FT a **R$0,21–0,73/1k req**
+   (marginal), dominado pela **GPU ociosa** no always-on → scale-to-zero é a escolha certa p/
+   tráfego baixo. Cloud Run cobra por request/CPU-s; p95 de geração ~30 s (medido na F1) domina a
+   latência → tuning de `max_tokens` e cache de respostas frequentes antes de escalar.
 6. **Observabilidade em produção** — logs estruturados + as métricas do §6 exportadas; alerta se
    o gate (rodado periodicamente sobre uma amostra rotulada) cair, ou se o PSI de drift subir.
 
@@ -184,6 +207,8 @@ Resolve o "não tem demo viva" sem custo de nuvem.
 - [x] **MLflow + DVC** — rastreio das métricas (sqlite, 5 runs) + dados/modelos via DVC.
 - [~] **Deploy em cloud** — **runbook completo (§7), não executado** (decisão de orçamento).
 - [x] **Observabilidade** — latência/tokens/qualidade medidos e versionados; gate sobre eles.
+- [x] **Custo de serving** — R$/1k req derivado da vazão MEDIDA (§6.1, `custo.json`): marginal vs
+      always-on, com premissas explícitas.
 - [x] **Drift** — PSI por coorte (0,0051, estável) com faixa de ação.
 - [x] **README final** com desenho completo e rastreabilidade preenchida.
 
