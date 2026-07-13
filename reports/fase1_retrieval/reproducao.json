@@ -2,8 +2,8 @@
   "ancoras": [
     {
       "ancora": "retrieval_hit@5_hibrido",
-      "commitado": 0.64,
-      "reproduzido": 0.64,
+      "commitado": 0.62,
+      "reproduzido": 0.62,
       "delta": 0.0,
       "tol": 0.02,
       "ok": true
@@ -19,10 +19,10 @@
   ],
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "9320171",
+    "git_sha": "fa85da4",
     "git_dirty": true,
-    "git_diff_sha1": "36e2fd49a84a",
-    "timestamp_utc": "2026-07-13T16:54:35+00:00",
+    "git_diff_sha1": "49fc507057f2",
+    "timestamp_utc": "2026-07-13T19:49:11+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

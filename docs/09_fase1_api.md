@@ -41,17 +41,19 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 
 | Camada | Entrega | Doc |
 |---|---|---|
-| Ingestão | ANTTlegis (**125 resoluções, 4100 chunks**; ver `reports/fase1_rag/corpus.json`) | 06 |
+| Ingestão | ANTTlegis (**125 resoluções, 3651 chunks** limpos; ver `reports/fase1_rag/corpus.json`) | 06 |
 | Indexação | E5 local + Qdrant, filtro de vigência | 06 |
-| Retrieval | híbrido (BM25+RRF) **sem rerank** — hit@5 **0,64** [IC 0,50–0,76], MRR **0,485**, n=50 | 07 |
+| Retrieval | híbrido (BM25+RRF) — hit@5 **0,62** [IC 0,48–0,74], MRR **0,510**, n=50 (rerank: 0,68) | 07 |
 
-> **Decisão honesta (rerank × híbrido × denso).** No corpus ampliado (**125 normas, 4100 chunks** —
-> ~2,8× o anterior) o **híbrido empata com o denso no hit@5 (0,64 = 0,64) e ganha no MRR (0,485 vs
-> 0,466)** — ou seja, servir híbrido não perde nada e ordena melhor. O **rerank continua piorando o
-> MRR** (0,485→0,440) sem mudar o hit@5, então segue **desligado por padrão** (não paga a latência).
-> Notável: o hit@5 **se manteve em 0,64** mesmo com o corpus quase triplicando — robustez a um
-> retrieval bem mais difícil. O gate trava a métrica do híbrido (a config servida). Números em
-> `reports/fase1_retrieval/avaliacao_retrieval.json`.
+> **Decisão honesta — e uma REVERSÃO que o rigor obrigou.** Depois de **limpar o boilerplate** do
+> portal (o chunking passou a cortar o menu/cabeçalho de navegação → 4100 → **3651 chunks** de
+> conteúdo real), re-medimos: hit@5 **denso 0,60 · híbrido 0,62 · híbrido+rerank 0,68**; MRR do
+> híbrido **0,510**. **O rerank, que ANTES não ajudava (era a era com lixo), agora dá o maior hit@5
+> (0,62→0,68)** — remover o ruído deixou o cross-encoder distinguir melhor. Os ICs ainda se
+> sobrepõem (n=50), então não é vitória estatística; por isso servimos **híbrido** (gate trava
+> `hibrido` = 0,62) e mantemos o rerank como **opção com ganho de ponto-estimado**, ligável quando a
+> latência couber. É o mesmo padrão do projeto: a limpeza de dados **mudou a conclusão de
+> arquitetura**, e atualizamos em vez de esconder. Números em `avaliacao_retrieval.json`.
 
 ### Limitações conhecidas da avaliação (assumidas, não escondidas)
 

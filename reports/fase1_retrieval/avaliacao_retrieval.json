@@ -1,66 +1,66 @@
 {
   "denso": {
-    "hit_rate_at_k": 0.64,
+    "hit_rate_at_k": 0.6,
     "hit_rate_ic95": [
-      0.501,
-      0.759
+      0.462,
+      0.724
     ],
-    "mrr": 0.466,
+    "mrr": 0.413,
     "mrr_ic95": [
-      0.352,
-      0.583
+      0.304,
+      0.532
     ],
     "k": 5,
     "n": 50
   },
   "bm25": {
-    "hit_rate_at_k": 0.52,
+    "hit_rate_at_k": 0.54,
     "hit_rate_ic95": [
-      0.385,
-      0.652
+      0.404,
+      0.67
     ],
-    "mrr": 0.388,
+    "mrr": 0.399,
     "mrr_ic95": [
-      0.27,
-      0.507
+      0.283,
+      0.517
     ],
     "k": 5,
     "n": 50
   },
   "hibrido": {
-    "hit_rate_at_k": 0.64,
+    "hit_rate_at_k": 0.62,
     "hit_rate_ic95": [
-      0.501,
-      0.759
+      0.482,
+      0.741
     ],
-    "mrr": 0.485,
+    "mrr": 0.51,
     "mrr_ic95": [
-      0.367,
-      0.597
+      0.387,
+      0.63
     ],
     "k": 5,
     "n": 50
   },
   "hibrido+rerank": {
-    "hit_rate_at_k": 0.64,
+    "hit_rate_at_k": 0.68,
     "hit_rate_ic95": [
-      0.501,
-      0.759
+      0.542,
+      0.792
     ],
-    "mrr": 0.44,
+    "mrr": 0.424,
     "mrr_ic95": [
-      0.332,
-      0.553
+      0.326,
+      0.523
     ],
     "k": 5,
     "n": 50
   },
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "9320171",
+    "git_sha": "fa85da4",
     "git_dirty": true,
-    "git_diff_sha1": "3ca9c35f7d8e",
-    "timestamp_utc": "2026-07-13T16:53:33+00:00",
+    "git_diff_sha1": "976945b771f8",
+    "timestamp_utc": "2026-07-13T19:46:46+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

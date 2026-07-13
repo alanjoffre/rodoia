@@ -3,11 +3,27 @@
 from __future__ import annotations
 
 from rodoia.rag.chunking import (
+    _e_boilerplate,
     chunk_norma,
     chunk_texto,
     dividir_por_artigos,
     empacotar,
 )
+
+
+def test_filtra_boilerplate_do_portal():
+    # navegação do portal (2+ sinais) é detectada; o corte até o cabeçalho a remove antes do chunk
+    nav = "ANTTlegis Portal Gov.br Acesso rápido Órgãos do Governo Navegação Entrar com o Login"
+    assert _e_boilerplate(nav) is True
+    assert _e_boilerplate("Art. 1º O transportador deve pagar o vale-pedágio.") is False
+    reg = {"id": "RES_6000_2022", "numero": "6000/2022", "ano": 2022, "orgao": "ANTT",
+           "vigente": True, "titulo": "RESOLUÇÃO Nº 6.000",
+           "texto": nav + " RESOLUÇÃO Nº 6.000, DE 1 DE JANEIRO DE 2022. "
+                    "Art. 1º O transportador deve pagar o vale-pedágio à parte do frete."}
+    chunks = chunk_norma(reg)
+    # o conteúdo normativo sobrevive e nenhum chunk é navegação do portal
+    assert chunks and all(not _e_boilerplate(c["texto"]) for c in chunks)
+    assert any("vale-pedágio" in c["texto"] for c in chunks)
 
 
 def test_divide_por_artigos() -> None:

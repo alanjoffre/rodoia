@@ -22,6 +22,29 @@ import re
 # Início de artigo: "Art. 1º", "Art. 2", "Artigo 3º" — âncora de divisão.
 _RE_ARTIGO = re.compile(r"(?=\bArt(?:igo)?\.?\s*\d+)")
 
+# Assinaturas do 'chrome' do portal ANTTlegis (menu/cabeçalho/rodapé de navegação) — NÃO é texto
+# normativo e não deve virar chunk recuperável. Um trecho com 2+ sinais é navegação, não norma.
+_BOILERPLATE = (
+    "portal gov.br", "acesso rápido", "órgãos do governo", "acesso à informação",
+    "entrar com o login", "navegação", "mapa do site", "fale conosco", "voltar ao topo",
+)
+
+
+def _e_boilerplate(texto: str) -> bool:
+    """True se o trecho é navegação do portal (2+ sinais), não conteúdo da norma."""
+    t = texto.lower()
+    return sum(1 for s in _BOILERPLATE if s in t) >= 2
+
+
+# O texto raspado traz o 'chrome' do portal ANTES do ato; o conteúdo real começa no cabeçalho.
+_RE_CABECALHO = re.compile(r"RESOLU[ÇC][ÃA]O\s+N", re.I)
+
+
+def _cortar_ate_cabecalho(texto: str) -> str:
+    """Remove o menu/cabeçalho de navegação que precede o ato: corta até 'RESOLUÇÃO Nº'."""
+    m = _RE_CABECALHO.search(texto)
+    return texto[m.start():] if m else texto
+
 
 def dividir_por_artigos(texto: str) -> list[str]:
     """Divide o texto nos limites de artigo, preservando cada 'Art. N' com seu
@@ -65,7 +88,9 @@ def chunk_texto(texto: str, max_chars: int = 1500, overlap: int = 200) -> list[s
 def chunk_norma(registro: dict, max_chars: int = 1500, overlap: int = 200) -> list[dict]:
     """Transforma uma norma (dict do JSONL) numa lista de chunks com metadados
     para citação (número, ano, órgão, vigência, título)."""
-    pedacos = chunk_texto(registro["texto"], max_chars, overlap)
+    # 1) corta o menu/cabeçalho do portal ANTES do ato; 2) dropa trechos residuais de navegação
+    texto = _cortar_ate_cabecalho(registro["texto"])
+    pedacos = [p for p in chunk_texto(texto, max_chars, overlap) if not _e_boilerplate(p)]
     meta = {k: registro[k] for k in ("id", "numero", "ano", "orgao", "vigente", "titulo")}
     return [
         {**meta, "chunk_id": f"{registro['id']}::{i}", "chunk_index": i, "texto": pedaco}

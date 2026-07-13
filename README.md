@@ -64,7 +64,7 @@ Cada requisito de uma vaga de Engenheiro de IA é rastreado até a fase que o pr
 | PyTorch | Fase 0 + 2 | Treino (F0) + fine-tuning QLoRA (F2) |
 | Métricas e diagnóstico (overfitting, bias/variance) | Fase 0 | Curvas treino/validação documentadas |
 | Engenharia de prompts avançada | Fase 1 + 4 | Prompts versionados, testados, com ablação |
-| RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) sobre **125 normas / 4100 chunks** · avaliado com IC (hit@5 **0,64** [0,50–0,76], n=50 — **mantido mesmo com o corpus ~3×**; rerank não ajuda) · precisão de citação 0,92 |
+| RAG, embeddings, banco vetorial (pgvector/Qdrant) | Fase 1 | Hybrid search (BM25+RRF) sobre **125 normas / 3651 chunks** (com de-boilerplate) · avaliado com IC (hit@5 **0,62** [0,48–0,74], n=50; rerank **passou a ajudar** no corpus limpo, 0,68) · precisão de citação 0,92 |
 | Orquestração de agentes (LangChain/LangGraph) | Fase 4 | Grafo LangGraph (estado + arestas condicionais) combinando as 3 ferramentas · roteamento **0,95** (n=21, objetivo) · juiz independente ([docs/15](docs/15_fase4_agente.md)) |
 | Fine-tuning, LoRA/QLoRA, quantização | Fase 2 | QLoRA (Qwen2.5-3B) p/ **NER jurídico**: F1 **0,13→0,77** vs. SOTA BERTimbau 0,89 ([docs/13](docs/13_fase2_ner.md)) · **fp8** no vLLM (205 tok/s, NF4 ΔPPL +14%) · estudo-baseline (FT≠conhecimento) em [docs/11](docs/11_fase2_resultados.md) |
 | Avaliação de LLMs (LLM-as-judge, guardrails, hallucination) | Fase 1 + 2 + 4 | LLM-as-judge **independente** + faithfulness/relevancy + precisão de citação (F1) · **banca de 3 juízes diversos com κ de Fleiss** (achado: juízes concordam pouco, κ=0,17 → juiz único é ruidoso) · juiz pareado c/ controle de viés (F2) · guardrails |
