@@ -113,7 +113,25 @@ docker compose exec ollama ollama pull qwen2.5:7b   # cérebro (1ª vez)
 
 **Observabilidade** já vinha das fases: latência/tokens/qualidade medidos e salvos (RAG em
 `avaliacao_geracao.json` → `geracao_p50_s`, `tokens_resposta_medio`; serving em
-`benchmark_vllm.json` → tok/s; agente na trajetória). O gate transforma essas métricas em portão.
+`benchmark_vllm.json` → tok/s; agente na trajetória). O serving agora emite também **uma métrica
+estruturada por requisição** (`observabilidade.registrar_metrica`: latência, cache_hit, taxa de hit).
+O gate transforma as métricas-chave em portão.
+
+**Cache — efeito MEDIDO (não afirmado)** — `mlops/carga.py` faz um **teste de carga sob concorrência**
+(backend simulado por `sleep`, latência divulgada — isola o efeito do cache, não do Ollama).
+Resultado (`reports/fase5_mlops/carga.json`):
+
+| Taxa de hit | Redução p50 | Redução p95 |
+|---|---|---|
+| 0,66 | **−100%** | −0% |
+| 0,88 | **−100%** | −0% |
+| 0,96 | **−100%** | **−100%** |
+
+→ **Achado honesto:** o cache **colapsa a mediana** (consulta repetida = instantânea) em qualquer
+taxa de hit; mas o **p95 só cai quando o hit passa de ~95%** — abaixo disso a cauda são os *misses*,
+que pagam a geração inteira. Ou seja, o cache é um ganho de **mediana**, não de p95, a menos que o
+tráfego seja muito repetitivo. Isso escala à latência real (p95 ≈ 30 s na F1): mesma relação, outra
+magnitude. Reportar o limite do cache (não "resolve o p95") é a disciplina do projeto.
 
 **Drift** — PSI (Population Stability Index) sobre o volume mensal **por praça**, últimos 12 meses
 vs. os 12 anteriores, na **mesma coorte** de praças (isola drift de demanda do crescimento da

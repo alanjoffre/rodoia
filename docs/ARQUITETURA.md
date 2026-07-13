@@ -111,7 +111,8 @@ src/rodoia/
 | `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI | `avaliar`, `GATES`, `_acessar`, `_passou` |
 | `mlops/rastreio.py` | Consolida métricas das fases em runs MLflow (sqlite) | `coletar`, `registrar` |
 | `mlops/drift.py` | Drift por PSI (coorte de praças, 12m vs 12m) | `psi`, `drift_volume`, `classificar` |
-| `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval` |
+| `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval`, `reproduzir_previsao` |
+| `mlops/carga.py` | Teste de carga do cache: mede p50/p95 sob concorrência (efeito medido, não afirmado) | `teste_carga`, `medir` |
 
 ## API (`api/`)
 

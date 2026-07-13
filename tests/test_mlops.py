@@ -1,8 +1,23 @@
-"""Testes da Fase 5 (MLOps) — funções puras de rastreio e drift (sem mlflow/duckdb)."""
+"""Testes da Fase 5 (MLOps) — funções puras de rastreio, drift e teste de carga."""
 import numpy as np
 
+from rodoia.mlops.carga import _percentil, _workload, medir
 from rodoia.mlops.drift import classificar, psi
 from rodoia.mlops.rastreio import coletar
+
+
+def test_percentil():
+    assert _percentil([0.0, 1.0, 2.0, 3.0, 4.0], 50) == 2.0
+    assert _percentil([0.0, 1.0], 95) == 1.0
+
+
+def test_carga_cache_reduz_mediana():
+    # workload com muitas repetições → cache não piora a mediana e tem hit alto
+    reqs = _workload(80, n_unicas=4, frac_quente=0.6, seed=1)
+    sem = medir(reqs, backend_s=0.004, com_cache=False, concorrencia=4)
+    com = medir(reqs, backend_s=0.004, com_cache=True, concorrencia=4)
+    assert com["p50_s"] <= sem["p50_s"]      # o cache nunca piora a mediana
+    assert com["taxa_hit"] > 0.5             # workload repetitivo → hits
 
 
 def test_psi_identico_e_zero():
