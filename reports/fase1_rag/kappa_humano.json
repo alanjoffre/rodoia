@@ -1,0 +1,28 @@
+{
+  "tarefa": "relevância de trecho recuperado (0/1) — 2 anotadores HUMANOS",
+  "n_pares": 30,
+  "concordancia_percentual": 93.3,
+  "cohen_kappa": 0.8643,
+  "prevalencia_relevante": 0.567,
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "4444cb5",
+    "git_dirty": false,
+    "timestamp_utc": "2026-07-13T23:08:15+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0"
+    }
+  }
+}

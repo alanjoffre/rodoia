@@ -57,10 +57,16 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 
 ### Limitações conhecidas da avaliação (assumidas, não escondidas)
 
-Um revisor cético atacaria — e tem razão em parte:
-- **n pequeno e anotador único.** O dourado é **n≈50** (retrieval) e **n=12** (geração), **escrito e
-  rotulado pelo autor** — sem segundo anotador nem concordância (**κ**). Os ICs (Wilson/bootstrap)
-  refletem esse n: largos de propósito. Um número sozinho enganaria; a faixa é honesta.
+Um revisor cético atacaria — e onde tinha razão, corrigimos:
+- **Anotador único → κ HUMANO (fechado).** A crítica de "você avaliando você" foi respondida com
+  **2 anotadores humanos** julgando a relevância de trechos recuperados (0/1), independentes:
+  **κ de Cohen = 0,864** (concordância 93,3%, n=30 — "quase perfeita" na escala Landis-Koch), em
+  `reports/fase1_rag/kappa_humano.json` (no gate). Ou seja, o rótulo de relevância é **confiável entre
+  humanos**, não idiossincrasia do autor. Kit reproduzível em `rodoia.anotacao` + `anotacao/`.
+- **n pequeno (assumido).** O dourado de retrieval é **n≈50** e o de geração **n=12** — os ICs
+  (Wilson/bootstrap) refletem esse n, largos de propósito. Um número sozinho enganaria; a faixa é
+  honesta. A **banca de 3 juízes LLM + κ de Fleiss** (0,167) complementa medindo a concordância de
+  juízes automáticos (ver acima).
 - **Corpus (ampliado) e n do dourado.** O corpus foi **ampliado de 45 → 125 normas (30 → 93
   vigentes)** ao corrigir um piso de tamanho tarde demais (18k chars) que descartava resoluções
   curtas legítimas — mais distratores, retrieval mais realista. O gargalo restante é o **nº de
