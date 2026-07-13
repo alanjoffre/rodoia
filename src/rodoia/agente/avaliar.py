@@ -96,10 +96,44 @@ def avaliar(deps, juiz=None) -> dict:
     return res
 
 
+def avaliar_roteamento(llm, casos=None) -> dict:
+    """Avaliação OBJETIVA e barata do roteamento (guardrail + roteador), sem executar as
+    ferramentas nem juiz — permite medir o roteamento num n maior (responde a "1,0? são 6 casos").
+    """
+    from rodoia.agente.casos import CASOS
+    from rodoia.agente.roteador import rotear
+    from rodoia.rag.seguranca import detectar_injection
+
+    casos = casos or CASOS
+    linhas = []
+    for c in casos:
+        inj, _ = detectar_injection(c["pergunta"])   # injection → guardrail bloqueia (rota vazia)
+        efetiva = [] if inj else rotear(c["pergunta"], llm)["rotas"]
+        linhas.append({"id": c["id"], "esperadas": c["rotas_esperadas"], "obtidas": efetiva,
+                       "acerto_exato": sorted(efetiva) == sorted(c["rotas_esperadas"]),
+                       "jaccard": round(_jaccard(efetiva, c["rotas_esperadas"]), 3)})
+    n = len(linhas)
+    resumo = {"n_casos": n,
+              "acerto_roteamento": round(sum(x["acerto_exato"] for x in linhas) / n, 3),
+              "jaccard_medio": round(sum(x["jaccard"] for x in linhas) / n, 3)}
+    res = carimbar({"tarefa": "roteamento do agente — objetivo (guardrail+roteador), n ampliado",
+                    "resumo": resumo, "casos": linhas})
+    saida = REPO_ROOT / "reports" / "fase4_agente" / "roteamento.json"
+    saida.write_text(json.dumps(res, ensure_ascii=False, indent=2))
+    print(f"roteamento (n={n}): acerto_exato={resumo['acerto_roteamento']} "
+          f"jaccard={resumo['jaccard_medio']} -> {saida}")
+    return res
+
+
 def main() -> None:
-    from rodoia.agente.ferramentas import deps_reais
+    import sys
+
     from rodoia.rag.llm import OllamaLLM
 
+    if len(sys.argv) > 1 and sys.argv[1] == "roteamento":
+        avaliar_roteamento(OllamaLLM())          # barato: só o roteador (Ollama), sem vLLM/juiz
+        return
+    from rodoia.agente.ferramentas import deps_reais
     deps = deps_reais()
     juiz = OllamaLLM(modelo="llama3.1:8b")  # juiz independente do cérebro (qwen2.5)
     avaliar(deps, juiz)

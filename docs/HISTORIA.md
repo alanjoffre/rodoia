@@ -91,7 +91,7 @@ backtest; e uma comparação injusta (naïve de 1-passo × Holt-Winters de 12-pa
 roteador (escolhe as ferramentas, podendo combinar) → execução (com degradação graciosa) → síntese
 que cita fontes. Avaliação de **trajetória** com juiz independente.
 
-**Resultado.** **Roteamento 1,0** nos 6 casos (puros, combinado, fora-de-escopo, adversarial); juiz
+**Resultado.** **Roteamento 0,95** em 21 casos (puros, combinado, ambíguo, fora-de-escopo, adversarial); juiz
 **rota 2,0/2**. E caracterizamos o trade-off de hardware (7B na GPU vs 3B na CPU) com número — os
 **três tools rodam simultaneamente** graças aos 32 GB de RAM.
 

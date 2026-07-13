@@ -100,7 +100,7 @@ src/rodoia/
 | `agente/ferramentas.py` | Cascas sobre F1/F2/F3 + montagem das deps reais | `regulatorio_real`, `entidades_real`, `dados_real`, `deps_reais` |
 | `agente/grafo.py` | Grafo LangGraph (nós + arestas condicionais) + `responder` | `construir_agente`, `responder`, `_no_guardrail`, `_no_roteador`, `_no_executar`, `_no_sintetizar` |
 | `agente/casos.py` | Casos de domínio (puros, combinado, fora-de-escopo, adversarial) | `CASOS` |
-| `agente/avaliar.py` | Avaliação de trajetória: roteamento objetivo + juiz independente | `avaliar`, `_julgar`, `_jaccard` |
+| `agente/avaliar.py` | Avaliação de trajetória (juiz) + roteamento objetivo em n ampliado | `avaliar`, `avaliar_roteamento`, `_julgar`, `_jaccard` |
 
 ## Fase 5 — MLOps (`mlops/`)
 

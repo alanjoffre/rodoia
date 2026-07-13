@@ -21,7 +21,7 @@ $ python -m rodoia.mlops.gate
   [✓] F2 · ganho FT vs base              0.6429 >= 0.55
   [✓] F3 · Holt-Winters MAPE             13.25 <= 15.0
   [✓] F3 · HW bate naïve (pareado)       True == True
-  [✓] F4 · roteamento (acerto exato)     1.0 >= 0.9
+  [✓] F4 · roteamento (n=21, exato)      0.952 >= 0.85
   [✓] F4 · juiz rota adequada            2.0 >= 1.5
   9/9 portões OK — APROVADO
 ```

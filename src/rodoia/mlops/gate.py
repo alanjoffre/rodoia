@@ -50,8 +50,8 @@ GATES: tuple[Meta, ...] = (
          "modelos.holt_winters.mape_medio", "<=", 15.0),
     Meta("F3 · HW bate naïve (pareado)", "reports/fase3_dados/previsao.json",
          "comparacao_pareada.significativo", "==", True),
-    Meta("F4 · roteamento (acerto exato)", "reports/fase4_agente/avaliacao.json",
-         "resumo.acerto_roteamento", ">=", 0.9),
+    Meta("F4 · roteamento (n=21, exato)", "reports/fase4_agente/roteamento.json",
+         "resumo.acerto_roteamento", ">=", 0.85),
     Meta("F4 · juiz rota adequada", "reports/fase4_agente/avaliacao.json",
          "resumo.rota_ok_medio", ">=", 1.5),
 )

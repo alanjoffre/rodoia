@@ -74,10 +74,18 @@ puxaria a média para baixo por um artefato de rubrica, não por erro do agente.
 
 | Medida | Valor |
 |---|---|
-| **Acerto de roteamento (exato, n=6)** | **1,00** |
-| Jaccard médio (n=6) | 1,00 |
+| **Acerto de roteamento — exato, n=21** (objetivo, `roteamento.json`) | **0,952** (20/21) |
+| Jaccard médio (n=21) | 0,976 |
 | Juiz — rota adequada (in-scope, n=4) | **2,0 / 2** |
 | Juiz — resposta fundamentada (in-scope, n=4) | 1,5 / 2 |
+
+> **Roteamento em n maior (resposta a "1,0? são só 6 casos").** A avaliação objetiva de roteamento
+> (só guardrail + roteador, sem executar ferramentas nem juiz — `avaliar_roteamento`) roda em **21
+> casos** (regulatório/dados/entidades/combinado/fora-de-escopo/adversarial, incl. **ambíguos**):
+> **acerto exato 0,952** (o único erro é `ent_stf`, onde o roteador super-inclui `regulatorio` num
+> texto que cita decisão judicial — falha honesta e plausível). O **1,0 anterior era em n=6**; este
+> número é mais robusto. **Limitação assumida:** as notas do **juiz** (rota/resposta) seguem em n
+> pequeno (in-scope n=4), anotador único — a mesma limitação do retrieval ([docs/09](09_fase1_api.md#limitações-conhecidas-da-avaliação-assumidas-não-escondidas)); ampliar exige mais trajetórias rotuladas independentemente.
 
 O **roteamento é perfeito** nos seis casos, incluindo o combinado (2 ferramentas), o fora-de-escopo
 e o adversarial. O juiz confirma rota adequada em todos os in-scope; a fundamentação fica em 1,5/2
