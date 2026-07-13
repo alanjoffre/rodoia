@@ -57,14 +57,21 @@ def gerar_kit(n_consultas: int = 15, seed: int = 42) -> Path:
     return CSV_KIT
 
 
+def _norm_id(x) -> str:
+    return str(x).strip().split(".")[0]        # "1", "1.0", 1 → "1" (alinha csv e xlsx)
+
+
 def _ler(caminho: str | Path) -> dict[str, int]:
-    with open(caminho, encoding="utf-8-sig", newline="") as fh:
-        rotulos = {}
-        for r in csv.DictReader(fh, delimiter=";"):
-            v = (r.get(COL) or "").strip()
-            if v in ("0", "1"):
-                rotulos[r["id"]] = int(v)
-    return rotulos
+    """Lê os rótulos {id: 0/1}. Aceita CSV (`;`) ou XLSX (Excel)."""
+    caminho = str(caminho)
+    if caminho.lower().endswith((".xlsx", ".xls")):
+        import pandas as pd
+        registros = pd.read_excel(caminho, dtype=str).fillna("").to_dict("records")
+    else:
+        with open(caminho, encoding="utf-8-sig", newline="") as fh:
+            registros = list(csv.DictReader(fh, delimiter=";"))
+    return {_norm_id(r["id"]): int(str(r.get(COL, "")).strip())
+            for r in registros if str(r.get(COL, "")).strip() in ("0", "1")}
 
 
 def computar_kappa(csv_a: str, csv_b: str) -> dict:

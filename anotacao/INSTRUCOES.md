@@ -6,7 +6,9 @@ forma independente, se um trecho recuperado é **relevante** para a pergunta. Is
 
 ## O que fazer (cada avaliador, SEM ver o do outro)
 
-1. Abra **`relevancia.csv`** (Excel/LibreOffice/Google Sheets — é `;` como separador).
+1. Abra o **seu** arquivo no Excel/LibreOffice/Google Sheets:
+   - Avaliador 1 → **`anotador_A.xlsx`**
+   - Avaliador 2 → **`anotador_B.xlsx`**
 2. Para cada linha, leia a **`consulta`** (pergunta do usuário) e o **`trecho`** (pedaço de uma
    resolução da ANTT). Preencha a coluna **`relevante`**:
    - **`1`** = o trecho **ajuda a responder** a pergunta (é sobre o mesmo assunto/regra).
@@ -14,18 +16,15 @@ forma independente, se um trecho recuperado é **relevante** para a pergunta. Is
    - Na dúvida entre "ajuda um pouco" e "não ajuda", decida pelo que **você usaria** para responder.
 3. Preencha **todas as 30 linhas**. Não combine respostas com o outro avaliador (a graça é a
    independência).
-4. Salve o **seu** arquivo com um nome próprio, mantendo o formato CSV:
-   - Avaliador 1 → `anotador_A.csv`
-   - Avaliador 2 → `anotador_B.csv`
-   > No Excel: *Salvar como → CSV UTF-8 (delimitado por vírgula/ponto e vírgula)*. Mantenha o
-   > cabeçalho e a coluna `relevante`.
+4. **Salve** (Ctrl+S) mantendo o formato **.xlsx**. Não mude o cabeçalho nem a coluna `relevante`.
+   (O cálculo do κ também aceita `.csv`, se preferir exportar.)
 
 ## Depois (quem coordena)
 
 Com os dois arquivos preenchidos, rode:
 
 ```bash
-python -m rodoia.anotacao kappa anotacao/anotador_A.csv anotacao/anotador_B.csv
+python -m rodoia.anotacao kappa anotacao/anotador_A.xlsx anotacao/anotador_B.xlsx
 ```
 
 Isso gera `reports/fase1_rag/kappa_humano.json` com:
