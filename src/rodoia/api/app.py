@@ -31,7 +31,9 @@ def _carregar() -> None:
         from rodoia.rag.avaliacao_retrieval import carregar_recuperador
         from rodoia.rag.llm import OllamaLLM
 
-        _estado["rec"] = carregar_recuperador(com_reranker=True)
+        # rerank DESLIGADO por padrão: a avaliação (reports/fase1_retrieval) mostra que ele não
+        # melhora hit@5 e piora o MRR — não justifica a latência. Ver docs/09.
+        _estado["rec"] = carregar_recuperador(com_reranker=False)
         _estado["llm"] = OllamaLLM()
 
 

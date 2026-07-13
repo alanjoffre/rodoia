@@ -1,0 +1,27 @@
+name: Reproduzir métrica-âncora
+
+# REPRODUÇÃO REAL (diferente do gate do ci.yml, que só lê o JSON commitado):
+# re-executa o pipeline e falha se a métrica regenerada divergir do report versionado.
+# Fecha o ataque "seu CI não reproduz nada". Exige o corpus/índice e (para âncoras de GPU)
+# uma placa — por isso roda num runner SELF-HOSTED (ex.: a Nitro/RTX 4050), não no GitHub-hosted.
+#
+# Pré-requisito no runner: corpus + índice presentes (ou regeneráveis):
+#   python -m rodoia.rag.baixar_normas && python -m rodoia.rag.construir_indice
+
+on:
+  workflow_dispatch: {}        # sob demanda (botão "Run workflow")
+  schedule:
+    - cron: "0 6 * * 1"        # semanal (segunda, 06:00 UTC)
+
+jobs:
+  reproduzir:
+    # Requer um runner com o rótulo abaixo registrado (self-hosted, com dados e GPU).
+    runs-on: [self-hosted, gpu]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar
+        run: pip install -e ".[rag,estruturados]"
+
+      - name: Reproduzir a âncora (re-executa o pipeline e confere)
+        run: python -m rodoia.mlops.reproduzir

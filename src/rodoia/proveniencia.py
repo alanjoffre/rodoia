@@ -6,6 +6,7 @@ resultado deixa de ser um número solto e passa a ser reproduzível/rastreável.
 """
 from __future__ import annotations
 
+import hashlib
 import subprocess
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
@@ -31,6 +32,28 @@ def _git_sha() -> str:
         return "desconhecido"
 
 
+def _git_dirty() -> dict:
+    """Denuncia árvore suja: se há mudança não commitada (tracked ou não), marca `git_dirty`
+    e o hash do diff. Sem isso, um número pode sair de working tree modificado sem rastro."""
+    try:
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True, text=True, timeout=5, check=True,
+        ).stdout
+    except (subprocess.SubprocessError, OSError):
+        return {"git_dirty": None}
+    if not status.strip():
+        return {"git_dirty": False}
+    try:
+        diff = subprocess.run(
+            ["git", "diff", "HEAD"], capture_output=True, text=True, timeout=5, check=True,
+        ).stdout
+        h = hashlib.sha1(diff.encode("utf-8", "ignore")).hexdigest()[:12]
+    except (subprocess.SubprocessError, OSError):
+        h = None
+    return {"git_dirty": True, "git_diff_sha1": h}
+
+
 def _versoes() -> dict[str, str]:
     v = {}
     for lib in _LIBS:
@@ -46,6 +69,7 @@ def proveniencia() -> dict:
     return {
         "seed": settings.seed,
         "git_sha": _git_sha(),
+        **_git_dirty(),
         "timestamp_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "versoes": _versoes(),
     }

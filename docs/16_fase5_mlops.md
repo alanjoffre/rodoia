@@ -29,6 +29,13 @@ $ python -m rodoia.mlops.gate
 Os pisos ficam **abaixo** dos valores atuais (toleram ruído de reexecução, pegam regressão real).
 Baixar um piso é uma decisão consciente — aparece no diff e no code review.
 
+> **O que este gate é e o que NÃO é (honestidade).** É um **guardrail de regressão de artefato**:
+> impede que um relatório commitado seja trocado por um pior sem revisão. Ele **não re-executa
+> modelo** — confia no JSON versionado. A **reprodução real** (regenerar a métrica a partir do
+> modelo/dados e conferir contra o commitado) é o job **`reproduzir`** (§2.1), que exige GPU e roda
+> à parte. Separar os dois é proposital: o CI barato dá feedback em segundos; a reprodução cara roda
+> sob demanda/agendada.
+
 ## 2. CI/CD — GitHub Actions (`.github/workflows/ci.yml`)
 
 Em cada push/PR para `main`, três portões **bloqueantes**:
@@ -41,6 +48,19 @@ Em cada push/PR para `main`, três portões **bloqueantes**:
 
 Instalação enxuta e CPU-only: `.[dev,agente,estruturados]` + `qdrant-client rank-bm25 fastapi
 httpx uvicorn`. Nada de torch/vLLM/transformers (todos lazy ou "fakeados" nos testes).
+
+### 2.1 Reprodução real — `.github/workflows/reproduzir.yml` (`mlops/reproduzir.py`)
+
+O gate do §1 é barato e honesto sobre seu limite: **não regenera métrica**. A reprodução de fato
+fica num job separado que **re-executa o pipeline** e falha se o resultado divergir do JSON
+commitado — respondendo diretamente a "seu CI só lê números que você mesmo commitou".
+
+- **Âncora atual:** `hit@5` do retrieval híbrido — **determinística**, roda em CPU, sem LLM; a
+  reprodução bate exata (Δ=0,0 contra o `avaliacao_retrieval.json`). Verificado localmente.
+- **Onde roda:** runner **self-hosted com GPU** (ex.: a Nitro), `workflow_dispatch` + agendado
+  semanal — porque exige o corpus/índice (e, para âncoras futuras como o NER F1, a placa). O
+  GitHub-hosted não tem dados nem GPU, então essa reprodução **não** cabe no CI barato.
+- **Extensível:** o mesmo harness recebe âncoras de GPU (NER F1 via vLLM) quando o runner tem placa.
 
 ## 3. MLflow — rastreio de experimentos (`mlops/rastreio.py`)
 

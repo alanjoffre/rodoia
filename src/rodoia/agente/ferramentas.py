@@ -82,7 +82,7 @@ def dados_real(db=None):
 
 
 # ── Montagem das dependências reais (demo) ───────────────────────────────────
-def deps_reais(com_reranker: bool = True) -> DepsAgente:
+def deps_reais(com_reranker: bool = False) -> DepsAgente:  # rerank não ajuda (docs/09) → off
     """Fia o agente com as ferramentas de produção: Ollama (cérebro), RAG (F1),
     vLLM do modelo FT (F2, se disponível) e DuckDB (F3)."""
     from rodoia.config import settings

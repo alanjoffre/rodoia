@@ -43,7 +43,15 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 |---|---|---|
 | Ingestão | ANTTlegis (45 resoluções, 3.432 chunks), chunking por artigo | 06 |
 | Indexação | E5 local + Qdrant, filtro de vigência | 06 |
-| Retrieval | híbrido (BM25+RRF) — hit@5 **0,64** [IC 0,50–0,76], MRR 0,51, n=50 (rerank não ajuda) | 07 |
+| Retrieval | híbrido (BM25+RRF) **sem rerank** — hit@5 **0,64** [IC 0,50–0,76], MRR 0,51, n=50 | 07 |
+
+> **Decisão honesta (tensão arquitetura × evidência).** Com n=50 os ICs se sobrepõem e **nenhuma
+> config vence com significância**: **denso** tem o melhor hit@5 (**0,66**), **híbrido** o melhor MRR
+> (**0,513**), e o **rerank piora o MRR** (0,513→0,473) sem mudar o hit@5. Logo o rerank foi
+> **desligado por padrão** (não paga a latência) e servimos o **híbrido sem rerank** — não por ele
+> vencer aqui (não vence), mas pela robustez do BM25 a consultas léxicas/OOV, assumida como escolha,
+> não como resultado. O gate trava a métrica do híbrido (a config servida). Números em
+> `reports/fase1_retrieval/avaliacao_retrieval.json`.
 | Governança | guardrail (direto+indireto+evasão) + PII + auditoria | 08 |
 | Geração | citação; **juiz independente** (llama3.1, **n=12, sem IC**): faithfulness 0,73 / relevancy 1,0 / precisão de citação 0,92 · geração p50 ~21s | — |
 | Interface | FastAPI async + UI de demo | 09 |

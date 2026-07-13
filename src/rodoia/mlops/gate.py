@@ -5,6 +5,13 @@ métrica-chave contra um **piso**. Se qualquer métrica cair abaixo do piso, o g
 (exit code 1) — é o portão de qualidade do CI. Não precisa de GPU/modelo: opera sobre os
 JSONs já versionados, então roda no GitHub Actions em segundos.
 
+**HONESTIDADE — o que este gate é e o que NÃO é.** Ele é um **guardrail de regressão de
+ARTEFATO**: garante que um relatório commitado não seja substituído por outro pior sem alguém
+notar. Ele **NÃO re-executa modelo nem regenera métrica** — confia no JSON versionado. A
+*reprodução* de fato (regenerar a métrica a partir do modelo/dados e conferir contra o JSON) é
+outra coisa, e roda no job `reproduzir` (ver `.github/workflows/reproduzir.yml`, runner com GPU),
+não neste gate barato do CI.
+
 Os pisos ficam um pouco ABAIXO dos valores atuais: toleram ruído de reexecução, mas pegam
 qualquer regressão real. Atualizar um piso é uma decisão consciente (aparece no diff).
 

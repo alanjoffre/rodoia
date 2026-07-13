@@ -27,7 +27,7 @@ src/rodoia/
 |---|---|---|
 | `config.py` | Config central (pydantic-settings); caminhos, modelos, `seed`, override por env | `Settings` |
 | `estat.py` | Intervalos de confiança compartilhados (n pequeno) | `wilson`, `bootstrap_ic` |
-| `proveniencia.py` | Carimbo de reprodutibilidade em todo report (seed/git_sha/versões/timestamp) | `carimbar`, `proveniencia`, `_git_sha`, `_versoes` |
+| `proveniencia.py` | Carimbo de reprodutibilidade em todo report (seed/git_sha/**git_dirty**/versões/timestamp) | `carimbar`, `proveniencia`, `_git_sha`, `_git_dirty`, `_versoes` |
 
 ## Fase 0 — Fundamentos, ML clássico e dados de acidentes
 
@@ -109,6 +109,7 @@ src/rodoia/
 | `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI | `avaliar`, `GATES`, `_acessar`, `_passou` |
 | `mlops/rastreio.py` | Consolida métricas das fases em runs MLflow (sqlite) | `coletar`, `registrar` |
 | `mlops/drift.py` | Drift por PSI (coorte de praças, 12m vs 12m) | `psi`, `drift_volume`, `classificar` |
+| `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval` |
 
 ## API (`api/`)
 
