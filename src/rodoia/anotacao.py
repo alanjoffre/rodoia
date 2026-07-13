@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 from rodoia.config import REPO_ROOT
-from rodoia.estat import cohen_kappa
+from rodoia.estat import cohen_kappa, cohen_kappa_ic95
 from rodoia.proveniencia import carimbar
 
 DIR = REPO_ROOT / "anotacao"
@@ -74,7 +74,7 @@ def _ler(caminho: str | Path) -> dict[str, int]:
             for r in registros if str(r.get(COL, "")).strip() in ("0", "1")}
 
 
-def computar_kappa(csv_a: str, csv_b: str) -> dict:
+def computar_kappa(csv_a: str, csv_b: str, saida: str | Path | None = None) -> dict:
     a, b = _ler(csv_a), _ler(csv_b)
     ids = sorted(set(a) & set(b), key=int)
     if not ids:
@@ -86,9 +86,13 @@ def computar_kappa(csv_a: str, csv_b: str) -> dict:
         "n_pares": len(ids),
         "concordancia_percentual": round(100 * concord, 1),
         "cohen_kappa": cohen_kappa(la, lb),
+        "cohen_kappa_ic95": cohen_kappa_ic95(la, lb),      # incerteza — a régua do projeto
         "prevalencia_relevante": round(sum(la + lb) / (2 * len(ids)), 3),
+        "anotadores": [Path(csv_a).stem, Path(csv_b).stem],
+        "coleta": ("2 pessoas DIFERENTES, cada uma preencheu seu arquivo de forma INDEPENDENTE "
+                   "e cega (sem ver o rótulo do outro) — não é o autor avaliando a si mesmo"),
     })
-    saida = REPO_ROOT / "reports" / "fase1_rag" / "kappa_humano.json"
+    saida = Path(saida) if saida else REPO_ROOT / "reports" / "fase1_rag" / "kappa_humano.json"
     saida.write_text(json.dumps(res, ensure_ascii=False, indent=2))
     print(f"κ de Cohen (humano) = {res['cohen_kappa']} | "
           f"concordância {res['concordancia_percentual']}% (n={res['n_pares']}) -> {saida}")

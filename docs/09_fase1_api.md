@@ -59,10 +59,14 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 
 Um revisor cético atacaria — e onde tinha razão, corrigimos:
 - **Anotador único → κ HUMANO (fechado).** A crítica de "você avaliando você" foi respondida com
-  **2 anotadores humanos** julgando a relevância de trechos recuperados (0/1), independentes:
-  **κ de Cohen = 0,864** (concordância 93,3%, n=30 — "quase perfeita" na escala Landis-Koch), em
-  `reports/fase1_rag/kappa_humano.json` (no gate). Ou seja, o rótulo de relevância é **confiável entre
-  humanos**, não idiossincrasia do autor. Kit reproduzível em `rodoia.anotacao` + `anotacao/`.
+  **2 anotadores humanos DIFERENTES**, cada um julgando de forma **independente e cega** (sem ver o
+  rótulo do outro) a relevância de trechos recuperados (0/1): **κ de Cohen = 0,864**, **IC95 bootstrap
+  [0,65; 1,00]** (concordância 93,3%, n=30 — "quase perfeita" na escala Landis-Koch), em
+  `reports/fase1_rag/kappa_humano.json` (no gate, piso 0,6). O IC segue a régua do projeto (nenhum
+  número sem incerteza) e o limite inferior fica **acima do piso**. Sem paradoxo de prevalência
+  (0,567 ≈ 0,5, viés nulo). Ou seja, o rótulo de relevância é **confiável entre humanos**, não
+  idiossincrasia do autor. Kit + brutos (`anotador_A/B.xlsx`) **versionados** → reproduz de um clone
+  limpo: `python -m rodoia.anotacao kappa anotacao/anotador_A.xlsx anotacao/anotador_B.xlsx`.
 - **n pequeno (assumido).** O dourado de retrieval é **n≈50** e o de geração **n=12** — os ICs
   (Wilson/bootstrap) refletem esse n, largos de propósito. Um número sozinho enganaria; a faixa é
   honesta. A **banca de 3 juízes LLM + κ de Fleiss** (0,167) complementa medindo a concordância de

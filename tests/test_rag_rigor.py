@@ -1,6 +1,6 @@
 """Testes das melhorias de rigor da Fase 1 (hermético: sem rede, modelos ou Qdrant):
 observabilidade, defesa de injeção no contexto, guardrail, PII, citação e IC."""
-from rodoia.estat import cohen_kappa, fleiss_kappa
+from rodoia.estat import cohen_kappa, cohen_kappa_ic95, fleiss_kappa
 from rodoia.rag.avaliacao_geracao import citacoes
 from rodoia.rag.avaliacao_retrieval import _bootstrap_ic, _wilson
 from rodoia.rag.gerar import PROMPT_SISTEMA, montar_contexto, responder
@@ -10,6 +10,32 @@ from rodoia.rag.seguranca import detectar_injection, mascarar_pii
 def test_cohen_kappa():
     assert cohen_kappa([1, 0, 1, 0], [1, 0, 1, 0]) == 1.0     # concordância perfeita
     assert cohen_kappa([1, 1, 0, 0], [0, 0, 1, 1]) == -1.0    # oposto → pior que o acaso
+    assert cohen_kappa([], []) == 0.0                         # vazio → 0 (sem crash)
+    assert cohen_kappa([1, 1, 1], [1, 1, 0]) == 0.0           # Po=Pe=2/3 → κ=0 (concord. ao acaso)
+    # concordância parcial deve ficar estritamente entre 0 e 1
+    assert 0.0 < cohen_kappa([1, 1, 1, 0, 0], [1, 1, 0, 0, 0]) < 1.0
+
+
+def test_cohen_kappa_ic95():
+    # concordância perfeita → IC degenerado em [1, 1]; par vazio → [0, 0] (sem crash)
+    assert cohen_kappa_ic95([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0]) == [1.0, 1.0]
+    assert cohen_kappa_ic95([], []) == [0.0, 0.0]
+    lo, hi = cohen_kappa_ic95([1, 1, 1, 0, 0, 0], [1, 1, 0, 0, 0, 1])   # lo <= hi, dentro de [-1,1]
+    assert -1.0 <= lo <= hi <= 1.0
+
+
+def test_anotacao_ler(tmp_path):
+    """_ler normaliza id (csv int vs xlsx float), filtra vazios/inválidos, casa os pares."""
+    from rodoia.anotacao import _ler, _norm_id, computar_kappa
+
+    assert _norm_id("1.0") == _norm_id(1) == _norm_id(" 1 ") == "1"
+    p = tmp_path / "a.csv"
+    p.write_text("id;consulta;resolucao;trecho;relevante\n"
+                 "1;q;R;t;1\n2;q;R;t;0\n3;q;R;t;\n4;q;R;t;x\n", encoding="utf-8-sig")
+    assert _ler(p) == {"1": 1, "2": 0}       # linha 3 (vazia) e 4 (inválida) descartadas
+    # dois anotadores idênticos → κ = 1,0 e concordância 100% (saída em tmp, não clobbera o real)
+    res = computar_kappa(str(p), str(p), saida=tmp_path / "k.json")
+    assert res["cohen_kappa"] == 1.0 and res["concordancia_percentual"] == 100.0
 
 
 def test_fleiss_kappa():

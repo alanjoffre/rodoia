@@ -33,8 +33,11 @@ service-account*.json
 !data/**/*.dvc
 # o KIT de anotação (template, domínio público) — versionado apesar do *.csv acima
 !anotacao/relevancia.csv
-# Preenchimentos dos avaliadores (insumo do κ; não versionar os fill-ins .csv/.xlsx)
+# Preenchimentos dos 2 anotadores HUMANOS = o insumo bruto do κ. VERSIONADOS de propósito:
+# sem eles o κ não reproduz de um clone limpo (texto público da ANTT + rótulo 0/1, sem PII).
 /anotacao/anotador_*
+!anotacao/anotador_A.xlsx
+!anotacao/anotador_B.xlsx
 
 # === Artefatos de modelo / experimentos (via DVC/MLflow, não no Git) ===
 /models/

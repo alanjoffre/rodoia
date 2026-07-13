@@ -44,6 +44,20 @@ def cohen_kappa(a: list, b: list) -> float:
     return round((p_obs - p_esp) / (1 - p_esp), 4) if p_esp < 1 else 1.0
 
 
+def cohen_kappa_ic95(a: list, b: list, n_boot: int = 10_000, seed: int = 42) -> list[float]:
+    """IC 95% do κ de Cohen por bootstrap percentílico dos PARES (reamostra os n pares com
+    reposição e recomputa κ). Honra a régua do projeto: nenhum número sem incerteza — mesmo o
+    κ, que tem n pequeno. Reamostragens degeneradas (κ indefinido) são descartadas."""
+    n = len(a)
+    if n == 0 or len(b) != n:
+        return [0.0, 0.0]
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, n, size=(n_boot, n))
+    kappas = [cohen_kappa([a[i] for i in linha], [b[i] for i in linha]) for linha in idx]
+    lo, hi = np.percentile(kappas, [2.5, 97.5])
+    return [round(float(lo), 3), round(float(hi), 3)]
+
+
 def fleiss_kappa(avaliacoes: list[list], categorias=(0, 1, 2)) -> float:
     """κ de Fleiss — concordância entre MÚLTIPLOS avaliadores (banca de juízes).
 

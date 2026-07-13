@@ -3,12 +3,22 @@
   "n_pares": 30,
   "concordancia_percentual": 93.3,
   "cohen_kappa": 0.8643,
+  "cohen_kappa_ic95": [
+    0.648,
+    1.0
+  ],
   "prevalencia_relevante": 0.567,
+  "anotadores": [
+    "anotador_A",
+    "anotador_B"
+  ],
+  "coleta": "2 pessoas DIFERENTES, cada uma preencheu seu arquivo de forma INDEPENDENTE e cega (sem ver o rótulo do outro) — não é o autor avaliando a si mesmo",
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "4444cb5",
-    "git_dirty": false,
-    "timestamp_utc": "2026-07-13T23:08:15+00:00",
+    "git_sha": "dde5c38",
+    "git_dirty": true,
+    "git_diff_sha1": "8dcb8a341b05",
+    "timestamp_utc": "2026-07-13T23:25:37+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",
