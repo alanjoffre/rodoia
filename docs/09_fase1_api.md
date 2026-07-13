@@ -52,6 +52,23 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 > vencer aqui (não vence), mas pela robustez do BM25 a consultas léxicas/OOV, assumida como escolha,
 > não como resultado. O gate trava a métrica do híbrido (a config servida). Números em
 > `reports/fase1_retrieval/avaliacao_retrieval.json`.
+
+### Limitações conhecidas da avaliação (assumidas, não escondidas)
+
+Um revisor cético atacaria — e tem razão em parte:
+- **n pequeno e anotador único.** O dourado é **n≈50** (retrieval) e **n=12** (geração), **escrito e
+  rotulado pelo autor** — sem segundo anotador nem concordância (**κ**). Os ICs (Wilson/bootstrap)
+  refletem esse n: largos de propósito. Um número sozinho enganaria; a faixa é honesta.
+- **Teto do corpus.** O corpus tem **45 normas (30 vigentes)** → no máximo ~30 fontes distintas.
+  **Escalar o benchmark de verdade exige escalar o corpus** (mais resoluções da ANTT), não gerar
+  mais perguntas sobre as mesmas normas — *tentamos* gerar perguntas sintéticas por LLM e
+  **descartamos**: elas citavam o número da resolução (query vazada, retrieval trivial). Preferimos
+  assumir o limite a inflar o n com um benchmark ruim.
+- **Held-out por construção.** O retriever (E5 pré-treinado + BM25 + RRF) **não tem parâmetro
+  treinado** nessas queries — todo o conjunto é out-of-sample; não há risco de overfitting ao dourado.
+
+**Fix real (backlog):** ampliar o corpus + anotação independente com κ. É trabalho de dados, não um
+ajuste rápido — por isso está registrado como limitação, não maquiado.
 | Governança | guardrail (direto+indireto+evasão) + PII + auditoria | 08 |
 | Geração | citação; **juiz independente** (llama3.1, **n=12, sem IC**): faithfulness 0,73 / relevancy 1,0 / precisão de citação 0,92 · geração p50 ~21s | — |
 | Interface | FastAPI async + UI de demo | 09 |
