@@ -57,6 +57,59 @@ def gerar_kit(n_consultas: int = 15, seed: int = 42) -> Path:
     return CSV_KIT
 
 
+CSV_KIT_GOLD = DIR / "gold_fonte.csv"
+
+
+def _indice_normas() -> dict[str, dict]:
+    """{numero -> {titulo, texto}} a partir de normas.jsonl (para exibir a norma-gold)."""
+    from rodoia.rag.chunking import _cortar_ate_cabecalho
+    caminho = REPO_ROOT / "data" / "raw" / "normas" / "normas.jsonl"
+    idx = {}
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        if not linha.strip():
+            continue
+        r = json.loads(linha)
+        idx[r["numero"]] = {"titulo": r.get("titulo", ""),
+                            "texto": _cortar_ate_cabecalho(r.get("texto", ""))}
+    return idx
+
+
+def gerar_kit_gold(n_consultas: int = 25, seed: int = 42) -> Path:
+    """Kit para VALIDAR os rótulos-gold de FONTE do hit@5 (hoje anotador único) — o elo que falta
+    para o κ humano tocar a métrica do gate. Para cada query do dourado emite (a) o par
+    query↔fonte-GOLD (esperado relevante) e (b) um DISTRATOR: a query com a fonte-gold de OUTRA
+    query (esperado não-relevante) — a variância que torna o κ informativo. 2 humanos julgam
+    'esta resolução é uma fonte correta para esta pergunta?' (0/1), INDEPENDENTES."""
+    from rodoia.rag.avaliacao_retrieval import CONJUNTO_DOURADO
+
+    rng = random.Random(seed)
+    normas = _indice_normas()
+    casos = CONJUNTO_DOURADO[:n_consultas]
+    linhas = []
+    for caso in casos:
+        gold = caso["fontes"][0]
+        if gold not in normas:
+            continue
+        linhas.append((caso["consulta"], gold, normas[gold]))                    # par GOLD
+        # distrator: fonte-gold de outra query que NÃO seja fonte desta
+        candidatos = [f for c in casos for f in c["fontes"]
+                      if f not in caso["fontes"] and f in normas]
+        if candidatos:
+            d = rng.choice(candidatos)
+            linhas.append((caso["consulta"], d, normas[d]))                      # par DISTRATOR
+    rng.shuffle(linhas)
+
+    DIR.mkdir(exist_ok=True)
+    with CSV_KIT_GOLD.open("w", encoding="utf-8-sig", newline="") as fh:
+        w = csv.writer(fh, delimiter=";")
+        w.writerow(["id", "consulta", "resolucao", "titulo", "trecho", COL])
+        for i, (c, num, n) in enumerate(linhas, 1):
+            w.writerow([i, c, num, n["titulo"][:120], n["texto"][:600], ""])
+    print(f"kit GOLD gerado: {len(linhas)} pares (gold+distrator) -> {CSV_KIT_GOLD} "
+          f"(preencha '{COL}': 1 se a resolução responde à pergunta, 0 se não)")
+    return CSV_KIT_GOLD
+
+
 def _norm_id(x) -> str:
     return str(x).strip().split(".")[0]        # "1", "1.0", 1 → "1" (alinha csv e xlsx)
 
@@ -74,7 +127,10 @@ def _ler(caminho: str | Path) -> dict[str, int]:
             for r in registros if str(r.get(COL, "")).strip() in ("0", "1")}
 
 
-def computar_kappa(csv_a: str, csv_b: str, saida: str | Path | None = None) -> dict:
+def computar_kappa(
+    csv_a: str, csv_b: str, saida: str | Path | None = None,
+    tarefa: str = "relevância de trecho recuperado (0/1) — 2 anotadores HUMANOS",
+) -> dict:
     a, b = _ler(csv_a), _ler(csv_b)
     ids = sorted(set(a) & set(b), key=int)
     if not ids:
@@ -82,7 +138,7 @@ def computar_kappa(csv_a: str, csv_b: str, saida: str | Path | None = None) -> d
     la, lb = [a[i] for i in ids], [b[i] for i in ids]
     concord = sum(1 for x, y in zip(la, lb, strict=True) if x == y) / len(ids)
     res = carimbar({
-        "tarefa": "relevância de trecho recuperado (0/1) — 2 anotadores HUMANOS",
+        "tarefa": tarefa,
         "n_pares": len(ids),
         "concordancia_percentual": round(100 * concord, 1),
         "cohen_kappa": cohen_kappa(la, lb),
@@ -100,13 +156,23 @@ def computar_kappa(csv_a: str, csv_b: str, saida: str | Path | None = None) -> d
 
 
 def main() -> None:
-    if len(sys.argv) >= 2 and sys.argv[1] == "gerar":
+    cmd = sys.argv[1] if len(sys.argv) >= 2 else ""
+    if cmd == "gerar":
         gerar_kit()
-    elif len(sys.argv) >= 4 and sys.argv[1] == "kappa":
+    elif cmd == "gerar-gold":
+        gerar_kit_gold()
+    elif cmd == "kappa" and len(sys.argv) >= 4:
         computar_kappa(sys.argv[2], sys.argv[3])
+    elif cmd == "kappa-gold" and len(sys.argv) >= 4:
+        computar_kappa(
+            sys.argv[2], sys.argv[3],
+            saida=REPO_ROOT / "reports" / "fase1_rag" / "kappa_gold_fonte.json",
+            tarefa="rótulo-gold de FONTE do hit@5 é correto? (0/1) — 2 anotadores HUMANOS")
     else:
-        print("uso: python -m rodoia.anotacao gerar")
-        print("     python -m rodoia.anotacao kappa <anotador_A.csv> <anotador_B.csv>")
+        print("uso: python -m rodoia.anotacao gerar          # kit de relevância de trecho")
+        print("     python -m rodoia.anotacao gerar-gold     # kit de validação dos rótulos-gold")
+        print("     python -m rodoia.anotacao kappa <A> <B>       # κ da relevância de trecho")
+        print("     python -m rodoia.anotacao kappa-gold <A> <B>  # κ dos rótulos-gold de fonte")
 
 
 if __name__ == "__main__":

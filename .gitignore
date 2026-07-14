@@ -33,6 +33,7 @@ service-account*.json
 !data/**/*.dvc
 # o KIT de anotação (template, domínio público) — versionado apesar do *.csv acima
 !anotacao/relevancia.csv
+!anotacao/gold_fonte.csv
 # Preenchimentos dos 2 anotadores HUMANOS = o insumo bruto do κ. VERSIONADOS de propósito:
 # sem eles o κ não reproduz de um clone limpo (texto público da ANTT + rótulo 0/1, sem PII).
 /anotacao/anotador_*
