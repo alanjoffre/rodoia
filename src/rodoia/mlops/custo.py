@@ -10,8 +10,10 @@ não uma cotação de fornecedor). A honestidade está em separar:
   • always-on a baixa utilização    → REALIDADE de um endpoint de portfólio: paga-se a GPU
                                         ociosa, então o custo/req sobe por 1/utilização.
 
-Escopo: vale para a rota do modelo FT (NER, `max_tokens=128`, geração curta). A rota RAG
-completa tem p95≈30 s (geração longa) — custo/req proporcionalmente maior, mesma aritmética.
+Duas rotas, duas bases de medição: a **FT** (NER, `max_tokens=128`, geração curta) usa a **vazão
+concorrente medida** (req/s); a **RAG** (7B, geração longa, p50≈20,7 s) usa a **latência
+single-stream** como TETO (não há vazão batcheada medida — batching baixaria). São aritméticas
+diferentes (`_linha` vs `_linha_latencia`), de propósito.
 
 Uso:  python -m rodoia.mlops.custo      # imprime a tabela -> reports/fase5_mlops/custo.json
 """

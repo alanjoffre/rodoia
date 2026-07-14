@@ -24,6 +24,21 @@ def test_cohen_kappa_ic95():
     assert -1.0 <= lo <= hi <= 1.0
 
 
+def test_ics_geracao():
+    """ics_geracao: IC bootstrap por métrica; caso com prec=None é ignorado no IC de citação."""
+    from rodoia.rag.avaliacao_geracao import ics_geracao
+
+    casos = [{"faithfulness": 1.0, "relevancy": 1.0, "precisao_citacao": 1.0},
+             {"faithfulness": 0.5, "relevancy": 1.0, "precisao_citacao": None},
+             {"faithfulness": 0.9, "relevancy": 1.0, "precisao_citacao": 0.5}]
+    ics = ics_geracao(casos)
+    lo, hi = ics["faithfulness_ic95"]
+    assert 0.5 <= lo <= hi <= 1.0                          # faixa dentro dos valores observados
+    assert ics["relevancy_ic95"] == [1.0, 1.0]             # constante → IC degenerado
+    plo, phi = ics["precisao_citacao_ic95"]               # só os 2 não-None entram
+    assert 0.5 <= plo <= phi <= 1.0
+
+
 def test_anotacao_ler(tmp_path):
     """_ler normaliza id (csv int vs xlsx float), filtra vazios/inválidos, casa os pares."""
     from rodoia.anotacao import _ler, _norm_id, computar_kappa
