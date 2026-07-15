@@ -43,6 +43,8 @@ GATES: tuple[Meta, ...] = (
     Meta("F1 · corpus (nº de normas)", "reports/fase1_rag/corpus.json", "n_normas", ">=", 100),
     Meta("F1 · κ humano (relevância)", "reports/fase1_rag/kappa_humano.json",
          "cohen_kappa", ">=", 0.6),
+    Meta("F1 · κ humano (rótulo-gold fonte)", "reports/fase1_rag/kappa_gold_fonte.json",
+         "cohen_kappa", ">=", 0.6),
     Meta("F1 · precisão de citação", "reports/fase1_geracao/avaliacao_geracao.json",
          "precisao_citacao_media", ">=", 0.85),
     Meta("F2 · NER F1 (FT QLoRA)", "reports/fase2_ner/comparacao.json",

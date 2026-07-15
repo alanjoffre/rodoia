@@ -69,9 +69,16 @@ Um revisor cético atacaria — e onde tinha razão, corrigimos:
   limpo: `python -m rodoia.anotacao kappa anotacao/anotador_A.xlsx anotacao/anotador_B.xlsx`.
   Os 30 pares são **amostrados das próprias queries do dourado** (`CONJUNTO_DOURADO[:15]`, top-1 +
   distrator) — ou seja, o κ valida a relevância **sobre as mesmas perguntas** que a métrica de
-  retrieval usa, não um conjunto à parte. *Backlog (precisa do 2º anotador):* estender a
-  dupla-anotação aos **rótulos-gold de fonte** do hit@5 (hoje anotador único) fecharia o elo por
-  completo — é trabalho de dados, registrado, não maquiado.
+  retrieval usa, não um conjunto à parte.
+- **Rótulo-gold de fonte → κ HUMANO (elo fechado).** A crítica mais fina — "o `hit@5` repousa sobre
+  labels de FONTE de um anotador único" — foi respondida: **2 humanos independentes** validaram os
+  rótulos-gold de fonte do dourado (50 pares = 25 queries × [fonte-gold + distrator]):
+  **κ de Cohen = 0,917**, **IC95 [0,79; 1,00]** (concordância 96%, n=50 — "quase perfeita"), em
+  `reports/fase1_rag/kappa_gold_fonte.json` (no gate). A prevalência **0,40** (não 0,50) é honesta:
+  os humanos **discordaram do gold do autor em alguns casos**, expondo — em vez de esconder — que
+  nenhum rótulo é perfeito. Agora a **métrica que está no gate** (`hit@5`) tem validação
+  inter-humana, não só do autor. Kit + brutos versionados, reproduzível:
+  `python -m rodoia.anotacao gerar-gold` / `kappa-gold`.
 - **n pequeno (assumido).** O dourado de retrieval é **n≈50** e o de geração **n=12** — os ICs
   (Wilson/bootstrap) refletem esse n, largos de propósito. Um número sozinho enganaria; a faixa é
   honesta. A **banca de 3 juízes LLM + κ de Fleiss** (0,167) complementa medindo a concordância de

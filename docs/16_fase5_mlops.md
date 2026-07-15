@@ -18,6 +18,7 @@ $ python -m rodoia.mlops.gate
   [✓] F1 · RAG hit@5 (híbrido)           0.64 >= 0.58
   [✓] F1 · corpus (nº de normas)         125 >= 100
   [✓] F1 · κ humano (relevância)         0.8643 >= 0.6
+  [✓] F1 · κ humano (rótulo-gold fonte)  0.9168 >= 0.6
   [✓] F1 · precisão de citação           0.917 >= 0.85
   [✓] F2 · NER F1 (FT QLoRA)             0.7735 >= 0.72
   [✓] F2 · ganho FT vs base              0.6429 >= 0.55
@@ -25,7 +26,7 @@ $ python -m rodoia.mlops.gate
   [✓] F3 · HW bate naïve (pareado)       True == True
   [✓] F4 · roteamento (n=21, exato)      0.952 >= 0.85
   [✓] F4 · juiz rota adequada            2.0 >= 1.5
-  11/11 portões OK — APROVADO
+  12/12 portões OK — APROVADO
 ```
 
 Os pisos ficam **abaixo** dos valores atuais (toleram ruído de reexecução, pegam regressão real).
