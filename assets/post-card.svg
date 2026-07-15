@@ -50,9 +50,9 @@
 
   <!-- metrics chips -->
   <g font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle">
-    <g><rect x="300" y="962" width="180" height="44" rx="10" fill="#0e1b1f" stroke="#22d3ee66"/><text x="390" y="990" fill="#67e8f9">F1 0,13&#8594;0,77</text></g>
-    <g><rect x="500" y="962" width="150" height="44" rx="10" fill="#0e1b1f" stroke="#22d3ee66"/><text x="575" y="990" fill="#67e8f9">hit@5 0,62</text></g>
-    <g><rect x="670" y="962" width="140" height="44" rx="10" fill="#151226" stroke="#a78bfa66"/><text x="740" y="990" fill="#c4b5fd">gate 12/12</text></g>
+    <g><rect x="305" y="962" width="180" height="44" rx="10" fill="#0e1b1f" stroke="#22d3ee66"/><text x="395" y="990" fill="#67e8f9">F1 0,13&#8594;0,77</text></g>
+    <g><rect x="505" y="962" width="226" height="44" rx="10" fill="#0e1b1f" stroke="#22d3ee66"/><text x="618" y="990" fill="#67e8f9">hit@5 0,70&#8211;0,76</text></g>
+    <g><rect x="751" y="962" width="140" height="44" rx="10" fill="#151226" stroke="#a78bfa66"/><text x="821" y="990" fill="#c4b5fd">gate 12/12</text></g>
   </g>
 
   <!-- footer links -->
