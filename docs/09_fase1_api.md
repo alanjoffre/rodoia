@@ -129,10 +129,17 @@ errado). Corrigimos de forma **honesta** (não "deletamos os erros", que só dar
 como *miss legítimo* (0,70) ou removê-las (0,76). **Decisão:** mantemos **dourado e gate em 0,62**
 (conservador — não se sobe o piso removendo justamente as queries onde se foi mal). Os números
 definitivos ficam **reportados ao lado**, versionados em `reports/fase1_retrieval/hit5_auditado.json`
-(reproduzível: `python -m rodoia.rag.avaliacao_retrieval auditado`). Ressalva: **4 das 8** correções
-têm confirmação humana direta (κ); as outras 4 caem pelo mesmo **erro documental de título**
-(objetivo, verificável). É o ciclo completo de MLOps de avaliação: **medir → auditar → achar defeito
-→ rerotular/quantificar → reportar a faixa honesta**, sem maquiar a métrica no gate.
+(reproduzível: `python -m rodoia.rag.avaliacao_retrieval auditado`).
+
+**Ressalva de lastro (dois níveis, não confundir):** (1) a **refutação** do gold — que ele estava
+errado — tem **lastro humano** em 4 das 8 queries (κ inter-anotador) e **documental** nas outras 4
+(o título da resolução não bate com o tema; objetivo). (2) O **novo label** atribuído no relabel
+(`675/2004`, `6032/2023` para tarifa) tem lastro **documental do autor**, *não* humano — é correto
+por conteúdo (o Art. 55 da `6032/2023` rege o reajuste da tarifa de pedágio), verificável, mas não
+passou pelos 2 anotadores. Ou seja: *humanos confirmaram o erro; o acerto do substituto é aferido por
+leitura da norma.* Fechar essa assimetria (κ também sobre os relabels) é backlog que exige nova
+anotação. É o ciclo completo de MLOps de avaliação: **medir → auditar → achar defeito →
+rerotular/quantificar → reportar a faixa honesta**, sem maquiar a métrica no gate.
 
 ### Banca de juízes independente + κ mensurável (`rag/painel_juizes.py`)
 
