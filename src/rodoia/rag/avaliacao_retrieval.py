@@ -180,37 +180,56 @@ def carregar_recuperador(com_reranker: bool = True) -> RecuperadorHibrido:
     return RecuperadorHibrido(chunks, embedder, cliente, reranker=reranker)
 
 
-# Rótulos-gold REFUTADOS pela auditoria humana (κ inter-anotador, ver rodoia.anotacao):
-# 5998/2022 é "Produtos Perigosos" (não ônibus de passageiros) e 5831/2018 é "metas
-# FERROVIÁRIAS" (não tarifa de pedágio) — resíduo de numeração antiga (corpus 45→125 normas).
-# 4 destes foram confirmados por 2 humanos independentes; os demais caem pelo MESMO erro
-# documental (título da resolução não bate com o tema da query). Nenhuma query os usa corretamente.
-GOLDS_REFUTADOS = ("5998/2022", "5831/2018")
+# Rótulos-gold REFUTADOS pela auditoria humana (κ inter-anotador, ver rodoia.anotacao) — verificado
+# nos títulos do corpus, erro documental objetivo (resíduo de numeração antiga, corpus 45→125):
+#   5998/2022 = "Transporte de Produtos Perigosos" — rotulava queries de ÔNIBUS de passageiros.
+#     O corpus é temático de CARGAS: não há fonte de transporte de passageiros → FORA-DE-DOMÍNIO.
+#   5831/2018 = "metas FERROVIÁRIAS" — rotulava queries de TARIFA de pedágio. Fonte correta EXISTE
+#     no corpus: 675/2004 (revisões do equilíbrio econ.-fin. das concessões) + 6032/2023 (gestão
+#     econ.-fin. dos contratos) → REROTULÁVEL.
+GOLD_FORA_DOMINIO = "5998/2022"                       # ônibus: sem fonte correta no corpus
+REROTULAR = {"5831/2018": ["675/2004", "6032/2023"]}  # tarifa: gold correto (rerotula)
+GOLDS_REFUTADOS = (GOLD_FORA_DOMINIO, *REROTULAR)     # os 2 golds quebrados
 
 
 def avaliar_auditado(recuperador: RecuperadorHibrido, k: int = 5) -> dict:
-    """hit@5 (híbrido) no dourado COMPLETO vs. no AUDITADO (sem as queries de gold refutado).
-    NÃO altera o dourado canônico nem o gate — só expõe o quanto os labels quebrados deprimem a
-    métrica. As excluídas são todas MISS (o retriever nunca retorna um gold errado)."""
+    """hit@5 (híbrido): dourado CANÔNICO (no gate) vs. DEFINITIVO após a auditoria. NÃO altera o
+    dourado canônico nem o gate — só quantifica o efeito dos labels quebrados. Correção honesta,
+    não "deleta os erros": rerotula a tarifa para a fonte correta e trata o ônibus como
+    fora-de-domínio (2 enquadramentos: removido, ou contado como miss legítimo)."""
     def _hit(casos):
-        hits = sum(1 for c in casos
-                   if _rank_da_fonte(recuperador.buscar(c["consulta"], k=k, modo="hibrido"),
-                                     c["fontes"]) is not None)
+        hits = sum(1 for q, f in casos
+                   if _rank_da_fonte(recuperador.buscar(q, k=k, modo="hibrido"), f) is not None)
         return {"hit_rate_at_k": round(hits / len(casos), 3),
                 "hit_rate_ic95": _wilson(hits, len(casos)), "hits": hits, "n": len(casos)}
 
-    excluidas = [c["consulta"] for c in CONJUNTO_DOURADO
-                 if set(c["fontes"]) & set(GOLDS_REFUTADOS)]
-    auditado = [c for c in CONJUNTO_DOURADO if not (set(c["fontes"]) & set(GOLDS_REFUTADOS))]
+    def _rerotula(fontes):
+        for ruim, corretas in REROTULAR.items():
+            if ruim in fontes:
+                return corretas
+        return fontes
+
+    base = [(c["consulta"], c["fontes"]) for c in CONJUNTO_DOURADO]
+    fora = [c["consulta"] for c in CONJUNTO_DOURADO if GOLD_FORA_DOMINIO in c["fontes"]]
+    rerot = [c["consulta"] for c in CONJUNTO_DOURADO
+             if set(c["fontes"]) & set(REROTULAR)]
+    # definitivo A: rerotula tarifa + REMOVE ônibus fora-de-domínio
+    defin_a = [(q, _rerotula(f)) for q, f in base if GOLD_FORA_DOMINIO not in f]
+    # definitivo B: rerotula tarifa + MANTÉM ônibus como miss legítimo (sistema acerta ao não achar)
+    defin_b = [(q, _rerotula(f)) for q, f in base]
     return {
-        "metodo": ("hit@5 híbrido no dourado canônico vs. auditado (removendo queries cujo "
-                   "rótulo-gold foi REFUTADO por 2 humanos). Dourado e gate NÃO alterados."),
+        "metodo": ("hit@5 híbrido: canônico (no gate) vs. definitivo pós-auditoria. Rerotula a "
+                   "tarifa p/ a fonte correta; ônibus é fora-de-domínio. Gate NÃO mexido."),
         "golds_refutados": list(GOLDS_REFUTADOS),
-        "n_queries_excluidas": len(excluidas),
+        "gold_fora_dominio": GOLD_FORA_DOMINIO,
+        "rerotulados": REROTULAR,
+        "n_queries_refutadas": len(fora) + len(rerot),
         "n_confirmadas_por_humano": 4,
-        "queries_excluidas": excluidas,
-        "hit5_canonico": _hit(CONJUNTO_DOURADO),
-        "hit5_auditado": _hit(auditado),
+        "queries_fora_dominio": fora,
+        "queries_rerotuladas": rerot,
+        "hit5_canonico": _hit(base),
+        "hit5_definitivo_dropa_onibus": _hit(defin_a),
+        "hit5_definitivo_onibus_miss": _hit(defin_b),
     }
 
 
@@ -222,11 +241,11 @@ def main() -> None:
         saida = REPO_ROOT / "reports" / "fase1_retrieval" / "hit5_auditado.json"
         saida.parent.mkdir(parents=True, exist_ok=True)
         saida.write_text(json.dumps(carimbar(res), ensure_ascii=False, indent=2))
-        print(f"canônico hit@5={res['hit5_canonico']['hit_rate_at_k']} "
-              f"({res['hit5_canonico']['hits']}/{res['hit5_canonico']['n']}) · "
-              f"auditado={res['hit5_auditado']['hit_rate_at_k']} "
-              f"({res['hit5_auditado']['hits']}/{res['hit5_auditado']['n']}, "
-              f"-{res['n_queries_excluidas']} queries) -> {saida}")
+        c, a, b = (res["hit5_canonico"], res["hit5_definitivo_dropa_onibus"],
+                   res["hit5_definitivo_onibus_miss"])
+        print(f"canônico (gate) hit@5={c['hit_rate_at_k']} ({c['hits']}/{c['n']}) · "
+              f"definitivo {b['hit_rate_at_k']} ({b['hits']}/{b['n']}, ônibus=miss) "
+              f"a {a['hit_rate_at_k']} ({a['hits']}/{a['n']}, ônibus removido) -> {saida}")
         return
 
     rec = carregar_recuperador(com_reranker=True)

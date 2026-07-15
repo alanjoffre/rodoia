@@ -1,20 +1,29 @@
 {
-  "metodo": "hit@5 híbrido no dourado canônico vs. auditado (removendo queries cujo rótulo-gold foi REFUTADO por 2 humanos). Dourado e gate NÃO alterados.",
+  "metodo": "hit@5 híbrido: canônico (no gate) vs. definitivo pós-auditoria. Rerotula a tarifa p/ a fonte correta; ônibus é fora-de-domínio. Gate NÃO mexido.",
   "golds_refutados": [
     "5998/2022",
     "5831/2018"
   ],
-  "n_queries_excluidas": 8,
+  "gold_fora_dominio": "5998/2022",
+  "rerotulados": {
+    "5831/2018": [
+      "675/2004",
+      "6032/2023"
+    ]
+  },
+  "n_queries_refutadas": 8,
   "n_confirmadas_por_humano": 4,
-  "queries_excluidas": [
+  "queries_fora_dominio": [
     "Quero abrir uma linha regular de ônibus entre dois estados; o que a regulação exige?",
-    "Como a ANTT reajusta a tarifa de pedágio cobrada pelas concessionárias?",
     "Quais são as regras para uma viagem internacional de ônibus com passageiros?",
+    "Como funciona a habilitação para o transporte internacional de passageiros?",
+    "O transporte coletivo interestadual de passageiros precisa de autorização da ANTT?"
+  ],
+  "queries_rerotuladas": [
+    "Como a ANTT reajusta a tarifa de pedágio cobrada pelas concessionárias?",
     "Que norma trata da revisão e do reajuste das tarifas nas concessões rodoviárias?",
     "A concessionária pode aumentar o pedágio quando quiser?",
-    "Como funciona a habilitação para o transporte internacional de passageiros?",
-    "Como é calculada a tarifa de pedágio nas concessões federais?",
-    "O transporte coletivo interestadual de passageiros precisa de autorização da ANTT?"
+    "Como é calculada a tarifa de pedágio nas concessões federais?"
   ],
   "hit5_canonico": {
     "hit_rate_at_k": 0.62,
@@ -25,21 +34,30 @@
     "hits": 31,
     "n": 50
   },
-  "hit5_auditado": {
-    "hit_rate_at_k": 0.738,
+  "hit5_definitivo_dropa_onibus": {
+    "hit_rate_at_k": 0.761,
     "hit_rate_ic95": [
-      0.589,
-      0.847
+      0.621,
+      0.861
     ],
-    "hits": 31,
-    "n": 42
+    "hits": 35,
+    "n": 46
+  },
+  "hit5_definitivo_onibus_miss": {
+    "hit_rate_at_k": 0.7,
+    "hit_rate_ic95": [
+      0.562,
+      0.809
+    ],
+    "hits": 35,
+    "n": 50
   },
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "76e1f74",
+    "git_sha": "2ef1310",
     "git_dirty": true,
-    "git_diff_sha1": "1818e66dce28",
-    "timestamp_utc": "2026-07-15T14:39:08+00:00",
+    "git_diff_sha1": "9ae28e3ccfb2",
+    "timestamp_utc": "2026-07-15T14:52:49+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

@@ -108,23 +108,31 @@ ajuste rápido — por isso está registrado como limitação, não maquiado.
 #### Efeito da auditoria no hit@5 (`hit5_auditado.json`)
 
 A auditoria não parou no κ — **propagamos** o achado à métrica. Das 50 queries do dourado, **8**
-usam como gold as duas resoluções refutadas (`5998/2022` = produtos perigosos; `5831/2018` =
-ferroviário) para perguntas de **ônibus de passageiros** / **tarifa de pedágio** — todas **MISS**
-(o retriever nunca retorna um gold errado). Recomputando o hit@5 híbrido **sem** essas queries de
-label quebrado:
+usam como gold as duas resoluções refutadas — todas **MISS** (o retriever nunca retorna um gold
+errado). Corrigimos de forma **honesta** (não "deletamos os erros", que só daria um teto):
 
-| Dourado | hit@5 | IC95 | n |
+- **4 queries de tarifa de pedágio** (gold errado `5831/2018` = ferroviário): a fonte correta
+  **existe no corpus** — `675/2004` (revisões do equilíbrio econômico-financeiro das concessões) +
+  `6032/2023` (gestão econ.-fin. dos contratos). **Rerotuladas** → as 4 viram **hit** (o retriever
+  já trazia `6032/2023` no top-5).
+- **4 queries de ônibus de passageiros** (gold errado `5998/2022` = produtos perigosos): o corpus é
+  temático de **cargas** — **não há** fonte de transporte de passageiros. São **fora-de-domínio**.
+
+| Dourado (hit@5 híbrido) | hit@5 | IC95 | n |
 |---|---|---|---|
 | canônico (no gate) | **0,62** | [0,48; 0,74] | 50 |
-| **auditado** (−8 de gold refutado) | **0,738** | [0,59; 0,85] | 42 |
+| definitivo — ônibus conta como miss | **0,70** | [0,56; 0,81] | 50 |
+| definitivo — ônibus removido (fora-de-domínio) | **0,76** | [0,62; 0,86] | 46 |
 
-→ O `0,62` estava **deprimido por 8 rótulos-gold quebrados**; corrigido o *ruído do benchmark*, o
-retrieval real é **~0,74**. **Decisão honesta:** mantemos o **dourado e o gate em 0,62** (conservador,
-não se maquia métrica gatilhada; 4 das 8 exclusões têm confirmação humana direta, as outras 4 caem
-pelo mesmo erro documental de título). O número auditado fica **reportado ao lado**, versionado em
-`reports/fase1_retrieval/hit5_auditado.json` (reproduzível: `python -m rodoia.rag.avaliacao_retrieval
-auditado`). É o ciclo completo de MLOps de avaliação: **medir → auditar → achar defeito → quantificar
-o impacto → reportar os dois números**, sem apagar o de baixo.
+→ O `0,62` estava **deprimido por 8 rótulos-gold quebrados**. Corrigido isso, o hit@5 real fica em
+**[0,70; 0,76]** — a faixa (não um ponto) é honesta: depende de tratar as 4 queries fora-de-domínio
+como *miss legítimo* (0,70) ou removê-las (0,76). **Decisão:** mantemos **dourado e gate em 0,62**
+(conservador — não se sobe o piso removendo justamente as queries onde se foi mal). Os números
+definitivos ficam **reportados ao lado**, versionados em `reports/fase1_retrieval/hit5_auditado.json`
+(reproduzível: `python -m rodoia.rag.avaliacao_retrieval auditado`). Ressalva: **4 das 8** correções
+têm confirmação humana direta (κ); as outras 4 caem pelo mesmo **erro documental de título**
+(objetivo, verificável). É o ciclo completo de MLOps de avaliação: **medir → auditar → achar defeito
+→ rerotular/quantificar → reportar a faixa honesta**, sem maquiar a métrica no gate.
 
 ### Banca de juízes independente + κ mensurável (`rag/painel_juizes.py`)
 
