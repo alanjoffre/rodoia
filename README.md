@@ -34,7 +34,7 @@ Cada fase é um marco publicável, testado e documentado antes da próxima come�
 | **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) |
 | **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo | **gate 12/12** · **drift PSI 0,005** (estável) |
 
-> **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e nós reportamos o impacto em vez de esconder. Ver [Decisões e trade-offs](#-decisões-e-trade-offs-o-arco-do-projeto).
+> **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e nós reportamos o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
 
 ## 🧭 Os cinco eixos
 
