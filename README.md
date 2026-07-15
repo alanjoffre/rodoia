@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/banner.svg" alt="RodoIA — Engenharia de IA de ponta a ponta sobre dados públicos da ANTT" width="100%">
+
 # 🛣️ RodoIA
 
 **Engenharia de IA de ponta a ponta sobre a regulação e os dados abertos do transporte rodoviário brasileiro (ANTT)** — do *backpropagation* escrito à mão ao *serving* em produção com avaliação como portão de CI.

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340" role="img" aria-label="RodoIA — Engenharia de IA de ponta a ponta sobre dados públicos da ANTT">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111a2e"/>
+      <stop offset="0.55" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#0a0f1a"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="0.5" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <radialGradient id="glowV" cx="0.15" cy="0.1" r="0.6">
+      <stop offset="0" stop-color="#7c3aed" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="0.92" cy="0.9" r="0.6">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity="0.40"/>
+      <stop offset="1" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="340" rx="18" fill="url(#bg)"/>
+  <rect width="1200" height="340" rx="18" fill="url(#glowV)"/>
+  <rect width="1200" height="340" rx="18" fill="url(#glowC)"/>
+  <rect x="1" y="1" width="1198" height="338" rx="17" fill="none" stroke="#2a3550" stroke-width="1"/>
+
+  <!-- right-side: stylized agent graph (RAG · FT · Dados orquestrados) -->
+  <g stroke="#3b4a6b" stroke-width="1.6" opacity="0.9">
+    <line x1="1010" y1="90" x2="1010" y2="170"/>
+    <line x1="1010" y1="170" x2="930" y2="240"/>
+    <line x1="1010" y1="170" x2="1010" y2="240"/>
+    <line x1="1010" y1="170" x2="1090" y2="240"/>
+  </g>
+  <g>
+    <circle cx="1010" cy="90" r="14" fill="#0d1117" stroke="#22d3ee" stroke-width="2.5"/>
+    <circle cx="1010" cy="170" r="12" fill="#0d1117" stroke="#818cf8" stroke-width="2.5"/>
+    <circle cx="930" cy="240" r="10" fill="#0d1117" stroke="#a78bfa" stroke-width="2.5"/>
+    <circle cx="1010" cy="240" r="10" fill="#0d1117" stroke="#a78bfa" stroke-width="2.5"/>
+    <circle cx="1090" cy="240" r="10" fill="#0d1117" stroke="#a78bfa" stroke-width="2.5"/>
+  </g>
+
+  <!-- highway motif (rodovia) -->
+  <line x1="60" y1="304" x2="1140" y2="304" stroke="#22d3ee" stroke-width="2" opacity="0.25"
+        stroke-dasharray="26 18" stroke-linecap="round"/>
+
+  <!-- wordmark -->
+  <text x="58" y="118" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="72" font-weight="800" fill="url(#ink)" letter-spacing="-1">RodoIA</text>
+
+  <!-- taglines -->
+  <text x="62" y="156" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#c9d4e5">Engenharia de IA de ponta a ponta &#183; dados p&#250;blicos da ANTT</text>
+  <text x="62" y="184" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="15.5" fill="#7f8ba3">do backprop escrito &#224; m&#227;o ao serving em produ&#231;&#227;o, com avalia&#231;&#227;o como gate de CI</text>
+
+  <!-- phase pills -->
+  <g font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="14.5" font-weight="600" text-anchor="middle">
+    <g>
+      <rect x="60"  y="206" width="118" height="34" rx="17" fill="#161f33" stroke="#33406090"/>
+      <text x="119" y="228" fill="#cdd6e6">Fundamentos</text>
+    </g>
+    <g>
+      <rect x="186" y="206" width="66"  height="34" rx="17" fill="#161f33" stroke="#33406090"/>
+      <text x="219" y="228" fill="#cdd6e6">RAG</text>
+    </g>
+    <g>
+      <rect x="260" y="206" width="118" height="34" rx="17" fill="#161f33" stroke="#33406090"/>
+      <text x="319" y="228" fill="#cdd6e6">Fine-tuning</text>
+    </g>
+    <g>
+      <rect x="386" y="206" width="80"  height="34" rx="17" fill="#161f33" stroke="#33406090"/>
+      <text x="426" y="228" fill="#cdd6e6">Dados</text>
+    </g>
+    <g>
+      <rect x="474" y="206" width="86"  height="34" rx="17" fill="#161f33" stroke="#33406090"/>
+      <text x="517" y="228" fill="#cdd6e6">Agente</text>
+    </g>
+    <g>
+      <rect x="568" y="206" width="80"  height="34" rx="17" fill="#161f33" stroke="#33406090"/>
+      <text x="608" y="228" fill="#cdd6e6">MLOps</text>
+    </g>
+  </g>
+
+  <!-- metrics -->
+  <g font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle">
+    <g>
+      <rect x="60"  y="256" width="156" height="32" rx="8" fill="#0e1b1f" stroke="#22d3ee66"/>
+      <text x="138" y="277" fill="#67e8f9">F1 0,13 &#8594; 0,77</text>
+    </g>
+    <g>
+      <rect x="224" y="256" width="120" height="32" rx="8" fill="#0e1b1f" stroke="#22d3ee66"/>
+      <text x="284" y="277" fill="#67e8f9">hit@5 0,62</text>
+    </g>
+    <g>
+      <rect x="352" y="256" width="108" height="32" rx="8" fill="#151226" stroke="#a78bfa66"/>
+      <text x="406" y="277" fill="#c4b5fd">gate 12/12</text>
+    </g>
+    <g>
+      <rect x="468" y="256" width="150" height="32" rx="8" fill="#151226" stroke="#a78bfa66"/>
+      <text x="543" y="277" fill="#c4b5fd">roteamento 0,95</text>
+    </g>
+  </g>
+</svg>
