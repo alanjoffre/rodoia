@@ -70,14 +70,24 @@ Um revisor cético atacaria — e onde tinha razão, corrigimos:
   Os 30 pares são **amostrados das próprias queries do dourado** (`CONJUNTO_DOURADO[:15]`, top-1 +
   distrator) — ou seja, o κ valida a relevância **sobre as mesmas perguntas** que a métrica de
   retrieval usa, não um conjunto à parte.
-- **Rótulo-gold de fonte → κ HUMANO (elo fechado).** A crítica mais fina — "o `hit@5` repousa sobre
-  labels de FONTE de um anotador único" — foi respondida: **2 humanos independentes** validaram os
-  rótulos-gold de fonte do dourado (50 pares = 25 queries × [fonte-gold + distrator]):
-  **κ de Cohen = 0,917**, **IC95 [0,79; 1,00]** (concordância 96%, n=50 — "quase perfeita"), em
-  `reports/fase1_rag/kappa_gold_fonte.json` (no gate). A prevalência **0,40** (não 0,50) é honesta:
-  os humanos **discordaram do gold do autor em alguns casos**, expondo — em vez de esconder — que
-  nenhum rótulo é perfeito. Agora a **métrica que está no gate** (`hit@5`) tem validação
-  inter-humana, não só do autor. Kit + brutos versionados, reproduzível:
+- **Rótulo-gold de fonte → AUDITORIA humana (achou defeito).** A crítica mais fina — "o `hit@5`
+  repousa sobre labels de FONTE de um anotador único" — foi respondida com uma **auditoria
+  inter-humana** (não uma "validação": o exercício em parte **refutou** o gold). **2 humanos
+  independentes** julgaram 50 pares = 25 queries × [fonte-gold do autor + distrator], em
+  `reports/fase1_rag/kappa_gold_fonte.json` (no gate). Dois sinais **distintos**, que não se devem
+  confundir:
+  - **Confiabilidade do processo de rotulagem:** **κ de Cohen = 0,917** [IC95 0,79; 1,00],
+    concordância 96% — os dois humanos concordam **entre si** de forma quase perfeita. *Isto NÃO
+    mede concordância com o gold do autor* — mede que a tarefa é rotulável sem ruído.
+  - **Qualidade do gold do autor:** os anotadores **rejeitaram 4 de 25 (16%) dos rótulos-gold** —
+    de forma concordante. Verificado: `5998/2022` (na verdade *Produtos Perigosos*) rotulava 2
+    queries de **ônibus de passageiros**, e `5831/2018` (na verdade *metas ferroviárias*) rotulava 2
+    queries de **tarifa de pedágio** — labels genuinamente errados (provável resíduo de numeração
+    antiga, corpus foi de 45→125 normas). A prevalência **0,40** (não 0,50) é exatamente esse 16% de
+    gold refutado aparecendo no dado.
+
+  Ou seja, foi uma **auditoria que encontrou defeito**, não um carimbo — o resultado mais honesto
+  possível. Efeito no `hit@5` documentado abaixo. Kit + brutos versionados, reproduzível:
   `python -m rodoia.anotacao gerar-gold` / `kappa-gold`.
 - **n pequeno (assumido).** O dourado de retrieval é **n≈50** e o de geração **n=12** — os ICs
   (Wilson/bootstrap) refletem esse n, largos de propósito. Um número sozinho enganaria; a faixa é
@@ -94,6 +104,27 @@ Um revisor cético atacaria — e onde tinha razão, corrigimos:
 
 **Fix real (backlog):** ampliar o corpus + anotação independente com κ. É trabalho de dados, não um
 ajuste rápido — por isso está registrado como limitação, não maquiado.
+
+#### Efeito da auditoria no hit@5 (`hit5_auditado.json`)
+
+A auditoria não parou no κ — **propagamos** o achado à métrica. Das 50 queries do dourado, **8**
+usam como gold as duas resoluções refutadas (`5998/2022` = produtos perigosos; `5831/2018` =
+ferroviário) para perguntas de **ônibus de passageiros** / **tarifa de pedágio** — todas **MISS**
+(o retriever nunca retorna um gold errado). Recomputando o hit@5 híbrido **sem** essas queries de
+label quebrado:
+
+| Dourado | hit@5 | IC95 | n |
+|---|---|---|---|
+| canônico (no gate) | **0,62** | [0,48; 0,74] | 50 |
+| **auditado** (−8 de gold refutado) | **0,738** | [0,59; 0,85] | 42 |
+
+→ O `0,62` estava **deprimido por 8 rótulos-gold quebrados**; corrigido o *ruído do benchmark*, o
+retrieval real é **~0,74**. **Decisão honesta:** mantemos o **dourado e o gate em 0,62** (conservador,
+não se maquia métrica gatilhada; 4 das 8 exclusões têm confirmação humana direta, as outras 4 caem
+pelo mesmo erro documental de título). O número auditado fica **reportado ao lado**, versionado em
+`reports/fase1_retrieval/hit5_auditado.json` (reproduzível: `python -m rodoia.rag.avaliacao_retrieval
+auditado`). É o ciclo completo de MLOps de avaliação: **medir → auditar → achar defeito → quantificar
+o impacto → reportar os dois números**, sem apagar o de baixo.
 
 ### Banca de juízes independente + κ mensurável (`rag/painel_juizes.py`)
 

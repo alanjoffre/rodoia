@@ -180,7 +180,55 @@ def carregar_recuperador(com_reranker: bool = True) -> RecuperadorHibrido:
     return RecuperadorHibrido(chunks, embedder, cliente, reranker=reranker)
 
 
+# Rótulos-gold REFUTADOS pela auditoria humana (κ inter-anotador, ver rodoia.anotacao):
+# 5998/2022 é "Produtos Perigosos" (não ônibus de passageiros) e 5831/2018 é "metas
+# FERROVIÁRIAS" (não tarifa de pedágio) — resíduo de numeração antiga (corpus 45→125 normas).
+# 4 destes foram confirmados por 2 humanos independentes; os demais caem pelo MESMO erro
+# documental (título da resolução não bate com o tema da query). Nenhuma query os usa corretamente.
+GOLDS_REFUTADOS = ("5998/2022", "5831/2018")
+
+
+def avaliar_auditado(recuperador: RecuperadorHibrido, k: int = 5) -> dict:
+    """hit@5 (híbrido) no dourado COMPLETO vs. no AUDITADO (sem as queries de gold refutado).
+    NÃO altera o dourado canônico nem o gate — só expõe o quanto os labels quebrados deprimem a
+    métrica. As excluídas são todas MISS (o retriever nunca retorna um gold errado)."""
+    def _hit(casos):
+        hits = sum(1 for c in casos
+                   if _rank_da_fonte(recuperador.buscar(c["consulta"], k=k, modo="hibrido"),
+                                     c["fontes"]) is not None)
+        return {"hit_rate_at_k": round(hits / len(casos), 3),
+                "hit_rate_ic95": _wilson(hits, len(casos)), "hits": hits, "n": len(casos)}
+
+    excluidas = [c["consulta"] for c in CONJUNTO_DOURADO
+                 if set(c["fontes"]) & set(GOLDS_REFUTADOS)]
+    auditado = [c for c in CONJUNTO_DOURADO if not (set(c["fontes"]) & set(GOLDS_REFUTADOS))]
+    return {
+        "metodo": ("hit@5 híbrido no dourado canônico vs. auditado (removendo queries cujo "
+                   "rótulo-gold foi REFUTADO por 2 humanos). Dourado e gate NÃO alterados."),
+        "golds_refutados": list(GOLDS_REFUTADOS),
+        "n_queries_excluidas": len(excluidas),
+        "n_confirmadas_por_humano": 4,
+        "queries_excluidas": excluidas,
+        "hit5_canonico": _hit(CONJUNTO_DOURADO),
+        "hit5_auditado": _hit(auditado),
+    }
+
+
 def main() -> None:
+    import sys
+    if len(sys.argv) >= 2 and sys.argv[1] == "auditado":
+        rec = carregar_recuperador(com_reranker=False)
+        res = avaliar_auditado(rec)
+        saida = REPO_ROOT / "reports" / "fase1_retrieval" / "hit5_auditado.json"
+        saida.parent.mkdir(parents=True, exist_ok=True)
+        saida.write_text(json.dumps(carimbar(res), ensure_ascii=False, indent=2))
+        print(f"canônico hit@5={res['hit5_canonico']['hit_rate_at_k']} "
+              f"({res['hit5_canonico']['hits']}/{res['hit5_canonico']['n']}) · "
+              f"auditado={res['hit5_auditado']['hit_rate_at_k']} "
+              f"({res['hit5_auditado']['hits']}/{res['hit5_auditado']['n']}, "
+              f"-{res['n_queries_excluidas']} queries) -> {saida}")
+        return
+
     rec = carregar_recuperador(com_reranker=True)
     resultados = comparar(rec)
     print(f"{'modo':16} {'hit@5':>6} {'IC95 hit':>16} {'MRR':>6} {'IC95 MRR':>16}")
