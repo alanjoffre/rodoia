@@ -32,7 +32,7 @@ posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segu
 - [MÉDIA] `recall@k`→**`hit_rate@k`** (nome honesto); **precisão de citação 0.91** (citações ancoradas no contexto) + taxa de citar a fonte certa 0.75; guardrail com **normalização** + bateria de evasão (teto documentado).
 - [BAIXA] PII: **CPF sem pontuação** mascarado (CNPJ bare já caía).
 
-**✅ também:** golden **expandido para 50** (ICs mais estreitos): hit@5 híbrido **0,64 [0,50;0,76]**; confirmado com n=50 que o **rerank não ajuda** (MRR 0,47 < 0,51) → recomenda-se desligar (camada opcional).
+**✅ também:** golden **expandido para 50** + corpus **limpo de boilerplate** (3.651 chunks): hit@5 híbrido **0,62 [0,48;0,74]**, MRR 0,510. Com o corpus limpo o **rerank REVERTEU** e passou a dar o maior hit@5 (**0,68**), embora baixe o MRR (0,424) — servimos o híbrido (no gate) e mantemos o rerank como camada opcional. Ver [docs/07](07_fase1_retrieval_hibrido.md) / [docs/09](09_fase1_api.md).
 **Pendente (baixo):** golden por terceiro (des-enviesar autoria); ablação de hiperparâmetros (k_rrf/candidatos/chunk); `/perguntar` sem rate-limit (dívida p/ Fase 5).
 
 ## Fase 2 — Fine-tuning/serving (concluída; NER é a manchete)

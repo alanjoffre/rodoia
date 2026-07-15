@@ -39,8 +39,9 @@ estrutura jurídica (por artigos); **busca híbrida** (densa E5 + BM25 fundidos 
 **ancorada** que cita a resolução; e guardrails (anti-injection, PII masking, auditoria). Medimos
 tudo com **juiz LLM independente** e **intervalo de confiança**.
 
-**Resultado.** **hit@5 0,64** [0,50–0,76], **precisão de citação 0,92**. E um achado honesto: o
-**reranker não ajudou** aqui — reportado, não escondido.
+**Resultado.** **hit@5 0,62** [0,48–0,74], **precisão de citação 0,92**. E dois achados honestos: a
+limpeza de boilerplate **reverteu** a conclusão do reranker (que passou a ajudar, 0,68); e uma
+auditoria κ humana **achou 16% dos rótulos-gold errados** — rerotulados, com o impacto reportado.
 
 ---
 

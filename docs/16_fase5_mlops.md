@@ -15,7 +15,7 @@ em segundos no GitHub Actions.
 ```
 $ python -m rodoia.mlops.gate
   [✓] F0 · MLP ROC-AUC                   0.813 >= 0.78
-  [✓] F1 · RAG hit@5 (híbrido)           0.64 >= 0.58
+  [✓] F1 · RAG hit@5 (híbrido)           0.62 >= 0.58
   [✓] F1 · corpus (nº de normas)         125 >= 100
   [✓] F1 · κ humano (relevância)         0.8643 >= 0.6
   [✓] F1 · κ humano (rótulo-gold fonte)  0.9168 >= 0.6
@@ -44,7 +44,7 @@ Baixar um piso é uma decisão consciente — aparece no diff e no code review.
 Em cada push/PR para `main`, três portões **bloqueantes**:
 
 1. **Lint** — `ruff check .` (o repositório é ruff-clean; regras `E,F,I,UP,B,ASYNC`).
-2. **Testes** — `pytest` (142 testes). Os testes de fundamentos que exigem PyTorch são
+2. **Testes** — `pytest` (155 testes). Os testes de fundamentos que exigem PyTorch são
    **pulados na coleta** em CPU (`tests/conftest.py`) — validados localmente na Nitro; todo o
    resto (RAG, NER, dados, agente, gate, MLOps) roda no CI sem stack de GPU.
 3. **Gate de avaliação** — `python -m rodoia.mlops.gate` (regressão de métrica falha o pipeline).
