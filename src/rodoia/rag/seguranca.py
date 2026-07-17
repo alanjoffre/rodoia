@@ -34,13 +34,21 @@ _PADROES_INJECTION: tuple[tuple[re.Pattern[str], str], ...] = (
         "desconsiderar",
     ),
     (
-        re.compile(r"ignore\s+(all\s+|previous\s+)?(instructions|rules|the\s+above)", re.I),
+        # `*` (não `?`): ataques reais empilham qualificadores ("ignore ALL PREVIOUS
+        # instructions") — o `?` só casava um; achado do red-team (rag/redteam.py).
+        re.compile(r"ignore\s+(?:all\s+|previous\s+)*(instructions|rules|the\s+above)", re.I),
         "ignore-en",
     ),
     (re.compile(r"disregard\s+(all|previous|the)", re.I), "disregard-en"),
     (
+        # qualificadores empilhados ("repita O SEU prompt", "mostre AS SUAS instruções"): `*` sobre
+        # o grupo de artigos/possessivos, senão o `?` de um só qualificador deixava passar — achado
+        # do red-team (rag/redteam.py). O verbo-gatilho + alvo (prompt/sistema/instru) mantêm a
+        # especificidade (não dispara em "mostre as regras de pedágio").
         re.compile(
-            r"(revele|mostre|exiba|repita|imprima)\s+(o\s+|seu\s+|as\s+)?(prompt|sistema|system|instru)",
+            r"(revele|mostre|exiba|repita|imprima)\s+"
+            r"(?:o\s+|a\s+|os\s+|as\s+|seu\s+|sua\s+|seus\s+|suas\s+)*"
+            r"(prompt|sistema|system|instru)",
             re.I,
         ),
         "exfiltrar-prompt",

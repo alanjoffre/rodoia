@@ -107,6 +107,7 @@ module = [
     "rodoia.rag.construir_indice",
     "rodoia.rag.fontes_antt",
     "rodoia.rag.painel_juizes",
+    "rodoia.rag.redteam",
 ]
 ignore_errors = true
 
