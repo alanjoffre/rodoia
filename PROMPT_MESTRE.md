@@ -62,7 +62,7 @@ Repo público desde o primeiro commit; histórico Git imutável (vazamento é pe
 
 ## 4. Stack (ajustável conforme validação)
 
-- **Linguagem:** Python 3.11+
+- **Linguagem:** Python 3.12 (piso do CI/container/Nitro; ver docs/16 §2.1)
 - **Fundamentos ML/DL:** PyTorch (treino do zero), scikit-learn, NumPy (implementações manuais)
 - **API/serving de aplicação:** FastAPI + Uvicorn
 - **Serving de modelo:** vLLM + quantização (GPTQ/AWQ/bitsandbytes)

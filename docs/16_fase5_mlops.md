@@ -84,6 +84,30 @@ Correção em duas partes, na linha do resto do projeto (declarar a fronteira em
    Os scripts de pesquisa saem por `override` explícito e nominal no `pyproject.toml`.
 2. **Portão no CI.** `mypy src` é bloqueante. Não regride mais em silêncio.
 
+**O portão novo reprovou no 1º run — e o motivo é a lição.** O `mypy src` passava na Nitro e
+**quebrou no CI**, com `exit 2`, sem checar uma linha do projeto:
+
+```
+numpy/__init__.pyi:737: error: Type statement is only supported in Python 3.12 and greater
+```
+
+Não era o código: era **divergência de ambiente**. O `pyproject` mandava analisar como
+**Python 3.11**, e o stub do numpy ≥ 2.4 usa `type` (PEP 695, 3.12+) — o mypy recusa *parsear*.
+Na Nitro o numpy é 2.3.5, antigo o bastante para não usar a sintaxe nova; no CI é 2.5.1 (e o mypy
+2.3.0 contra 2.2.0 local). Passar localmente não provava nada sobre o CI.
+
+Isso expôs um `requires-python = ">=3.11"` que **nunca foi exercitado**: o `.python-version` diz
+3.12, o CI usa 3.12, a Nitro roda 3.12.3. Mais um claim sem lastro, do mesmo tipo do
+`strict = true` que não rodava. Correção: **3.12 declarado em todos os lugares** (`requires-python`,
+`target-version` do ruff, `python_version` do mypy) — o que se roda é o que se afirma. O código
+provavelmente funciona em 3.11, mas "provavelmente" não é o padrão daqui: suportar 3.11 de verdade
+pede uma matriz no CI, e aí se mede.
+
+Método que fechou isso sem commit-tentativa no `main` público: **reproduzir o CI localmente** (venv
+com `numpy==2.5.1` + `mypy==2.3.0` + as mesmas deps do `ci.yml`), confirmar a falha, corrigir, e
+validar nos **dois** ambientes. De quebra a repro confirmou o número que este documento afirma:
+**147 testes no CI**, 164 na Nitro.
+
 O que a tipagem revelou (nenhum bug de runtime, mas dois contratos mentindo):
 
 - **`DepsAgente.llm_cerebro` era `object`**, com o contrato real escrito num **comentário**

@@ -3,7 +3,12 @@ name = "rodoia"
 version = "0.0.0"
 description = "Plataforma de IA sobre a regulação e os dados abertos do transporte rodoviário brasileiro (ANTT)."
 readme = "README.md"
-requires-python = ">=3.11"
+# 3.12 é o que o projeto REALMENTE roda e testa: `.python-version` = 3.12, o CI usa 3.12 e a
+# Nitro roda 3.12.3. O `>=3.11` que estava aqui nunca foi exercitado em lugar nenhum — mais um
+# claim sem lastro, do mesmo tipo do `strict = true` que nunca rodava (docs/16 §2.1). O código
+# provavelmente funciona em 3.11, mas "provavelmente" não é o padrão deste repo: só afirmamos o
+# que medimos. Suportar 3.11 de verdade exigiria uma matriz no CI — se um dia valer, mede-se.
+requires-python = ">=3.12"
 license = { file = "LICENSE" }
 authors = [{ name = "Alan Joffre" }]
 
@@ -44,7 +49,7 @@ where = ["src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC"]
@@ -68,8 +73,12 @@ select = ["E", "F", "I", "UP", "B", "ASYNC"]
 # A alternativa honesta seria `strict = true` no repo inteiro; era o que estava aqui, mas o mypy
 # NUNCA rodava (nem no CI, nem no pre-commit) e acumulou 300 erros — uma config que ninguém
 # executa é pior que uma config modesta que o CI cobra. Preferimos declarar a fronteira.
+# `python_version` casa com o runtime real (3.12). Com "3.11" o mypy recusava PARSEAR o stub do
+# numpy >= 2.4 ("Type statement is only supported in Python 3.12 and greater", PEP 695) e o CI
+# morria com exit 2 — sem checar uma linha nossa. Passava na Nitro só porque lá o numpy é 2.3.5,
+# antigo o bastante para não usar a sintaxe nova: divergência de ambiente, não de código.
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 
