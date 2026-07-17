@@ -3,13 +3,31 @@ import json
 
 from rodoia.mlops.gate import _acessar, _passou, avaliar
 
+# Espelha o número anunciado no badge do README ("gate de avaliação 12/12"). É um LITERAL de
+# propósito: derivá-lo de `len(GATES)` tornaria o teste tautológico (passaria sempre) e não
+# protegeria o badge, que é justamente o que ele existe para proteger.
+N_PORTOES_ANUNCIADOS = 13
+
 
 def test_reports_atuais_passam():
     """Com os relatórios versionados, o gate aprova (nenhuma regressão)."""
     tudo_ok, linhas = avaliar()
     reprovados = [x["nome"] for x in linhas if not x["ok"]]
     assert tudo_ok, f"portões reprovados: {reprovados}"
-    assert len(linhas) >= 8
+
+
+def test_numero_de_portoes_travado():
+    """O README anuncia "gate 12/12": este teste é o que TRAVA esse número.
+
+    Um `>=` deixaria alguém remover portões com o CI verde e o badge virando mentira em
+    silêncio. Aqui a igualdade força a decisão a ser consciente: mexeu no nº de portões,
+    o teste falha e o badge/README têm de ser atualizados no mesmo diff.
+    """
+    _, linhas = avaliar()
+    assert len(linhas) == N_PORTOES_ANUNCIADOS, (
+        f"o gate tem {len(linhas)} portões, mas o README/badge anuncia "
+        f"{N_PORTOES_ANUNCIADOS}. Atualize os dois no mesmo commit."
+    )
 
 
 def test_comparadores():

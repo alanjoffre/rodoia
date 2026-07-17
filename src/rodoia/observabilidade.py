@@ -11,18 +11,22 @@ from __future__ import annotations
 import json
 from collections import OrderedDict
 from pathlib import Path
+from typing import Any, Generic, TypeVar
+
+_K = TypeVar("_K")          # chave: (consulta, k) na API, str nos testes
+_V = TypeVar("_V")          # valor: a resposta cacheada
 
 
-class CacheLRU:
+class CacheLRU(Generic[_K, _V]):
     """Cache least-recently-used mínimo. `get` devolve None no miss e conta hits/misses."""
 
-    def __init__(self, maxsize: int = 128):
+    def __init__(self, maxsize: int = 128) -> None:
         self.maxsize = maxsize
-        self._d: OrderedDict = OrderedDict()
+        self._d: OrderedDict[_K, _V] = OrderedDict()
         self.hits = 0
         self.misses = 0
 
-    def get(self, chave):
+    def get(self, chave: _K) -> _V | None:
         if chave in self._d:
             self._d.move_to_end(chave)
             self.hits += 1
@@ -30,7 +34,7 @@ class CacheLRU:
         self.misses += 1
         return None
 
-    def set(self, chave, valor) -> None:
+    def set(self, chave: _K, valor: _V) -> None:
         self._d[chave] = valor
         self._d.move_to_end(chave)
         if len(self._d) > self.maxsize:
@@ -42,7 +46,7 @@ class CacheLRU:
         return round(self.hits / tot, 3) if tot else 0.0
 
 
-def registrar_metrica(evento: dict, caminho: Path) -> None:
+def registrar_metrica(evento: dict[str, Any], caminho: Path) -> None:
     """Anexa uma métrica estruturada (dict) a um JSONL de observabilidade."""
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("a", encoding="utf-8") as fh:

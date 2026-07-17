@@ -19,6 +19,11 @@
   gerando série mensal consistente: **741.205 linhas, 197 meses, 50 concessionárias, 292 praças**
   (nomes distintos; 383 pares praça×concessionária — ver `dim_praca` no §2).
 
+> **Evidência versionada:** a contagem acima não é narrativa — sai carimbada em
+> `reports/fase3_dados/estrela.json` (gerado por `python -m rodoia.dados.estrela`) e é
+> **portão do gate** (`F3 · linhas do fato ≥ 700.000`). Antes ela só existia no stdout de quem
+> rodava a ingestão: era o único número da vitrine sem artefato que o CI pudesse defender.
+
 ## 2. Modelagem — esquema estrela (DuckDB)
 
 Escolha: **estrela** (fato + dimensões) sobre a tabela achatada, porque as análises são

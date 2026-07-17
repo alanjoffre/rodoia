@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Any
 
-from rodoia.agente.estado import ROTAS
+from rodoia.agente.estado import ROTAS, LLMCerebro
 
 _RE_OBJ = re.compile(r"\{.*\}", re.S)
 
@@ -55,9 +56,10 @@ def _parse(saida: str) -> list[str] | None:
     return [r for r in rotas if r in ROTAS]
 
 
-def rotear(pergunta: str, llm) -> dict:
+def rotear(pergunta: str, llm: LLMCerebro) -> dict[str, Any]:
     """Devolve {'rotas': [...], 'motivo': str}. rotas vazio ⇒ fora de escopo."""
     saida = ""
+    rotas: list[str] | None
     try:
         saida = llm.gerar(pergunta, sistema=_SISTEMA)
     except Exception as e:  # LLM indisponível → heurística pura

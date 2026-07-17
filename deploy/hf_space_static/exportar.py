@@ -21,6 +21,17 @@ from rodoia.rag.embeddings import E5Embedder
 AQUI = Path(__file__).resolve().parent
 
 
+def _recortar(texto: str, max_texto: int) -> dict[str, object]:
+    """Recorta o trecho para o preview e DIZ se cortou.
+
+    Quem trunca é quem sabe que truncou: sem esta flag, a UI teria de adivinhar pelo tamanho
+    (`len >= max_texto`) e carimbaria "…" em chunks que couberam inteiros — o mais curto do
+    corpus tem 3 caracteres e aparecia como "do.…".
+    """
+    recorte = texto[:max_texto]
+    return {"texto": recorte, "truncado": len(texto) > max_texto}
+
+
 def exportar(saida_dir: Path = AQUI, apenas_vigentes: bool = True, max_texto: int = 320) -> dict:
     chunks = carregar_chunks()
     if apenas_vigentes:
@@ -28,11 +39,12 @@ def exportar(saida_dir: Path = AQUI, apenas_vigentes: bool = True, max_texto: in
     emb = E5Embedder().encode_passages([c["texto"] for c in chunks]).astype(np.float32)
     (saida_dir / "dados.f32").write_bytes(emb.tobytes())          # [N, dim] row-major float32
     meta = {"n": len(chunks), "dim": int(emb.shape[1]),
-            "meta": [{"numero": c["numero"], "texto": c["texto"][:max_texto]} for c in chunks]}
+            "meta": [{"numero": c["numero"], **_recortar(c["texto"], max_texto)} for c in chunks]}
     (saida_dir / "dados.json").write_text(json.dumps(meta, ensure_ascii=False))
-    print(f"exportado: {len(chunks)} chunks (vigentes={apenas_vigentes}), dim {emb.shape[1]} "
-          f"-> {saida_dir}/dados.f32 + dados.json")
-    return {"n": len(chunks), "dim": int(emb.shape[1])}
+    n_trunc = sum(1 for m in meta["meta"] if m["truncado"])
+    print(f"exportado: {len(chunks)} chunks (vigentes={apenas_vigentes}), dim {emb.shape[1]}, "
+          f"{n_trunc} truncados -> {saida_dir}/dados.f32 + dados.json")
+    return {"n": len(chunks), "dim": int(emb.shape[1]), "n_truncados": n_trunc}
 
 
 if __name__ == "__main__":

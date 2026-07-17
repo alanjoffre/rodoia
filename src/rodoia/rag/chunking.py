@@ -18,6 +18,7 @@ fonte** na resposta.
 from __future__ import annotations
 
 import re
+from typing import Any
 
 # Início de artigo: "Art. 1º", "Art. 2", "Artigo 3º" — âncora de divisão.
 _RE_ARTIGO = re.compile(r"(?=\bArt(?:igo)?\.?\s*\d+)")
@@ -85,7 +86,9 @@ def chunk_texto(texto: str, max_chars: int = 1500, overlap: int = 200) -> list[s
     return empacotar(dividir_por_artigos(texto), max_chars, overlap)
 
 
-def chunk_norma(registro: dict, max_chars: int = 1500, overlap: int = 200) -> list[dict]:
+def chunk_norma(
+    registro: dict[str, Any], max_chars: int = 1500, overlap: int = 200
+) -> list[dict[str, Any]]:
     """Transforma uma norma (dict do JSONL) numa lista de chunks com metadados
     para citação (número, ano, órgão, vigência, título)."""
     # 1) corta o menu/cabeçalho do portal ANTES do ato; 2) dropa trechos residuais de navegação

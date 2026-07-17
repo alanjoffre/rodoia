@@ -6,15 +6,21 @@ from rodoia.rag.gerar import montar_contexto, montar_prompt, responder
 
 
 class LLMFalso:
-    """Captura o prompt recebido e devolve uma resposta previsível."""
+    """Captura o prompt recebido e devolve uma resposta previsível.
+
+    Implementa `ultima_metrica` porque o Protocol `LLM` a exige: um fake que não honra o
+    contrato testa um objeto que não existe em produção.
+    """
 
     def __init__(self):
         self.ultimo_prompt = None
         self.ultimo_sistema = None
+        self.ultima_metrica: dict = {}
 
     def gerar(self, prompt: str, sistema: str | None = None) -> str:
         self.ultimo_prompt = prompt
         self.ultimo_sistema = sistema
+        self.ultima_metrica = {"tokens_prompt": 10, "tokens_resposta": 12, "latencia_s": 0.01}
         return "Conforme a Resolução 6024/2023, o vale-pedágio é obrigatório."
 
 

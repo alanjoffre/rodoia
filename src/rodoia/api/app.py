@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -23,10 +25,11 @@ from pydantic import BaseModel
 from rodoia.config import REPO_ROOT
 from rodoia.observabilidade import CacheLRU, registrar_metrica
 
-_estado: dict = {}
+_estado: dict[str, Any] = {}
 _AUDITORIA = REPO_ROOT / "logs" / "auditoria.jsonl"
 _METRICAS = REPO_ROOT / "logs" / "metricas.jsonl"      # observabilidade estruturada por requisição
-_CACHE = CacheLRU(maxsize=256)                          # respostas por (consulta, k) — corta o p95
+# chave = (consulta normalizada, k); valor = o dict de `responder_seguro`
+_CACHE: CacheLRU[tuple[str, int], dict[str, Any]] = CacheLRU(maxsize=256)   # corta o p95
 
 
 def _carregar() -> None:
@@ -42,7 +45,7 @@ def _carregar() -> None:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await asyncio.to_thread(_carregar)
     yield
     _estado.clear()
@@ -63,7 +66,7 @@ class Resposta(BaseModel):
 
 
 @app.get("/health")
-async def health() -> dict:
+async def health() -> dict[str, Any]:
     return {"status": "ok", "pronto": "rec" in _estado}
 
 
@@ -76,7 +79,7 @@ async def perguntar(p: Pergunta) -> Resposta:
     t0 = time.perf_counter()
     r = _CACHE.get(chave)
     cache_hit = r is not None
-    if not cache_hit:
+    if r is None:                    # miss: `r is None` (e não `not cache_hit`) p/ o mypy estreitar
         r = await asyncio.to_thread(
             responder_seguro, p.consulta, _estado["rec"], _estado["llm"], p.k, _AUDITORIA
         )
@@ -94,7 +97,7 @@ class RespostaAgente(BaseModel):
     resposta: str
     fontes: list[str]
     rotas: list[str]
-    trajetoria: list[dict]
+    trajetoria: list[dict[str, Any]]
 
 
 def _carregar_agente() -> None:

@@ -6,6 +6,7 @@ das Fases 1 e 2 — evita reimplementar em cada módulo.
 from __future__ import annotations
 
 import math
+from collections.abc import Hashable, Sequence
 
 import numpy as np
 
@@ -32,7 +33,7 @@ def bootstrap_ic(valores: list[float], n_boot: int = 2000, seed: int = 42) -> li
     return [round(float(lo), 3), round(float(hi), 3)]
 
 
-def cohen_kappa(a: list, b: list) -> float:
+def cohen_kappa(a: Sequence[Hashable], b: Sequence[Hashable]) -> float:
     """κ de Cohen — concordância entre DOIS anotadores (labels categóricos), corrigida pelo acaso.
     κ=1 concordância perfeita, 0 = ao acaso, <0 pior que o acaso."""
     n = len(a)
@@ -44,7 +45,9 @@ def cohen_kappa(a: list, b: list) -> float:
     return round((p_obs - p_esp) / (1 - p_esp), 4) if p_esp < 1 else 1.0
 
 
-def cohen_kappa_ic95(a: list, b: list, n_boot: int = 10_000, seed: int = 42) -> list[float]:
+def cohen_kappa_ic95(
+    a: Sequence[Hashable], b: Sequence[Hashable], n_boot: int = 10_000, seed: int = 42
+) -> list[float]:
     """IC 95% do κ de Cohen por bootstrap percentílico dos PARES (reamostra os n pares com
     reposição e recomputa κ). Honra a régua do projeto: nenhum número sem incerteza — mesmo o
     κ, que tem n pequeno. Reamostragens degeneradas (κ indefinido) são descartadas."""
@@ -58,7 +61,9 @@ def cohen_kappa_ic95(a: list, b: list, n_boot: int = 10_000, seed: int = 42) -> 
     return [round(float(lo), 3), round(float(hi), 3)]
 
 
-def fleiss_kappa(avaliacoes: list[list], categorias=(0, 1, 2)) -> float:
+def fleiss_kappa(
+    avaliacoes: Sequence[Sequence[Hashable]], categorias: Sequence[Hashable] = (0, 1, 2)
+) -> float:
     """κ de Fleiss — concordância entre MÚLTIPLOS avaliadores (banca de juízes).
 
     `avaliacoes`: uma lista de itens; cada item é a lista de rótulos dados pelos avaliadores

@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from operator import add
-from typing import Annotated, TypedDict
+from typing import Annotated, Any, Protocol, TypedDict
 
 # Rotas válidas = as três ferramentas (fases anteriores). "fora_de_escopo" é tratada à parte.
 ROTAS = ("regulatorio", "entidades", "dados")
@@ -22,22 +22,26 @@ class EstadoAgente(TypedDict, total=False):
     bloqueado: bool               # guardrail de injection
     motivo_bloqueio: str | None
     fora_de_escopo: bool
-    evidencias: dict              # {ferramenta: resultado estruturado}
+    evidencias: dict[str, dict[str, Any]]    # {ferramenta: resultado estruturado}
     # `add` acumula os passos escritos por cada nó (senão o último sobrescreveria os anteriores).
-    trajetoria: Annotated[list[dict], add]   # passos executados (avaliação de trajetória)
+    trajetoria: Annotated[list[dict[str, Any]], add]   # passos executados (avaliação de trajetória)
     resposta: str
     fontes: list[str]
 
 
 # Uma ferramenta recebe a pergunta (ou o texto) e devolve um dicionário estruturado.
-Ferramenta = Callable[[str], dict]
+Ferramenta = Callable[[str], dict[str, Any]]
+
+
+class LLMCerebro(Protocol):
+    def gerar(self, prompt: str, sistema: str | None = None) -> str: ...
 
 
 @dataclass
 class DepsAgente:
     """Dependências injetadas no grafo. `llm_cerebro` roteia e sintetiza; as três
     ferramentas encapsulam F1/F2/F3."""
-    llm_cerebro: object                 # objeto com .gerar(prompt, sistema) -> str
+    llm_cerebro: LLMCerebro             # objeto com .gerar(prompt, sistema) -> str
     regulatorio: Ferramenta             # RAG da Fase 1
     entidades: Ferramenta               # modelo fine-tunado (NER) da Fase 2
     dados: Ferramenta                   # camada de acesso + cálculo da Fase 3

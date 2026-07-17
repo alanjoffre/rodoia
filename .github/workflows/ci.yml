@@ -32,6 +32,13 @@ jobs:
       - name: Lint (ruff)
         run: ruff check .
 
+      # Contrato de tipos do NÚCLEO SERVIDO (API/RAG/agente/guardrails/gate). Os scripts de
+      # pesquisa/treino ficam fora por override no pyproject — a fronteira está declarada lá,
+      # não escondida aqui. Portão BLOQUEANTE: antes o mypy só existia no pyproject e nunca
+      # rodava, o que deixou 300 erros acumularem sob um `strict = true` decorativo.
+      - name: Tipos (mypy — núcleo servido)
+        run: mypy src
+
       - name: Testes (pytest)
         run: pytest -q
 

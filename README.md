@@ -9,8 +9,9 @@
 [![CI](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml/badge.svg)](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Tests](https://img.shields.io/badge/testes-155%20passando-brightgreen.svg)
-![Gate](https://img.shields.io/badge/gate%20de%20avaliação-12%2F12-brightgreen.svg)
+![Tests](https://img.shields.io/badge/testes-164%20passando-brightgreen.svg)
+![Tipos](https://img.shields.io/badge/mypy-strict%20no%20núcleo-brightgreen.svg)
+![Gate](https://img.shields.io/badge/gate%20de%20avaliação-13%2F13-brightgreen.svg)
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
 
 [**🔗 Demo ao vivo**](https://huggingface.co/spaces/alanjoffre/rodoia-rag) · [**📖 A história**](docs/HISTORIA.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
@@ -34,7 +35,7 @@ Cada fase é um marco publicável, testado e documentado antes da próxima come�
 | **2 · Fine-tuning** | QLoRA (Qwen2.5-3B) p/ NER jurídico + serving vLLM fp8 | **F1 0,13 → 0,77** (SOTA 0,89) · **205 tok/s** |
 | **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,01pp (IC [1,76; 4,40]) |
 | **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) |
-| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo | **gate 12/12** · **drift PSI 0,005** (estável) |
+| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo | **gate 13/13** · **drift PSI 0,005** (estável) |
 
 > **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e nós reportamos o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
 
@@ -81,7 +82,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 | **2** | Fine-tuning e serving de modelo próprio | QLoRA NER jurídico (LeNER-Br) **F1 0,13→0,77**, encostando no SOTA BERTimbau 0,89; vLLM fp8 205 tok/s. Precedido de um *estudo-baseline* honesto (FT **não** injeta conhecimento) → o arco negativo→pivô é a entrega ([docs/13](docs/13_fase2_ner.md)) |
 | **3** | Dados estruturados abertos da ANTT | Volume de Pedágio (2010–2026, **741k linhas**), esquema estrela DuckDB + SQL analítico; **Holt-Winters bate o naïve** (pareado Δ3,01pp, IC [1,76; 4,40], vence em 73% das praças) ([docs/14](docs/14_fase3_dados_estruturados.md)) |
 | **4** | Agente de orquestração (LangGraph) | grafo com **arestas condicionais reais** (guardrail + roteador) combinando RAG+FT+dados; **roteamento 0,95** (n=21); degradação graciosa testada ([docs/15](docs/15_fase4_agente.md)) |
-| **5** | MLOps, Cloud e operação | **gate de avaliação** (regressão reprova o CI, 12/12) · GitHub Actions · MLflow + DVC · container · **drift PSI 0,005** · **custo R$/1k das 2 rotas** · **demo pública no ar** · deploy cloud = runbook ([docs/16](docs/16_fase5_mlops.md)) |
+| **5** | MLOps, Cloud e operação | **gate de avaliação** (regressão reprova o CI, 13/13) · GitHub Actions · MLflow + DVC · container · **drift PSI 0,005** · **custo R$/1k das 2 rotas** · **demo pública no ar** · deploy cloud = runbook ([docs/16](docs/16_fase5_mlops.md)) |
 
 ## ✅ Rastreabilidade requisito → fase
 
@@ -92,7 +93,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 
 | Requisito | Onde é provado | Evidência |
 |---|---|---|
-| Python sólido (async, tipagem, produção) | Todas | Código tipado, testado, `async` nos endpoints |
+| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 164 testes · `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
 | SQL avançado e modelagem | Fase 3 | Esquema **estrela** (DuckDB, 741k linhas), window functions (LAG/RANK), camada de acesso testada + **previsão de demanda** (MAPE) |
@@ -124,6 +125,7 @@ O diferencial não são os números altos — é **o rigor ter corrigido os pró
 - **Fase 3 — a cereja e a inconsistência.** Um "MAPE 5,9%" **cereja** virou ~13% no backtest de 63 praças + IC. E um **erro metodológico meu** (naïve de 1-passo × Holt-Winters de 12-passos) foi corrigido para **multi-step justo** — aí o Holt-Winters **bate o naïve com significância** (Δ3,01pp, IC [1,76; 4,40]).
 - **Fase 4 — o artefato do juiz.** O juiz penalizava "não rotear" nos casos fora-de-escopo/adversarial (onde declinar é o certo). Separar in-scope de declinados tirou o artefato: **roteamento 0,95** e juiz **rota 2,0/2**.
 - **Fase 5 — o drift enganoso.** PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
+- **Fase 5 — a config que ninguém rodava.** Uma auditoria própria achou o `strict = true` do mypy declarado desde o commit 1 e **nunca executado** (nem CI, nem pre-commit): **300 erros** sob uma config que anunciava rigor máximo. Nenhum era bug — e esse não é o ponto: *config aspiracional que ninguém roda é pior que config modesta que o CI cobra*. Escopo redeclarado (strict no **núcleo servido**, scripts de pesquisa fora por `override` nominal), núcleo **zerado (93 → 0)** e `mypy src` virou **portão bloqueante**. De quebra, dois contratos que mentiam: um `Protocol` que vivia num comentário e um `getattr` defensivo que escondia **fakes de teste infiéis ao contrato** ([docs/16](docs/16_fase5_mlops.md) §2.1).
 
 **Restrições assumidas conscientemente:** hardware de 6 GB (modelos 3B, time-slicing cérebro↔FT); alguns *n* pequenos (hit@5 n=50, juiz de geração n=12) — os ICs expõem isso; e **deploy em cloud não executado** (runbook pronto, [docs/16](docs/16_fase5_mlops.md) §7) por decisão de orçamento.
 

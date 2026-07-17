@@ -8,21 +8,23 @@ fixture (parâmetro `db`).
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from rodoia.dados.estrela import DB
 
 
-def _consultar(sql: str, params: list, db: Path | None = None) -> list[dict]:
+def _consultar(sql: str, params: list[Any], db: Path | None = None) -> list[dict[str, Any]]:
     import duckdb
 
     con = duckdb.connect(str(db or DB), read_only=True)
     try:
-        return con.execute(sql, params).df().to_dict(orient="records")
+        registros: list[dict[str, Any]] = con.execute(sql, params).df().to_dict(orient="records")
+        return registros
     finally:
         con.close()
 
 
-def ranking_pracas(top: int = 10, db: Path | None = None) -> list[dict]:
+def ranking_pracas(top: int = 10, db: Path | None = None) -> list[dict[str, Any]]:
     """Top-N praças por volume acumulado (posição, praça, concessionária, volume)."""
     return _consultar(
         """SELECT rank() OVER (ORDER BY sum(f.volume_total) DESC) AS posicao,
@@ -41,7 +43,7 @@ def volume_praca(praca: str, db: Path | None = None) -> float:
     return float(r[0]["volume"]) if r else 0.0
 
 
-def serie_mensal(praca: str, db: Path | None = None) -> list[dict]:
+def serie_mensal(praca: str, db: Path | None = None) -> list[dict[str, Any]]:
     """Série mensal (data, volume) de uma praça — insumo da previsão."""
     return _consultar(
         """SELECT f.data, sum(f.volume_total) AS volume
@@ -50,7 +52,7 @@ def serie_mensal(praca: str, db: Path | None = None) -> list[dict]:
         [praca], db)
 
 
-def volume_por_ano(db: Path | None = None) -> list[dict]:
+def volume_por_ano(db: Path | None = None) -> list[dict[str, Any]]:
     """Volume total da rede por ano (tendência agregada)."""
     return _consultar(
         """SELECT t.ano, sum(f.volume_total) AS volume

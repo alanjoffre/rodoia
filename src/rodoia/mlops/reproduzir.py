@@ -5,8 +5,9 @@ comparamos a métrica regenerada contra o valor versionado. Se divergir além da
 falha (exit 1). Isso fecha o ataque "seu CI não reproduz nada, só lê números que você commitou".
 
 Âncora padrão: **hit@5 do retrieval híbrido** — determinística (mesmo índice + mesmas queries),
-roda em CPU, sem LLM. Precisa do corpus/índice (regenerável por `rag.baixar_normas` +
-`rag.construir_indice`), disponível no runner que roda o job `reproduzir` (GPU/self-hosted).
+roda em CPU, sem LLM. Precisa do corpus/índice, regenerado no próprio job `reproduzir` por
+`rag.baixar_normas` + `rag.construir_indice` — que roda em runner **github-hosted (CPU)**,
+justamente para não esconder a reprodução atrás de hardware que ninguém pode auditar.
 Âncoras que exigem GPU (ex.: NER F1 via vLLM) entram no mesmo harness quando há runner com placa.
 
 Uso:  python -m rodoia.mlops.reproduzir            # reproduz a âncora e sai 1 se divergir

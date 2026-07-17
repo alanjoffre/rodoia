@@ -6,16 +6,22 @@ Mantê-las finas e injetáveis é o que permite testar o grafo sem GPU/Ollama/Du
 from __future__ import annotations
 
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-from rodoia.agente.estado import DepsAgente
+from rodoia.agente.estado import DepsAgente, Ferramenta, LLMCerebro
+
+if TYPE_CHECKING:
+    from rodoia.rag.llm import LLM
+    from rodoia.rag.recuperador import RecuperadorHibrido
 
 
 # ── Ferramenta 1: regulatório (RAG da Fase 1) ────────────────────────────────
-def regulatorio_real(recuperador, llm):
+def regulatorio_real(recuperador: RecuperadorHibrido, llm: LLM) -> Ferramenta:
     """Envelopa o RAG seguro da Fase 1 (retrieval híbrido + geração + guardrails)."""
     from rodoia.rag.gerar import responder_seguro
 
-    def _f(pergunta: str) -> dict:
+    def _f(pergunta: str) -> dict[str, Any]:
         r = responder_seguro(pergunta, recuperador, llm)
         return {"tipo": "regulatorio", "resposta": r["resposta"], "fontes": r["fontes"]}
 
@@ -23,12 +29,12 @@ def regulatorio_real(recuperador, llm):
 
 
 # ── Ferramenta 2: entidades (modelo fine-tunado da Fase 2) ───────────────────
-def entidades_real(llm_ft):
+def entidades_real(llm_ft: LLMCerebro) -> Ferramenta:
     """Chama o modelo NER fine-tunado (via vLLM/OpenAI-compat) e parseia as entidades."""
     from rodoia.ner.avaliar_generativo import parse_entidades
     from rodoia.ner.generativo import SISTEMA
 
-    def _f(texto: str) -> dict:
+    def _f(texto: str) -> dict[str, Any]:
         saida = llm_ft.gerar(texto, sistema=SISTEMA)
         ents = [{"texto": t, "tipo": tp} for t, tp in sorted(parse_entidades(saida))]
         return {"tipo": "entidades", "entidades": ents}
@@ -42,23 +48,23 @@ _RE_PRACA = re.compile(r"pra[çc]a\s+([\w\s./-]{2,40}?)(?:\?|$|\.|,| no | em | t
 _NAO_NOME = {"lider", "líder", "de", "com", "mais", "maior", "campeã", "campea"}
 
 
-def _crescimento_yoy(serie: list[dict]) -> float | None:
+def _crescimento_yoy(serie: list[dict[str, Any]]) -> float | None:
     """Cálculo determinístico: variação % dos últimos 12 meses vs. os 12 anteriores."""
     if len(serie) < 24:
         return None
-    vols = [r["volume"] for r in serie]
+    vols: list[float] = [r["volume"] for r in serie]
     ult, ant = sum(vols[-12:]), sum(vols[-24:-12])
     return round((ult - ant) / ant * 100, 1) if ant else None
 
 
-def dados_real(db=None):
+def dados_real(db: Path | None = None) -> Ferramenta:
     """Interpreta a pergunta (heurística explícita) e chama a camada de acesso parametrizada.
     Intenções cobertas: ranking de praças, volume/crescimento de uma praça citada."""
     from rodoia.dados.acesso import ranking_pracas, serie_mensal, volume_praca
 
-    def _f(pergunta: str) -> dict:
+    def _f(pergunta: str) -> dict[str, Any]:
         p = pergunta.lower()
-        out: dict = {"tipo": "dados"}
+        out: dict[str, Any] = {"tipo": "dados"}
         m = _RE_PRACA.search(pergunta)
         nome = m.group(1).strip() if m else ""
         tem_nome = bool(nome) and nome.lower() not in _NAO_NOME

@@ -22,12 +22,17 @@ $ python -m rodoia.mlops.gate
   [✓] F1 · precisão de citação           0.917 >= 0.85
   [✓] F2 · NER F1 (FT QLoRA)             0.7735 >= 0.72
   [✓] F2 · ganho FT vs base              0.6429 >= 0.55
+  [✓] F3 · linhas do fato (estrela)      741205 >= 700000
   [✓] F3 · Holt-Winters MAPE             13.25 <= 15.0
   [✓] F3 · HW bate naïve (pareado)       True == True
   [✓] F4 · roteamento (n=21, exato)      0.952 >= 0.85
   [✓] F4 · juiz rota adequada            2.0 >= 1.5
-  12/12 portões OK — APROVADO
+  13/13 portões OK — APROVADO
 ```
+
+O nº de portões é travado por teste (`tests/test_gate.py::test_numero_de_portoes_travado`):
+um `>=` permitiria remover portões com o CI verde e o badge "13/13" virando mentira em
+silêncio. Com a igualdade, mexer no gate obriga a atualizar o badge no mesmo diff.
 
 Os pisos ficam **abaixo** dos valores atuais (toleram ruído de reexecução, pegam regressão real).
 Baixar um piso é uma decisão consciente — aparece no diff e no code review.
@@ -35,24 +40,61 @@ Baixar um piso é uma decisão consciente — aparece no diff e no code review.
 > **O que este gate é e o que NÃO é (honestidade).** É um **guardrail de regressão de artefato**:
 > impede que um relatório commitado seja trocado por um pior sem revisão. Ele **não re-executa
 > modelo** — confia no JSON versionado. A **reprodução real** (regenerar a métrica a partir do
-> modelo/dados e conferir contra o commitado) é o job **`reproduzir`** (§2.1), que exige GPU e roda
-> à parte. Separar os dois é proposital: o CI barato dá feedback em segundos; a reprodução cara roda
-> sob demanda/agendada.
+> modelo/dados e conferir contra o commitado) é o job **`reproduzir`** (§2.1), que roda à parte, em
+> runner **github-hosted (CPU)** — as âncoras são CPU-determinísticas de propósito, para que
+> qualquer um possa auditá-las sem hardware especial. Separar os dois é proposital: o CI barato dá
+> feedback em segundos; a reprodução lenta (depende de rede/scrape) roda sob demanda/agendada.
 
 ## 2. CI/CD — GitHub Actions (`.github/workflows/ci.yml`)
 
-Em cada push/PR para `main`, três portões **bloqueantes**:
+Em cada push/PR para `main`, quatro portões **bloqueantes**:
 
 1. **Lint** — `ruff check .` (o repositório é ruff-clean; regras `E,F,I,UP,B,ASYNC`).
-2. **Testes** — `pytest` (155 testes). Os testes de fundamentos que exigem PyTorch são
-   **pulados na coleta** em CPU (`tests/conftest.py`) — validados localmente na Nitro; todo o
-   resto (RAG, NER, dados, agente, gate, MLOps) roda no CI sem stack de GPU.
-3. **Gate de avaliação** — `python -m rodoia.mlops.gate` (regressão de métrica falha o pipeline).
+2. **Tipos** — `mypy src`, **strict no núcleo servido** (API, RAG, agente, guardrails, gate +
+   utilitários). Os scripts de pesquisa/treino (`ft/`, `ner/`, `ml/`, avaliações offline) ficam
+   fora por `override` declarado no `pyproject.toml` — dependem de libs sem stubs (vLLM, torch) e
+   ali o strict rende ruído de terceiro, não defeito nosso. **A fronteira está escrita, não
+   subentendida.** Ver §2.1.
+3. **Testes** — `pytest`. São **164 localmente**; no CI rodam **147**: os 17 de fundamentos exigem
+   PyTorch e são **pulados na coleta** em CPU (`tests/conftest.py`), validados na Nitro. O badge
+   do README diz 164 (o total real); o CI verde prova 147 deles — dito aqui para o número não
+   sugerir mais do que o pipeline cobre.
+4. **Gate de avaliação** — `python -m rodoia.mlops.gate` (regressão de métrica falha o pipeline).
 
 Instalação enxuta e CPU-only: `.[dev,agente,estruturados]` + `qdrant-client rank-bm25 fastapi
 httpx uvicorn`. Nada de torch/vLLM/transformers (todos lazy ou "fakeados" nos testes).
 
-### 2.1 Reprodução real — `.github/workflows/reproduzir.yml` (`mlops/reproduzir.py`)
+### 2.1 Contrato de tipos — a config que ninguém rodava
+
+Achado de auditoria interna, registrado porque o erro é instrutivo: o `pyproject.toml` declarava
+`[tool.mypy] strict = true` **desde o commit 1**, e o mypy **nunca rodou** — não estava no CI, nem
+no pre-commit, nem no Dockerfile. Resultado: **300 erros em 56 dos 72 arquivos**, sob uma
+configuração que anunciava rigor máximo. Enquanto isso o README afirmava "código tipado".
+
+Nenhum dos 300 era bug de lógica (131 eram `dict` sem parametrizar; os 18 de `perplexidade.py:71`
+eram **um único** `**kwargs`) — mas esse não é o ponto. O ponto é que **uma config aspiracional que
+ninguém executa é pior que uma modesta que o CI cobra**: ela treina o leitor a ignorar o
+type-checker e transforma o `strict = true` em decoração.
+
+Correção em duas partes, na linha do resto do projeto (declarar a fronteira em vez de maquiar):
+
+1. **Escopo honesto.** `strict` vale para o **núcleo servido** — o caminho que atende requisição
+   (`api/`, `rag/`, `agente/`, guardrails, `mlops/gate.py`) e os utilitários compartilhados
+   (`config`, `estat`, `proveniencia`, `observabilidade`). Esse conjunto foi **zerado**: 93 → 0.
+   Os scripts de pesquisa saem por `override` explícito e nominal no `pyproject.toml`.
+2. **Portão no CI.** `mypy src` é bloqueante. Não regride mais em silêncio.
+
+O que a tipagem revelou (nenhum bug de runtime, mas dois contratos mentindo):
+
+- **`DepsAgente.llm_cerebro` era `object`**, com o contrato real escrito num **comentário**
+  (`# objeto com .gerar(...)`). Virou um `Protocol` de verdade (`LLMCerebro`).
+- **`rag/gerar.py` lia `getattr(llm, "ultima_metrica", {})`** enquanto o Protocol `LLM` declarava
+  o atributo como **obrigatório**. O default existia para os **fakes de teste** passarem sem
+  implementar o contrato. Trocado por acesso direto — e os fakes passaram a honrar o Protocol.
+  Ao remover o `getattr`, **um quarto fake infiel apareceu e falhou o teste**: era exatamente a
+  defensividade escondendo que os testes exercitavam um objeto que não existe em produção.
+
+### 2.2 Reprodução real — `.github/workflows/reproduzir.yml` (`mlops/reproduzir.py`)
 
 O gate do §1 é barato e honesto sobre seu limite: **não regenera métrica**. A reprodução de fato
 fica num job separado que **re-executa o pipeline** e falha se o resultado divergir do JSON

@@ -18,11 +18,12 @@ import json
 import re
 import unicodedata
 from pathlib import Path
+from typing import Any
 
 # --- 1. Prompt injection ---------------------------------------------------
 # Padrões específicos o bastante para não disparar em perguntas jurídicas normais
 # (ex.: "quais as regras de X" NÃO casa; "ignore as regras acima" casa).
-_PADROES_INJECTION: tuple[tuple[re.Pattern, str], ...] = (
+_PADROES_INJECTION: tuple[tuple[re.Pattern[str], str], ...] = (
     (
         re.compile(r"ignore\s+(as\s+|todas\s+as\s+)?(instru[çc][õo]es|regras|orienta)", re.I),
         "ignorar-instrucoes",
@@ -74,7 +75,7 @@ def detectar_injection(texto: str) -> tuple[bool, str | None]:
 
 # --- 2. PII masking --------------------------------------------------------
 # Ordem importa: CNPJ antes de CPF (o CNPJ é mais longo e específico).
-_MASCARAS_PII: tuple[tuple[re.Pattern, str], ...] = (
+_MASCARAS_PII: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\b\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}\b"), "[CNPJ]"),
     (re.compile(r"\b\d{3}\.\d{3}\.\d{3}-\d{2}\b"), "[CPF]"),
     (re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"), "[EMAIL]"),
@@ -92,7 +93,7 @@ def mascarar_pii(texto: str) -> str:
 
 
 # --- 3. Auditoria ----------------------------------------------------------
-def registrar_auditoria(evento: dict, caminho: Path) -> None:
+def registrar_auditoria(evento: dict[str, Any], caminho: Path) -> None:
     """Anexa um evento (dict) à trilha de auditoria em JSONL."""
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("a", encoding="utf-8") as fh:

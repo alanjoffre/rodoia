@@ -12,7 +12,9 @@ import re
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
+from rodoia.rag.llm import LLM
 from rodoia.rag.recuperador import RecuperadorHibrido
 from rodoia.rag.seguranca import detectar_injection, mascarar_pii, registrar_auditoria
 
@@ -35,7 +37,7 @@ PROMPT_SISTEMA = (
 _MARCADORES_CONTEXTO = re.compile(r"</?contexto>|\[/?INST\]|<\|[^|]*\|>", re.I)
 
 
-def montar_contexto(chunks: list[dict]) -> str:
+def montar_contexto(chunks: list[dict[str, Any]]) -> str:
     """Formata os trechos recuperados como fontes numeradas, delimitadas e
     neutralizadas — o modelo é instruído a tratá-las como DADOS, não instruções."""
     partes = []
@@ -46,7 +48,7 @@ def montar_contexto(chunks: list[dict]) -> str:
     return "<contexto>\n" + "\n\n".join(partes) + "\n</contexto>"
 
 
-def montar_prompt(consulta: str, chunks: list[dict]) -> str:
+def montar_prompt(consulta: str, chunks: list[dict[str, Any]]) -> str:
     return (
         f"Contexto (trechos de resoluções da ANTT):\n\n{montar_contexto(chunks)}\n\n"
         f"Pergunta: {consulta}\n\n"
@@ -57,11 +59,11 @@ def montar_prompt(consulta: str, chunks: list[dict]) -> str:
 def responder(
     consulta: str,
     recuperador: RecuperadorHibrido,
-    llm,
+    llm: LLM,
     k: int = 5,
     apenas_vigentes: bool = True,
     rerank: bool = True,
-) -> dict:
+) -> dict[str, Any]:
     """Executa o RAG ponta a ponta e devolve resposta + fontes citadas + trechos + métricas."""
     t0 = time.perf_counter()
     chunks = recuperador.buscar(
@@ -80,11 +82,14 @@ def responder(
     t_gen = time.perf_counter()
     resposta = llm.gerar(montar_prompt(consulta, chunks), sistema=PROMPT_SISTEMA)
     fontes = list(dict.fromkeys(c["numero"] for c in chunks))  # únicas, na ordem
-    # observabilidade: latência de recuperação/geração + tokens (do llm.ultima_metrica)
+    # observabilidade: latência de recuperação/geração + tokens (do llm.ultima_metrica).
+    # Acesso direto, não `getattr(..., {})`: o Protocol `LLM` exige `ultima_metrica`, e os dois
+    # backends reais a inicializam no __init__. O default só existia para os fakes de teste
+    # passarem sem implementar o contrato — defensividade que mascarava fake infiel ao real.
     metricas = {
         "recuperacao_s": round(t_gen - t0, 3),
         "geracao_s": round(time.perf_counter() - t_gen, 3),
-        **getattr(llm, "ultima_metrica", {}),
+        **llm.ultima_metrica,
     }
     return {"resposta": resposta, "fontes": fontes, "chunks": chunks, "metricas": metricas}
 
@@ -92,10 +97,10 @@ def responder(
 def responder_seguro(
     consulta: str,
     recuperador: RecuperadorHibrido,
-    llm,
+    llm: LLM,
     k: int = 5,
     auditoria: Path | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """RAG com a camada de segurança: bloqueia prompt injection, mascara PII na
     resposta e registra a consulta na trilha de auditoria."""
     injecao, motivo = detectar_injection(consulta)

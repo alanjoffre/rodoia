@@ -13,10 +13,13 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from typing import Any
 
 import numpy as np
+from qdrant_client import QdrantClient
 from rank_bm25 import BM25Okapi
 
+from rodoia.rag.embeddings import Embedder
 from rodoia.rag.indice import COLECAO
 from rodoia.rag.indice import buscar as buscar_denso
 
@@ -27,10 +30,12 @@ def tokenizar(texto: str) -> list[str]:
     return _RE_TOKEN.findall(texto.lower())
 
 
-def fundir_rrf(listas: list[list[dict]], k: int, k_rrf: int = 60) -> list[dict]:
+def fundir_rrf(
+    listas: list[list[dict[str, Any]]], k: int, k_rrf: int = 60
+) -> list[dict[str, Any]]:
     """Reciprocal Rank Fusion: soma 1/(k_rrf + posição) de cada lista por chunk."""
     escores: dict[str, float] = defaultdict(float)
-    registro: dict[str, dict] = {}
+    registro: dict[str, dict[str, Any]] = {}
     for lista in listas:
         for pos, chunk in enumerate(lista):
             cid = chunk["chunk_id"]
@@ -48,7 +53,9 @@ class Reranker:
 
         self._m = CrossEncoder(modelo)
 
-    def reordenar(self, consulta: str, chunks: list[dict], k: int) -> list[dict]:
+    def reordenar(
+        self, consulta: str, chunks: list[dict[str, Any]], k: int
+    ) -> list[dict[str, Any]]:
         if not chunks:
             return []
         escores = self._m.predict([[consulta, c["texto"]] for c in chunks])
@@ -60,7 +67,12 @@ class RecuperadorHibrido:
     """Orquestra denso + BM25 + (opcional) rerank sobre um corpus de chunks."""
 
     def __init__(
-        self, chunks, embedder, cliente, colecao: str = COLECAO, reranker: Reranker | None = None
+        self,
+        chunks: list[dict[str, Any]],
+        embedder: Embedder,
+        cliente: QdrantClient,
+        colecao: str = COLECAO,
+        reranker: Reranker | None = None,
     ):
         self.chunks = chunks
         self.embedder = embedder
@@ -69,10 +81,10 @@ class RecuperadorHibrido:
         self.reranker = reranker
         self._bm25 = BM25Okapi([tokenizar(c["texto"]) for c in chunks])
 
-    def _denso(self, consulta: str, n: int) -> list[dict]:
+    def _denso(self, consulta: str, n: int) -> list[dict[str, Any]]:
         return buscar_denso(consulta, self.embedder, self.cliente, self.colecao, k=n)
 
-    def _bm25_buscar(self, consulta: str, n: int) -> list[dict]:
+    def _bm25_buscar(self, consulta: str, n: int) -> list[dict[str, Any]]:
         escores = self._bm25.get_scores(tokenizar(consulta))
         idx = np.argsort(escores)[::-1][:n]
         return [self.chunks[i] for i in idx]
@@ -84,7 +96,7 @@ class RecuperadorHibrido:
         candidatos: int = 20,
         modo: str = "hibrido",
         rerank: bool = False,
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """modo: 'denso' | 'bm25' | 'hibrido'. rerank: aplica o cross-encoder."""
         if modo == "denso":
             res = self._denso(consulta, candidatos)

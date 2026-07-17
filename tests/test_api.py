@@ -18,6 +18,8 @@ class RecFalso:
 
 
 class LLMFalso:
+    ultima_metrica: dict = {}        # exigido pelo Protocol LLM (ver rodoia.rag.llm)
+
     def gerar(self, prompt, sistema=None):
         return "O vale-pedágio é obrigatório, conforme a Resolução 6024/2023."
 

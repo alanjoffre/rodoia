@@ -43,6 +43,15 @@ pré-computados. **Retrieval-only** com citação da resolução-fonte — sem s
 ## Notas honestas
 - **Client-side, retrieval-only:** a geração da resposta (com citação ancorada) roda no serving
   completo do projeto (FastAPI + Ollama/vLLM), não aqui. Esta demo prova a **recuperação** viva.
+- **Só as normas VIGENTES** (93 das 125 do corpus → 2.994 dos 3.651 chunks): `exportar.py` roda com
+  `apenas_vigentes=True`. Buscar norma revogada numa demo pública seria ruído, não recurso. O número
+  exibido no topo da página é contado do próprio `dados.json`, nunca escrito à mão.
 - Os embeddings dos chunks são gerados com o **mesmo E5** do backend (prefixo `passage`, mean-pool,
-  normalização) — o navegador usa `query` + o mesmo modelo, então os vetores ficam no mesmo espaço.
+  normalização L2) e o navegador embute a pergunta com `query:` + o mesmo modelo — mesmo espaço
+  vetorial. **Ressalva honesta:** o Transformers.js baixa o ONNX **quantizado (int8)** por padrão,
+  enquanto as passagens foram embutidas em **fp32**. É uma assimetria real — desloca os scores na
+  3ª casa e não muda o ranking na prática, mas não é "idêntico". Eliminá-la custaria 4× no download
+  (`{ quantized: false }`) para um ganho que a demo não precisa.
 - `dados.f32`/`dados.json` são **gerados** (não versionados no repo principal); só existem no Space.
+  Os dois saem juntos do `exportar.py` e a página **recusa subir** se dessincronizarem
+  (`byteLength !== n × dim × 4`) — sem essa checagem, o score viraria `NaN` silenciosamente.

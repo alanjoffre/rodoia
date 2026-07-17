@@ -9,8 +9,8 @@ JSONs já versionados, então roda no GitHub Actions em segundos.
 ARTEFATO**: garante que um relatório commitado não seja substituído por outro pior sem alguém
 notar. Ele **NÃO re-executa modelo nem regenera métrica** — confia no JSON versionado. A
 *reprodução* de fato (regenerar a métrica a partir do modelo/dados e conferir contra o JSON) é
-outra coisa, e roda no job `reproduzir` (ver `.github/workflows/reproduzir.yml`, runner com GPU),
-não neste gate barato do CI.
+outra coisa, e roda no job `reproduzir` (ver `.github/workflows/reproduzir.yml`, runner
+github-hosted em CPU, semanal), não neste gate barato de cada push.
 
 Os pisos ficam um pouco ABAIXO dos valores atuais: toleram ruído de reexecução, mas pegam
 qualquer regressão real. Atualizar um piso é uma decisão consciente (aparece no diff).
@@ -22,6 +22,8 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 from rodoia.config import REPO_ROOT
 
@@ -51,6 +53,10 @@ GATES: tuple[Meta, ...] = (
          "modelos.ft_qlora.f1_micro", ">=", 0.72),
     Meta("F2 · ganho FT vs base", "reports/fase2_ner/comparacao.json",
          "ganho_ft_vs_base", ">=", 0.55),
+    # Piso com folga sob as 741.205 linhas atuais: a fonte da ANTT é revisada e pode encolher
+    # de leve entre releases, mas uma queda abaixo de 700k denuncia ingestão truncada.
+    Meta("F3 · linhas do fato (estrela)", "reports/fase3_dados/estrela.json",
+         "n_linhas_fato", ">=", 700_000),
     Meta("F3 · Holt-Winters MAPE", "reports/fase3_dados/previsao.json",
          "modelos.holt_winters.mape_medio", "<=", 15.0),
     Meta("F3 · HW bate naïve (pareado)", "reports/fase3_dados/previsao.json",
@@ -62,7 +68,7 @@ GATES: tuple[Meta, ...] = (
 )
 
 
-def _acessar(obj, caminho: str):
+def _acessar(obj: Any, caminho: str) -> Any:
     """Navega um dict/list por caminho pontilhado ('a.b.0' → obj['a']['b'][0])."""
     atual = obj
     for parte in caminho.split("."):
@@ -70,17 +76,17 @@ def _acessar(obj, caminho: str):
     return atual
 
 
-def _passou(valor, op: str, piso) -> bool:
+def _passou(valor: Any, op: str, piso: float | bool) -> bool:
     if op == ">=":
-        return valor >= piso
+        return bool(valor >= piso)
     if op == "<=":
-        return valor <= piso
+        return bool(valor <= piso)
     if op == "==":
-        return valor == piso
+        return bool(valor == piso)
     raise ValueError(f"operador inválido: {op!r}")
 
 
-def avaliar(raiz=None) -> tuple[bool, list[dict]]:
+def avaliar(raiz: Path | None = None) -> tuple[bool, list[dict[str, Any]]]:
     """Retorna (tudo_ok, linhas). Uma métrica ausente/relatório faltando conta como FALHA."""
     raiz = raiz or REPO_ROOT
     linhas = []
@@ -97,7 +103,7 @@ def avaliar(raiz=None) -> tuple[bool, list[dict]]:
     return all(x["ok"] for x in linhas), linhas
 
 
-def imprimir(linhas: list[dict]) -> None:
+def imprimir(linhas: list[dict[str, Any]]) -> None:
     for x in linhas:
         marca = "✓" if x["ok"] else "✗"
         alvo = "" if x["erro"] else f"{x['valor']} {x['op']} {x['piso']}"

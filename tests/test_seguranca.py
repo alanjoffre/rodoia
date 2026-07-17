@@ -74,6 +74,8 @@ def test_auditoria_anexa_jsonl(tmp_path: Path) -> None:
 
 # --- integração: responder_seguro ---
 class _LLM:
+    ultima_metrica: dict = {}        # exigido pelo Protocol LLM (ver rodoia.rag.llm)
+
     def gerar(self, prompt, sistema=None):
         return "Resposta com e-mail vazado teste@antt.gov.br conforme Resolução 6024/2023."
 

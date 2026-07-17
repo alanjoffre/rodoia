@@ -14,7 +14,11 @@ percorrido depende do conteúdo da pergunta, e casos combinados acionam 2+ ferra
 """
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any, Protocol
+
 from langgraph.graph import END, START, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from rodoia.agente.estado import DepsAgente, EstadoAgente
 from rodoia.agente.roteador import rotear
@@ -28,13 +32,13 @@ _SISTEMA_SINTESE = (
 )
 
 
-def _no_guardrail(estado: EstadoAgente, deps: DepsAgente) -> dict:
+def _no_guardrail(estado: EstadoAgente, deps: DepsAgente) -> EstadoAgente:
     inj, motivo = detectar_injection(estado["pergunta"])
     return {"bloqueado": bool(inj), "motivo_bloqueio": motivo, "trajetoria": [
         {"no": "guardrail", "bloqueado": bool(inj), "motivo": motivo}]}
 
 
-def _no_roteador(estado: EstadoAgente, deps: DepsAgente) -> dict:
+def _no_roteador(estado: EstadoAgente, deps: DepsAgente) -> EstadoAgente:
     r = rotear(estado["pergunta"], deps.llm_cerebro)
     return {
         "rotas": r["rotas"], "motivo_rota": r["motivo"],
@@ -43,8 +47,9 @@ def _no_roteador(estado: EstadoAgente, deps: DepsAgente) -> dict:
     }
 
 
-def _no_executar(estado: EstadoAgente, deps: DepsAgente) -> dict:
-    evidencias, passos = {}, []
+def _no_executar(estado: EstadoAgente, deps: DepsAgente) -> EstadoAgente:
+    evidencias: dict[str, dict[str, Any]] = {}
+    passos: list[dict[str, Any]] = []
     for rota in estado.get("rotas", []):
         try:
             evidencias[rota] = deps.ferramenta(rota)(estado["pergunta"])
@@ -56,8 +61,8 @@ def _no_executar(estado: EstadoAgente, deps: DepsAgente) -> dict:
     return {"evidencias": evidencias, "trajetoria": passos}
 
 
-def _coletar_fontes(evidencias: dict) -> list[str]:
-    fontes = []
+def _coletar_fontes(evidencias: dict[str, dict[str, Any]]) -> list[str]:
+    fontes: list[str] = []
     reg = evidencias.get("regulatorio", {})
     fontes += [f"Resolução {n}" for n in reg.get("fontes", [])]
     if "dados" in evidencias and "erro" not in evidencias["dados"]:
@@ -65,7 +70,7 @@ def _coletar_fontes(evidencias: dict) -> list[str]:
     return list(dict.fromkeys(fontes))
 
 
-def _no_sintetizar(estado: EstadoAgente, deps: DepsAgente) -> dict:
+def _no_sintetizar(estado: EstadoAgente, deps: DepsAgente) -> EstadoAgente:
     evidencias = estado.get("evidencias", {})
     contexto = "\n".join(f"[{k}] {v}" for k, v in evidencias.items())
     prompt = (f"Pergunta: {estado['pergunta']}\n\n"
@@ -78,12 +83,12 @@ def _no_sintetizar(estado: EstadoAgente, deps: DepsAgente) -> dict:
             "trajetoria": [{"no": "sintetizar", "n_evidencias": len(evidencias)}]}
 
 
-def _no_bloqueio(estado: EstadoAgente, deps: DepsAgente) -> dict:
+def _no_bloqueio(estado: EstadoAgente, deps: DepsAgente) -> EstadoAgente:
     return {"resposta": "Solicitação bloqueada: padrão suspeito de manipulação de instruções. "
             "Reformule sua pergunta sobre a ANTT.", "fontes": []}
 
 
-def _no_escopo(estado: EstadoAgente, deps: DepsAgente) -> dict:
+def _no_escopo(estado: EstadoAgente, deps: DepsAgente) -> EstadoAgente:
     return {"resposta": "Esta pergunta está fora do escopo do agente, que cobre a regulação e os "
             "dados abertos de transporte rodoviário da ANTT.", "fontes": []}
 
@@ -96,9 +101,14 @@ def _apos_roteador(estado: EstadoAgente) -> str:
     return "escopo" if estado.get("fora_de_escopo") else "executar"
 
 
-def construir_agente(deps: DepsAgente):
+# O parâmetro se chama `state` porque é assim que o LangGraph tipa o callback de um nó.
+class _NoLigado(Protocol):
+    def __call__(self, state: EstadoAgente) -> EstadoAgente: ...
+
+
+def construir_agente(deps: DepsAgente) -> CompiledStateGraph[EstadoAgente]:
     """Compila o grafo com as dependências injetadas. Retorna um objeto invocável (.invoke)."""
-    def _bind(fn):
+    def _bind(fn: Callable[[EstadoAgente, DepsAgente], EstadoAgente]) -> _NoLigado:
         return lambda estado: fn(estado, deps)
 
     g = StateGraph(EstadoAgente)
@@ -120,7 +130,7 @@ def construir_agente(deps: DepsAgente):
     return g.compile()
 
 
-def responder(pergunta: str, deps: DepsAgente) -> dict:
+def responder(pergunta: str, deps: DepsAgente) -> dict[str, Any]:
     """Conveniência: roda o agente e devolve um dicionário limpo (resposta, fontes, rotas,
     trajetória) — usado pela API e pela avaliação de trajetória."""
     agente = construir_agente(deps)

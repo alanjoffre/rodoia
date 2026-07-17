@@ -11,6 +11,8 @@ texto), o que permite **filtrar por vigência** e **citar a fonte** no retrieval
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 from qdrant_client import QdrantClient, models
 
 from rodoia.rag.embeddings import Embedder
@@ -24,7 +26,7 @@ def criar_cliente(path: str | None = None) -> QdrantClient:
 
 
 def indexar(
-    chunks: list[dict],
+    chunks: list[dict[str, Any]],
     embedder: Embedder,
     cliente: QdrantClient,
     colecao: str = COLECAO,
@@ -55,7 +57,7 @@ def buscar(
     colecao: str = COLECAO,
     k: int = 5,
     apenas_vigentes: bool = False,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Recupera os k chunks mais similares. Opcionalmente filtra só vigentes."""
     vetor = embedder.encode_queries([consulta])[0]
     filtro = None
@@ -66,4 +68,5 @@ def buscar(
     resposta = cliente.query_points(
         colecao, query=vetor.tolist(), limit=k, query_filter=filtro, with_payload=True
     )
-    return [{"score": float(p.score), **p.payload} for p in resposta.points]
+    # with_payload=True garante o payload; o stub do qdrant o declara opcional.
+    return [{"score": float(p.score), **cast(dict[str, Any], p.payload)} for p in resposta.points]

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,10 +26,16 @@
   .res b { color:var(--ac); }
   .score { float:right; color:var(--mut); font-size:.82em; }
   .exs { margin:14px 0; color:var(--mut); font-size:.9em; }
-  .exs a { color:var(--ac); cursor:pointer; text-decoration:underline; margin-right:12px; }
+  /* <button> (não <a> sem href): focável por teclado e anunciado como controle por leitor de tela */
+  .exs button { background:none; border:0; padding:0; color:var(--ac); cursor:pointer;
+                text-decoration:underline; margin-right:12px; font-size:1em; }
+  .exs button:disabled { opacity:.5; cursor:default; text-decoration:none; }
   footer { color:var(--mut); font-size:.82em; margin-top:26px; border-top:1px solid var(--bd);
            padding-top:14px; }
   code { background:var(--card); padding:1px 5px; border-radius:4px; }
+  /* visível só para leitor de tela: o input precisa de <label>, o olho já tem o placeholder */
+  .sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+        clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 </style>
 </head>
 <body>
@@ -38,17 +44,20 @@
      seu navegador</b> (embeddings E5 via Transformers.js, sem servidor). Cita a resolução-fonte.</p>
 
   <div class="box">
-    <input id="q" placeholder="Ex.: Como funciona o vale-pedágio obrigatório?" autocomplete="off">
+    <label for="q" class="sr">Pergunta sobre a regulação da ANTT</label>
+    <input id="q" placeholder="Ex.: Como funciona o vale-pedágio obrigatório?" autocomplete="off"
+           disabled>
     <button id="btn" disabled>Buscar</button>
   </div>
   <div class="exs">Exemplos:
-    <a data-q="Como funciona o vale-pedágio obrigatório?">vale-pedágio</a>
-    <a data-q="Quais as regras para transportar produtos perigosos?">produtos perigosos</a>
-    <a data-q="Como obter o RNTRC para transportar cargas?">RNTRC</a>
-    <a data-q="Existe piso mínimo de frete? Como é calculado?">piso de frete</a>
+    <button type="button" data-q="Como funciona o vale-pedágio obrigatório?" disabled>vale-pedágio</button>
+    <button type="button" data-q="Quais as regras para transportar produtos perigosos?" disabled>produtos perigosos</button>
+    <button type="button" data-q="Como obter o RNTRC para transportar cargas?" disabled>RNTRC</button>
+    <button type="button" data-q="Existe piso mínimo de frete? Como é calculado?" disabled>piso de frete</button>
   </div>
-  <div id="status">Carregando o modelo E5 (só na 1ª vez, ~30 MB)…</div>
-  <div id="out"></div>
+  <!-- aria-live: o leitor de tela anuncia "Carregando…"/"Pronto"/erro sem o usuário sair do campo -->
+  <div id="status" role="status" aria-live="polite">Iniciando…</div>
+  <div id="out" role="region" aria-label="Resultados da busca"></div>
 
   <footer>
     Demo <b>client-side</b> (Static Space, grátis): a pergunta é embutida no navegador e comparada
@@ -63,53 +72,112 @@ env.allowLocalModels = false;                       // baixa o modelo do HF Hub
 
 const $ = s => document.querySelector(s);
 const status = m => { $('#status').textContent = m; };
-let extractor, EMB, META, DIM, N;
+let extractor, EMB, META, DIM, N, N_NORMAS;
+
+// Habilita/desabilita TUDO junto: enquanto carrega, clicar num exemplo não pode falhar calado.
+const habilitar = ok => {
+  $('#btn').disabled = !ok;
+  $('#q').disabled = !ok;
+  document.querySelectorAll('.exs button').forEach(b => { b.disabled = !ok; });
+};
+
+async function baixar(url, tipo) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);   // sem isto, um 404 vira "Unexpected token '<'"
+  return tipo === 'json' ? r.json() : r.arrayBuffer();
+}
 
 async function init() {
-  // dados: metadados + embeddings dos chunks (pré-computados com o mesmo E5)
-  const meta = await (await fetch('dados.json')).json();
-  META = meta.meta; N = meta.n; DIM = meta.dim;
-  const buf = await (await fetch('dados.f32')).arrayBuffer();
+  // Os 3 recursos (metadados 1,1 MB · embeddings 4,6 MB · modelo ~30 MB) são independentes:
+  // em série somavam a latência de todos antes do 1º pixel útil. Em paralelo, o tempo é o do maior.
+  status('Carregando dados e modelo E5 (só na 1ª vez, ~36 MB)…');
+  const [meta, buf, ext] = await Promise.all([
+    baixar('dados.json', 'json'),
+    baixar('dados.f32', 'buf'),
+    pipeline('feature-extraction', 'Xenova/multilingual-e5-small', {
+      progress_callback: p => {
+        if (p.status === 'progress' && p.file?.endsWith('.onnx') && p.total)
+          status(`Baixando o modelo E5: ${Math.round(p.progress)}%`);
+      },
+    }),
+  ]);
+
+  META = meta.meta; N = meta.n; DIM = meta.dim; extractor = ext;
   EMB = new Float32Array(buf);
-  $('#ncorpus').textContent = new Set(META.map(m => m.numero)).size;
-  extractor = await pipeline('feature-extraction', 'Xenova/multilingual-e5-small');
+
+  // Os dois assets são gerados juntos por `exportar.py`, mas versionados como arquivos separados:
+  // se um for publicado sem o outro, o loop abaixo leria além do fim do array e o score viraria
+  // NaN — a ordenação sairia arbitrária e a UI mostraria resultados errados SEM erro nenhum.
+  // Falha silenciosa é a pior; melhor recusar a subir.
+  const esperado = N * DIM * 4;
+  if (buf.byteLength !== esperado)
+    throw new Error(`dados.f32 tem ${buf.byteLength} bytes, mas dados.json declara `
+      + `${N}×${DIM} floats (= ${esperado}). Assets dessincronizados — reexporte os dois.`);
+
+  N_NORMAS = new Set(META.map(m => m.numero)).size;
+  $('#ncorpus').textContent = N_NORMAS;
   status('Pronto. Faça uma pergunta sobre a regulação da ANTT.');
-  $('#btn').disabled = false;
+  habilitar(true);
+}
+
+function render(res) {
+  const frag = document.createDocumentFragment();
+  for (const r of res) {
+    const m = META[r.i];
+    // textContent (não innerHTML): o corpus é texto de norma raspado da ANTT e chega com '<', '>'
+    // e '&' de tabelas técnicas ("< 70 mm", "&dagger;"). Concatenado como HTML, ele atravessa o
+    // parser — hoje por sorte nenhum vira tag, mas o sink não deve depender da sorte do corpus.
+    const div = document.createElement('div');
+    div.className = 'res';
+    const score = document.createElement('span');
+    score.className = 'score';
+    score.textContent = `sim ${r.s.toFixed(3)}`;
+    const num = document.createElement('b');
+    num.textContent = `Resolução ${m.numero}`;
+    div.append(score, num, document.createElement('br'),
+               document.createTextNode(m.texto + (m.truncado ? '…' : '')));
+    frag.append(div);
+  }
+  $('#out').replaceChildren(frag);
 }
 
 async function buscar() {
   const q = $('#q').value.trim();
-  if (!q || !extractor) return;
-  $('#btn').disabled = true; status('Buscando…'); $('#out').innerHTML = '';
-  // E5 exige o prefixo "query:"; mean-pooling + normalização (igual ao lado Python)
-  const out = await extractor('query: ' + q, { pooling: 'mean', normalize: true });
-  const qv = out.data;
-  const scores = new Float32Array(N);
-  for (let i = 0; i < N; i++) {
-    let s = 0, off = i * DIM;
-    for (let d = 0; d < DIM; d++) s += qv[d] * EMB[off + d];
-    scores[i] = s;
+  if (!extractor) return;
+  if (!q) { status('Digite uma pergunta para buscar.'); return; }
+  habilitar(false); status('Buscando…'); $('#out').replaceChildren();
+  try {
+    // E5 exige o prefixo "query:"; mean-pooling + normalização (igual ao lado Python)
+    const out = await extractor('query: ' + q, { pooling: 'mean', normalize: true });
+    const qv = out.data;
+    const scores = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      let s = 0, off = i * DIM;
+      for (let d = 0; d < DIM; d++) s += qv[d] * EMB[off + d];
+      scores[i] = s;
+    }
+    const ord = [...scores.keys()].sort((a, b) => scores[b] - scores[a]);
+    const vistos = new Set(), res = [];
+    for (const i of ord) {
+      const num = META[i].numero;
+      if (vistos.has(num)) continue;
+      vistos.add(num); res.push({ i, s: scores[i] });
+      if (res.length >= 5) break;
+    }
+    render(res);
+    status(`${res.length} normas mais relevantes (de ${N_NORMAS}).`);
+  } catch (e) {
+    status('Erro na busca: ' + e.message);        // sem o catch, o erro sumia no console
+  } finally {
+    habilitar(true);                              // sem o finally, um erro travava o botão até o reload
   }
-  const ord = [...scores.keys()].sort((a, b) => scores[b] - scores[a]);
-  const vistos = new Set(), res = [];
-  for (const i of ord) {
-    const num = META[i].numero;
-    if (vistos.has(num)) continue;
-    vistos.add(num); res.push({ i, s: scores[i] });
-    if (res.length >= 5) break;
-  }
-  $('#out').innerHTML = res.map(r =>
-    `<div class="res"><span class="score">sim ${r.s.toFixed(3)}</span>` +
-    `<b>Resolução ${META[r.i].numero}</b><br>${META[r.i].texto}…</div>`).join('');
-  status(`${res.length} normas mais relevantes (de ${new Set(META.map(m=>m.numero)).size}).`);
-  $('#btn').disabled = false;
 }
 
 $('#btn').addEventListener('click', buscar);
 $('#q').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
-document.querySelectorAll('.exs a').forEach(a =>
-  a.addEventListener('click', () => { $('#q').value = a.dataset.q; buscar(); }));
-init().catch(e => status('Erro ao carregar: ' + e.message));
+document.querySelectorAll('.exs button').forEach(b =>
+  b.addEventListener('click', () => { $('#q').value = b.dataset.q; buscar(); }));
+init().catch(e => { status('Erro ao carregar: ' + e.message); });
 </script>
 </body>
 </html>

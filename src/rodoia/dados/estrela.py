@@ -17,11 +17,14 @@ Uso:  python -m rodoia.dados.estrela
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
-from rodoia.config import settings
+from rodoia.config import REPO_ROOT, settings
+from rodoia.proveniencia import carimbar
 
 DB = settings.data_processed / "volume.duckdb"
+_REPORT = REPO_ROOT / "reports" / "fase3_dados" / "estrela.json"
 _PARQUET = settings.data_processed / "volume_pedagio.parquet"
 
 _MESES = [
@@ -72,9 +75,19 @@ def construir(db: Path | None = None) -> dict:
     tabelas = ["fato_volume", "dim_praca", "dim_tempo", "dim_categoria"]
     stats = {t: con.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in tabelas}
     con.close()
+
+    # PERSISTIR, não só imprimir: o nº de linhas do fato é citado no README/docs ("741k linhas").
+    # Enquanto ele só existia no stdout, era o único número da vitrine sem evidência versionada —
+    # nada o protegia de ficar stale, e o gate não tinha o que ler. Agora é artefato carimbado
+    # e portão do gate, como toda outra métrica do projeto.
+    res = carimbar({"linhas": stats, "n_linhas_fato": stats["fato_volume"]})
+    _REPORT.parent.mkdir(parents=True, exist_ok=True)
+    _REPORT.write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
+
     print("esquema estrela em", db)
     for t, n in stats.items():
         print(f"  {t:16} {n:>10,} linhas")
+    print("relatório em", _REPORT)
     return stats
 
 

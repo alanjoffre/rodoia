@@ -10,6 +10,7 @@ import hashlib
 import subprocess
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
+from typing import Any
 
 from rodoia.config import settings
 
@@ -32,7 +33,7 @@ def _git_sha() -> str:
         return "desconhecido"
 
 
-def _git_dirty() -> dict:
+def _git_dirty() -> dict[str, Any]:
     """Denuncia árvore suja: se há mudança não commitada (tracked ou não), marca `git_dirty`
     e o hash do diff. Sem isso, um número pode sair de working tree modificado sem rastro."""
     try:
@@ -64,7 +65,7 @@ def _versoes() -> dict[str, str]:
     return v
 
 
-def proveniencia() -> dict:
+def proveniencia() -> dict[str, Any]:
     """Metadados de reprodutibilidade para carimbar num report."""
     return {
         "seed": settings.seed,
@@ -75,7 +76,7 @@ def proveniencia() -> dict:
     }
 
 
-def carimbar(report: dict) -> dict:
+def carimbar(report: dict[str, Any]) -> dict[str, Any]:
     """Adiciona `_proveniencia` ao dict do report (in-place) e o devolve."""
     report["_proveniencia"] = proveniencia()
     return report

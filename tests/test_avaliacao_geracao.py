@@ -14,6 +14,8 @@ class JuizFalso:
 
 
 class GeradorFalso:
+    ultima_metrica: dict = {}        # exigido pelo Protocol LLM (ver rodoia.rag.llm)
+
     def gerar(self, prompt, sistema=None):
         return "Resposta citando a Resolução 6024/2023."
 
