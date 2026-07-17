@@ -15,7 +15,9 @@ repos:
         # Exclui apontadores DVC e lock (hashes de conteúdo) e notebooks (as
         # figuras embutidas são PNG em base64 = alta entropia por natureza).
         # Nenhum deles carrega segredo; senão dariam falso-positivo sempre.
-        exclude: '\.dvc$|dvc\.lock$|\.ipynb$'
+        # Exclui apontadores DVC/lock e notebooks (figuras PNG base64 = alta entropia), e o
+        # lockfile pip (os `--hash=sha256:...` são hashes de conteúdo público, não segredos).
+        exclude: '\.dvc$|dvc\.lock$|\.ipynb$|^requirements-ci\.lock$'
 
   # --- Higiene geral de arquivos ---
   - repo: https://github.com/pre-commit/pre-commit-hooks

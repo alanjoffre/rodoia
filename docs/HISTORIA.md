@@ -25,7 +25,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 | **2** · 🎯 | Especializar um modelo e provar o ganho | F1 **0,13 → 0,77** |
 | **3** · 📊 | Do CSV sujo à previsão que convence | Holt-Winters bate o naïve (**Δ3,01pp**) |
 | **4** · 🤖 | Juntar tudo e decidir | roteamento **0,95** (n=21) |
-| **5** · ⚙️ | Não quebrar e não piorar | gate **13/13** · drift **0,005** |
+| **5** · ⚙️ | Não quebrar e não piorar | gate **15/15** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
 
 ---
 
@@ -97,7 +97,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Como resolvemos.** Um **gate de avaliação** que lê os relatórios versionados e **reprova o CI** se qualquer métrica-chave cair; **GitHub Actions** (lint + testes + gate); MLflow + DVC; **drift por PSI**; e um **modelo de custo R$/1k** derivado da vazão medida.
 
-**Resultado.** **CI verde** com o gate barrando regressão (**13/13 portões**); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
+**Resultado.** **CI verde** com o gate barrando regressão (**15/15 portões**, 2 deles de segurança: detecção do red-team e vazamento de PII); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
 
 > ⚖️ **O rigor corrigiu o drift.** O PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
 

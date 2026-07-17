@@ -9,9 +9,10 @@
 [![CI](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml/badge.svg)](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Tests](https://img.shields.io/badge/testes-168%20passando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/testes-175%20passando-brightgreen.svg)
 ![Tipos](https://img.shields.io/badge/mypy-strict%20no%20núcleo-brightgreen.svg)
-![Gate](https://img.shields.io/badge/gate%20de%20avaliação-13%2F13-brightgreen.svg)
+![Gate](https://img.shields.io/badge/gate%20de%20avaliação-15%2F15-brightgreen.svg)
+![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
 
 [**🔗 Demo ao vivo**](https://huggingface.co/spaces/alanjoffre/rodoia-rag) · [**📖 A história**](docs/HISTORIA.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
@@ -35,7 +36,7 @@ Cada fase é um marco publicável, testado e documentado antes da próxima come�
 | **2 · Fine-tuning** | QLoRA (Qwen2.5-3B) p/ NER jurídico + serving vLLM fp8 | **F1 0,13 → 0,77** (SOTA 0,89) · **205 tok/s** |
 | **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,01pp (IC [1,76; 4,40]) |
 | **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) |
-| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo | **gate 13/13** · **drift PSI 0,005** (estável) |
+| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo · **red-team + lockfile/SBOM** | **gate 15/15** · **drift 0,005** · **ASR 0 (camada-1) · 0 CVEs** |
 
 > **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e nós reportamos o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
 
@@ -82,7 +83,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 | **2** | Fine-tuning e serving de modelo próprio | QLoRA NER jurídico (LeNER-Br) **F1 0,13→0,77**, encostando no SOTA BERTimbau 0,89; vLLM fp8 205 tok/s. Precedido de um *estudo-baseline* honesto (FT **não** injeta conhecimento) → o arco negativo→pivô é a entrega ([docs/13](docs/13_fase2_ner.md)) |
 | **3** | Dados estruturados abertos da ANTT | Volume de Pedágio (2010–2026, **741k linhas**), esquema estrela DuckDB + SQL analítico; **Holt-Winters bate o naïve** (pareado Δ3,01pp, IC [1,76; 4,40], vence em 73% das praças) ([docs/14](docs/14_fase3_dados_estruturados.md)) |
 | **4** | Agente de orquestração (LangGraph) | grafo com **arestas condicionais reais** (guardrail + roteador) combinando RAG+FT+dados; **roteamento 0,95** (n=21); degradação graciosa testada ([docs/15](docs/15_fase4_agente.md)) |
-| **5** | MLOps, Cloud e operação | **gate de avaliação** (regressão reprova o CI, 13/13) · GitHub Actions · MLflow + DVC · container · **drift PSI 0,005** · **custo R$/1k das 2 rotas** · **demo pública no ar** · deploy cloud = runbook ([docs/16](docs/16_fase5_mlops.md)) |
+| **5** | MLOps, Cloud e operação | **gate de avaliação** (regressão reprova o CI, 15/15) · GitHub Actions · MLflow + DVC · container · **drift PSI 0,005** · **custo R$/1k das 2 rotas** · **red-team (ASR 0 na camada-1) + lockfile/SBOM + 0 CVEs** · **demo pública no ar** · deploy cloud = runbook ([docs/16](docs/16_fase5_mlops.md)) |
 
 ## ✅ Rastreabilidade requisito → fase
 
@@ -112,7 +113,8 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 | Cloud (AWS/Azure/GCP) | Fase 5 | **Runbook de deploy** (Cloud Run justificado) + **modelo de custo R$/1k** das 2 rotas |
 | Custo, latência, escalabilidade | Fase 5 | Custo R$/1k da vazão medida + trade-off scale-to-zero ([docs/16](docs/16_fase5_mlops.md) §6.1) |
 | LGPD/GDPR, PII masking, auditoria | Fase 1 + 5 | Masking + trilha de auditoria |
-| Segurança de IA (prompt injection, data leakage) | Fase 1 + 4 | Guardrails testados com casos adversariais |
+| Segurança de IA (prompt injection, data leakage) | Fase 1 + 4 + 5 | **Red-team com ASR MEDIDA** — corpus rotulado de ataques; detecção camada-1 **100%** [0,87;1,0], **FPR 0%**, **vazamento de PII 0%**; o red-team **achou e corrigiu bug real** no guardrail (qualificadores empilhados); 2 portões de segurança no gate ([docs/16](docs/16_fase5_mlops.md) §2.4) |
+| Segurança de cadeia de suprimentos | Fase 5 | **Lockfile com hash** (93 pacotes, `--require-hashes` no CI) + **SBOM** CycloneDX + **pip-audit** (0 CVEs) — motivado pelo incidente numpy 2.3.5→2.5.1 ([docs/16](docs/16_fase5_mlops.md) §2.3) |
 
 </details>
 
@@ -126,6 +128,7 @@ O diferencial não são os números altos — é **o rigor ter corrigido os pró
 - **Fase 4 — o artefato do juiz.** O juiz penalizava "não rotear" nos casos fora-de-escopo/adversarial (onde declinar é o certo). Separar in-scope de declinados tirou o artefato: **roteamento 0,95** e juiz **rota 2,0/2**.
 - **Fase 5 — o drift enganoso.** PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
 - **Fase 1 — o rodapé que o de-boilerplate não via.** O filtro de navegação exigia **2+ sinais** para classificar um trecho como "chrome do portal"; o rodapé `Carregando... Voltar ao Topo` tem **um** — e passava. **133 chunks (3,6%)** carregavam navegação grudada no fim e **2 eram só isso**, recuperáveis numa busca. O corte virou simétrico (cabeça *e* rodapé, antes de fatiar). Aí a parte que interessa: **reconstruí o índice e o hit@5 não mudou em nenhum modo** (híbrido 0,62; rerank 0,68) — o lixo era 0,08% dos caracteres. **Medir e nada mudar também é resultado**: a alternativa era "limpar e alegar melhora" sem nunca ter medido.
+- **Fase 5 — o red-team que achou bug na própria defesa.** Um corpus rotulado de ataques mediu a taxa de detecção do guardrail em vez de afirmá-la — e a 1ª rodada reprovou: três injeções passavam porque a regex casava só **um** qualificador (`?`), mas ataques reais empilham dois ("ignore **all previous**", "repita **o seu** prompt"). Trocado por `*`, detecção subiu de 88% para **100%** sem novo falso-positivo. *Segurança medida encontra o que segurança afirmada esconde.* As falhas que a camada-1 não cobre (base64, homoglifo, outro idioma) estão **listadas**, não escondidas.
 - **Fase 5 — a config que ninguém rodava.** Uma auditoria própria achou o `strict = true` do mypy declarado desde o commit 1 e **nunca executado** (nem CI, nem pre-commit): **300 erros** sob uma config que anunciava rigor máximo. Nenhum era bug — e esse não é o ponto: *config aspiracional que ninguém roda é pior que config modesta que o CI cobra*. Escopo redeclarado (strict no **núcleo servido**, scripts de pesquisa fora por `override` nominal), núcleo **zerado (93 → 0)** e `mypy src` virou **portão bloqueante**. De quebra, dois contratos que mentiam: um `Protocol` que vivia num comentário e um `getattr` defensivo que escondia **fakes de teste infiéis ao contrato** ([docs/16](docs/16_fase5_mlops.md) §2.1).
 
 **Restrições assumidas conscientemente:** hardware de 6 GB (modelos 3B, time-slicing cérebro↔FT); alguns *n* pequenos (hit@5 n=50, juiz de geração n=12) — os ICs expõem isso; e **deploy em cloud não executado** (runbook pronto, [docs/16](docs/16_fase5_mlops.md) §7) por decisão de orçamento.

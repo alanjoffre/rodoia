@@ -1,0 +1,18 @@
+# Superfície de dependências do CI/serving (Linux, CPU, Python 3.12) — a que precisa ser
+# REPRODUTÍVEL byte a byte. Espelha exatamente o que `.github/workflows/ci.yml` instala:
+# o núcleo + extras leves de dev/agente/dados + o subconjunto leve do RAG (sem torch/vLLM/
+# sentence-transformers/langchain/ragas, que são pesados e ficam no ambiente de GPU).
+#
+# Compilado para `requirements-ci.lock` com hashes por:
+#   pip-compile --generate-hashes --strip-extras requirements-ci.in -o requirements-ci.lock
+#
+# Motivação: o incidente numpy 2.3.5 (Nitro) vs 2.5.1 (CI) mostrou que floors `>=` no pyproject
+# NÃO são à prova de ambiente. O lock fixa a árvore RESOLVIDA com hash de conteúdo — a alegação de
+# reprodutibilidade deixa de ser aspiracional. O stack de GPU (ft/vLLM) é específico de plataforma
+# (CUDA) e fica pinado à parte em reports/fase2_ft/versoes_nitro.txt.
+.[dev,agente,estruturados]
+qdrant-client
+rank-bm25
+fastapi
+httpx
+uvicorn
