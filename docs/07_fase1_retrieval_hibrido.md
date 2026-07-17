@@ -36,8 +36,17 @@ verdadeiro) por IC de **Wilson**; **MRR** por **bootstrap**.
 | híbrido + rerank | **0,68** | [0,54; 0,79] | 0,424 | [0,33; 0,52] |
 
 > Números do corpus **limpo** (após o de-boilerplate que cortou menu/cabeçalho de navegação
-> → 4.100 → **3.651 chunks** de conteúdo real). Um retrato anterior (corpus com boilerplate)
+> → 4.100 → **3.647 chunks** de conteúdo real). Um retrato anterior (corpus com boilerplate)
 > dava hit@5 ~0,64 e o rerank *não* ajudava — a limpeza **reverteu** essa conclusão; ver abaixo.
+>
+> **2ª passada no de-boilerplate (2026-07-17).** Uma auditoria achou o que a 1ª deixou passar: o
+> **rodapé** do portal (`Carregando... Voltar ao Topo`) escapava, porque `_e_boilerplate` exige 2+
+> sinais de navegação e o rodapé tem só um. Resultado: **133 chunks (3,6%)** carregavam a
+> navegação grudada no fim e **2 eram só isso** — recuperáveis numa busca. O corte agora é
+> simétrico (cabeça e rodapé, no texto inteiro, antes de fatiar): **3.651 → 3.647 chunks**.
+> **O hit@5 não mudou em nenhum modo** (híbrido 0,62; rerank 0,68) — o lixo era 0,08% dos
+> caracteres. Só o MRR do denso oscilou 0,413→0,411, dentro do ruído. Limpeza sem custo de
+> métrica: reportado assim porque medir e não mudar nada também é resultado.
 
 ## Leitura dos números (honesta)
 

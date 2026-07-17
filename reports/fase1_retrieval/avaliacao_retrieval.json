@@ -5,10 +5,10 @@
       0.462,
       0.724
     ],
-    "mrr": 0.413,
+    "mrr": 0.411,
     "mrr_ic95": [
-      0.304,
-      0.532
+      0.301,
+      0.531
     ],
     "k": 5,
     "n": 50
@@ -57,10 +57,10 @@
   },
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "fa85da4",
+    "git_sha": "1783097",
     "git_dirty": true,
-    "git_diff_sha1": "976945b771f8",
-    "timestamp_utc": "2026-07-13T19:46:46+00:00",
+    "git_diff_sha1": "ced33f248098",
+    "timestamp_utc": "2026-07-17T13:50:47+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

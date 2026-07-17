@@ -57,6 +57,8 @@
   </div>
   <!-- aria-live: o leitor de tela anuncia "Carregando…"/"Pronto"/erro sem o usuário sair do campo -->
   <div id="status" role="status" aria-live="polite">Iniciando…</div>
+  <p class="sub" style="font-size:.82em;margin:-6px 0 14px">1º acesso baixa ~119 MB (modelo E5 +
+     embeddings) e fica em cache; depois a busca é instantânea e 100% offline.</p>
   <div id="out" role="region" aria-label="Resultados da busca"></div>
 
   <footer>
@@ -88,9 +90,12 @@ async function baixar(url, tipo) {
 }
 
 async function init() {
-  // Os 3 recursos (metadados 1,1 MB · embeddings 4,6 MB · modelo ~30 MB) são independentes:
+  // Os 3 recursos (metadados 1,1 MB · embeddings 4,6 MB · modelo 113 MB) são independentes:
   // em série somavam a latência de todos antes do 1º pixel útil. Em paralelo, o tempo é o do maior.
-  status('Carregando dados e modelo E5 (só na 1ª vez, ~36 MB)…');
+  // 113 MB é medido, não estimado: `onnx/model_quantized.onnx` do Xenova/multilingual-e5-small tem
+  // 118.308.185 bytes. O e5-small é "small" nos blocos, não no vocabulário — o XLM-R traz 250k
+  // tokens, e a matriz de embedding domina o arquivo.
+  status('Carregando dados e modelo E5 (só na 1ª vez, ~119 MB; depois fica em cache)…');
   const [meta, buf, ext] = await Promise.all([
     baixar('dados.json', 'json'),
     baixar('dados.f32', 'buf'),

@@ -37,13 +37,19 @@ pré-computados. **Retrieval-only** com citação da resolução-fonte — sem s
    ```
 
 5. Em segundos o Space fica **"Running"** em `https://huggingface.co/spaces/<seu-usuario>/rodoia-rag`.
-   No 1º acesso o navegador baixa o modelo E5 (~30 MB, cacheado depois); as buscas seguintes são
-   instantâneas. **URL pública + HTTPS, R$0.**
+   No 1º acesso o navegador baixa **~119 MB** — o ONNX **int8** do E5 (**113 MB**: `small` se refere
+   aos blocos, não ao vocabulário; o XLM-R traz 250k tokens e a matriz de embedding domina o
+   arquivo) + os 5,7 MB de embeddings/metadados. Tudo fica em **cache**: as buscas seguintes são
+   instantâneas e offline. **URL pública + HTTPS, R$0.**
+
+   > Este número era "~30 MB" aqui e na página — **medido, são 113 MB** (a variante fp32 tem
+   > 448 MB). Ficava 4× otimista justo no ponto que mais decide abandono em rede lenta. Corrigido
+   > com `curl` no arquivo real, não com estimativa.
 
 ## Notas honestas
 - **Client-side, retrieval-only:** a geração da resposta (com citação ancorada) roda no serving
   completo do projeto (FastAPI + Ollama/vLLM), não aqui. Esta demo prova a **recuperação** viva.
-- **Só as normas VIGENTES** (93 das 125 do corpus → 2.994 dos 3.651 chunks): `exportar.py` roda com
+- **Só as normas VIGENTES** (93 das 125 do corpus → 2.991 dos 3.647 chunks): `exportar.py` roda com
   `apenas_vigentes=True`. Buscar norma revogada numa demo pública seria ruído, não recurso. O número
   exibido no topo da página é contado do próprio `dados.json`, nunca escrito à mão.
 - Os embeddings dos chunks são gerados com o **mesmo E5** do backend (prefixo `passage`, mean-pool,

@@ -37,6 +37,17 @@ def _e_boilerplate(texto: str) -> bool:
     return sum(1 for s in _BOILERPLATE if s in t) >= 2
 
 
+# Piso conservador: nada de normativo cabe em <5 caracteres, mas um resíduo de corte cabe — ex.: o
+# "1" órfão que sobra de "Seção 1 Carregando... Voltar ao Topo" depois de tirar o rodapé. Chunk
+# assim não é recuperável de forma útil, só ocupa uma linha do índice com um embedding sem sentido.
+_MIN_CHARS_CHUNK = 5
+
+
+def _e_degenerado(texto: str) -> bool:
+    """True se o trecho é curto demais para carregar sentido (resíduo de corte/janela)."""
+    return len(texto.strip()) < _MIN_CHARS_CHUNK
+
+
 # O texto raspado traz o 'chrome' do portal ANTES do ato; o conteúdo real começa no cabeçalho.
 _RE_CABECALHO = re.compile(r"RESOLU[ÇC][ÃA]O\s+N", re.I)
 
@@ -45,6 +56,20 @@ def _cortar_ate_cabecalho(texto: str) -> str:
     """Remove o menu/cabeçalho de navegação que precede o ato: corta até 'RESOLUÇÃO Nº'."""
     m = _RE_CABECALHO.search(texto)
     return texto[m.start():] if m else texto
+
+
+# ...e traz o rodapé DEPOIS dele. `_e_boilerplate` não pega este: exige 2+ sinais e o rodapé só
+# tem um ("voltar ao topo"), então 133 chunks (3,6%) carregavam "Carregando... Voltar ao Topo"
+# grudado no fim — e 2 chunks eram SÓ isso, recuperáveis numa busca. Simétrico ao corte do
+# cabeçalho: o conteúdo da norma termina onde a navegação do portal começa.
+# Corta a partir de "Carregando...", sem tentar engolir um número antes dele: o texto real termina
+# em "D.O.U., dd/mm/aaaa - Seção 1", e um `\d+\s+` opcional aqui levaria embora o "1" da Seção.
+_RE_RODAPE = re.compile(r"\s*Carregando\.{3}\s*Voltar ao Topo.*$", re.I | re.S)
+
+
+def _cortar_do_rodape(texto: str) -> str:
+    """Remove o rodapé de navegação do portal a partir de 'Carregando... Voltar ao Topo'."""
+    return _RE_RODAPE.sub("", texto)
 
 
 def dividir_por_artigos(texto: str) -> list[str]:
@@ -91,9 +116,14 @@ def chunk_norma(
 ) -> list[dict[str, Any]]:
     """Transforma uma norma (dict do JSONL) numa lista de chunks com metadados
     para citação (número, ano, órgão, vigência, título)."""
-    # 1) corta o menu/cabeçalho do portal ANTES do ato; 2) dropa trechos residuais de navegação
-    texto = _cortar_ate_cabecalho(registro["texto"])
-    pedacos = [p for p in chunk_texto(texto, max_chars, overlap) if not _e_boilerplate(p)]
+    # 1) corta o menu/cabeçalho do portal ANTES do ato e o rodapé DEPOIS dele — nos dois casos no
+    # texto inteiro, antes de fatiar, para o lixo não sobreviver picado num chunk;
+    # 2) dropa trechos residuais de navegação que ainda escapem.
+    texto = _cortar_do_rodape(_cortar_ate_cabecalho(registro["texto"]))
+    pedacos = [
+        p for p in chunk_texto(texto, max_chars, overlap)
+        if not _e_boilerplate(p) and not _e_degenerado(p)
+    ]
     meta = {k: registro[k] for k in ("id", "numero", "ano", "orgao", "vigente", "titulo")}
     return [
         {**meta, "chunk_id": f"{registro['id']}::{i}", "chunk_index": i, "texto": pedaco}

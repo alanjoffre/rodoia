@@ -41,12 +41,12 @@ Sistema RAG completo sobre a regulação da ANTT, do scraping à API:
 
 | Camada | Entrega | Doc |
 |---|---|---|
-| Ingestão | ANTTlegis (**125 resoluções, 3651 chunks** limpos; ver `reports/fase1_rag/corpus.json`) | 06 |
+| Ingestão | ANTTlegis (**125 resoluções, 3647 chunks** limpos; ver `reports/fase1_rag/corpus.json`) | 06 |
 | Indexação | E5 local + Qdrant, filtro de vigência | 06 |
 | Retrieval | híbrido (BM25+RRF) — hit@5 **0,62** [IC 0,48–0,74], MRR **0,510**, n=50 (rerank: 0,68) | 07 |
 
 > **Decisão honesta — e uma REVERSÃO que o rigor obrigou.** Depois de **limpar o boilerplate** do
-> portal (o chunking passou a cortar o menu/cabeçalho de navegação → 4100 → **3651 chunks** de
+> portal (o chunking passou a cortar o menu/cabeçalho de navegação → 4100 → **3647 chunks** de
 > conteúdo real), re-medimos: hit@5 **denso 0,60 · híbrido 0,62 · híbrido+rerank 0,68**; MRR do
 > híbrido **0,510**. **O rerank, que ANTES não ajudava (era a era com lixo), agora dá o maior hit@5
 > (0,62→0,68)** — remover o ruído deixou o cross-encoder distinguir melhor. Os ICs ainda se

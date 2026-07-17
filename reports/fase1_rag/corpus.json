@@ -1,14 +1,14 @@
 {
   "n_normas": 125,
   "n_vigentes": 93,
-  "n_chunks": 3651,
+  "n_chunks": 3647,
   "modelo_embedding": "intfloat/multilingual-e5-small",
   "_proveniencia": {
     "seed": 42,
-    "git_sha": "fa85da4",
+    "git_sha": "1783097",
     "git_dirty": true,
-    "git_diff_sha1": "b2cd5ec5b9c7",
-    "timestamp_utc": "2026-07-13T19:44:38+00:00",
+    "git_diff_sha1": "660ad87b9795",
+    "timestamp_utc": "2026-07-17T13:49:12+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

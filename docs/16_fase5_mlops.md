@@ -55,9 +55,9 @@ Em cada push/PR para `main`, quatro portões **bloqueantes**:
    fora por `override` declarado no `pyproject.toml` — dependem de libs sem stubs (vLLM, torch) e
    ali o strict rende ruído de terceiro, não defeito nosso. **A fronteira está escrita, não
    subentendida.** Ver §2.1.
-3. **Testes** — `pytest`. São **164 localmente**; no CI rodam **147**: os 17 de fundamentos exigem
+3. **Testes** — `pytest`. São **168 localmente**; no CI rodam **151**: os 17 de fundamentos exigem
    PyTorch e são **pulados na coleta** em CPU (`tests/conftest.py`), validados na Nitro. O badge
-   do README diz 164 (o total real); o CI verde prova 147 deles — dito aqui para o número não
+   do README diz 168 (o total real); o CI verde prova 151 deles — dito aqui para o número não
    sugerir mais do que o pipeline cobre.
 4. **Gate de avaliação** — `python -m rodoia.mlops.gate` (regressão de métrica falha o pipeline).
 
@@ -105,8 +105,8 @@ pede uma matriz no CI, e aí se mede.
 
 Método que fechou isso sem commit-tentativa no `main` público: **reproduzir o CI localmente** (venv
 com `numpy==2.5.1` + `mypy==2.3.0` + as mesmas deps do `ci.yml`), confirmar a falha, corrigir, e
-validar nos **dois** ambientes. De quebra a repro confirmou o número que este documento afirma:
-**147 testes no CI**, 164 na Nitro.
+validar nos **dois** ambientes. De quebra a repro confirmou o número que este documento afirma —
+o CI roda de fato menos testes que a Nitro, e agora isso é observado, não estimado.
 
 O que a tipagem revelou (nenhum bug de runtime, mas dois contratos mentindo):
 
