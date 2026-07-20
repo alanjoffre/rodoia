@@ -2,7 +2,7 @@
 
 # 📖 A história do RodoIA
 
-**problema → como resolvemos → resultado** — o projeto contado fase a fase.
+**problema → como resolvi → resultado** — o projeto contado fase a fase.
 
 [← README](../README.md) · [📅 Diário (passo a passo)](DIARIO.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md) · [📊 métricas cruas](../reports/)
 
@@ -12,7 +12,7 @@
 
 ## O ponto de partida
 
-A pergunta que move o projeto: **como provar, com código e número, o perfil completo de um Engenheiro de IA** — do fundamento matemático ao sistema em produção — sobre dados **reais e públicos**? Escolhemos o domínio da **ANTT** (regulação e dados abertos do transporte rodoviário brasileiro): real, público e não-trivial.
+A pergunta que move o projeto: **como provar, com código e número, o perfil completo de um Engenheiro de IA** — do fundamento matemático ao sistema em produção — sobre dados **reais e públicos**? Escolhi o domínio da **ANTT** (regulação e dados abertos do transporte rodoviário brasileiro): real, público e não-trivial.
 
 > **A regra de condução:** uma fase por vez, cada uma um marco publicável, nenhuma começa antes da anterior estar testada.
 
@@ -33,7 +33,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Problema.** Antes de usar IA, provar que entendo o que está por baixo. E, nos dados: o dataset público de **Acidentes em rodovias concedidas** vinha em **39 CSVs** heterogêneos (latin-1, `;`, decimal `,`), ~1,03 M linhas, sem um alvo de modelagem pronto.
 
-**Como resolvemos.** Escrevi **backpropagation e self-attention à mão** (NumPy/PyTorch puro), com prova de equivalência numérica contra o autograd. Consolidei os CSVs (37 concessionárias reconciliadas), derivei o alvo `houve_vitima` e treinei ML clássico + uma MLP com laço de treino manual.
+**Como resolvi.** Escrevi **backpropagation e self-attention à mão** (NumPy/PyTorch puro), com prova de equivalência numérica contra o autograd. Consolidei os CSVs (37 concessionárias reconciliadas), derivei o alvo `houve_vitima` e treinei ML clássico + uma MLP com laço de treino manual.
 
 **Resultado.** Modelo de severidade com **ROC-AUC 0,81**, curvas de treino/validação documentadas. Fundamento **provado, não presumido**.
 
@@ -43,11 +43,11 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Problema.** A legislação da ANTT **não tem API**: HTML em latin-1, normas antigas só em imagem (exigem OCR), e é preciso saber se uma resolução está **vigente**. E responder sem **inventar**.
 
-**Como resolvemos.** Pipeline de scraping + limpeza + checagem de vigência; chunking consciente da estrutura jurídica (por artigos); **busca híbrida** (densa E5 + BM25 fundidos por RRF); geração **ancorada** que cita a resolução; e guardrails (anti-injection, PII masking, auditoria). Medimos tudo com **juiz LLM independente** e **intervalo de confiança**.
+**Como resolvi.** Pipeline de scraping + limpeza + checagem de vigência; chunking consciente da estrutura jurídica (por artigos); **busca híbrida** (densa E5 + BM25 fundidos por RRF); geração **ancorada** que cita a resolução; e guardrails (anti-injection, PII masking, auditoria). Medi tudo com **juiz LLM independente** e **intervalo de confiança**.
 
 **Resultado.** **hit@5 0,62** [0,48–0,74], **precisão de citação 0,92**.
 
-> ⚖️ **O rigor corrigiu o número — duas vezes.** A limpeza de boilerplate **reverteu** a conclusão do reranker (que passou a *ajudar*, 0,68); e uma **auditoria κ humana** (2 anotadores independentes) **achou 16% dos rótulos-gold do hit@5 errados** — rerotulamos pela fonte correta e reportamos o impacto (hit@5 real [0,70; 0,76]) ao lado, sem maquiar o número do gate.
+> ⚖️ **O rigor corrigiu o número — duas vezes.** A limpeza de boilerplate **reverteu** a conclusão do reranker (que passou a *ajudar*, 0,68); e uma **auditoria κ humana** (2 anotadores independentes) **achou 16% dos rótulos-gold do hit@5 errados** — rerotulei pela fonte correta e reportei o impacto (hit@5 real [0,70; 0,76]) ao lado, sem maquiar o número do gate.
 
 ---
 
@@ -55,7 +55,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Problema.** Como provar que **fine-tuning agrega**? A primeira tentativa — ensinar o modelo a responder fatos da ANTT — **falhou**: com **held-out**, o ganho aparente virou **memorização** (ia bem no que viu, mal no que não viu). Um resultado negativo, mas honesto.
 
-**Como resolvemos.** Em vez de esconder, **pivotamos** para uma tarefa de **rótulo objetivo**: NER jurídico sobre o **LeNER-Br** (dado público MIT). Fine-tuning com **QLoRA**, servido em **vLLM** com **quantização fp8** (medindo o custo de qualidade da compressão), comparado contra o teto **BERTimbau (SOTA)**.
+**Como resolvi.** Em vez de esconder, **pivotei** para uma tarefa de **rótulo objetivo**: NER jurídico sobre o **LeNER-Br** (dado público MIT). Fine-tuning com **QLoRA**, servido em **vLLM** com **quantização fp8** (medindo o custo de qualidade da compressão), comparado contra o teto **BERTimbau (SOTA)**.
 
 **Resultado.** **F1 de entidade 0,13 → 0,77** (base → fine-tunado), encostando no SOTA 0,895 — treinando em **1/5 dos dados** por via generativa.
 
@@ -71,7 +71,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 - **granularidade mista** (alguns anos vêm diários, outros mensais);
 - **variantes de caixa** (`Passeio` vs `PASSEIO`) inflando as categorias.
 
-**Como resolvemos.** Ingestão robusta que normaliza datas, reconcilia colunas, **trunca ao mês e soma** (série mensal consistente) e padroniza a caixa. Modelagem em **esquema estrela** (DuckDB), SQL analítico (window functions), camada de acesso parametrizada (anti-injection) e previsão de demanda avaliada com **backtest multi-step em 63 praças + IC + teste pareado**.
+**Como resolvi.** Ingestão robusta que normaliza datas, reconcilia colunas, **trunca ao mês e soma** (série mensal consistente) e padroniza a caixa. Modelagem em **esquema estrela** (DuckDB), SQL analítico (window functions), camada de acesso parametrizada (anti-injection) e previsão de demanda avaliada com **backtest multi-step em 63 praças + IC + teste pareado**.
 
 **Resultado.** **741.205 linhas limpas** (197 meses, 50 concessionárias, 292 praças).
 
@@ -83,9 +83,9 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Problema.** Ter três capacidades (RAG, modelo FT, dados) não basta — é preciso um sistema que **decide** qual usar e **combina** as respostas, com segurança e sem cair quando algo falha.
 
-**Como resolvemos.** Um grafo **LangGraph** com **arestas condicionais reais**: guardrail → roteador (escolhe as ferramentas, podendo combinar) → execução (com degradação graciosa) → síntese que cita fontes. Avaliação de **trajetória** com juiz independente.
+**Como resolvi.** Um grafo **LangGraph** com **arestas condicionais reais**: guardrail → roteador (escolhe as ferramentas, podendo combinar) → execução (com degradação graciosa) → síntese que cita fontes. Avaliação de **trajetória** com juiz independente.
 
-**Resultado.** **Roteamento 0,95** em 21 casos (puros, combinado, ambíguo, fora-de-escopo, adversarial); juiz **rota 2,0/2**. Caracterizamos o trade-off de hardware (7B na GPU vs 3B na CPU) com número — os **três tools rodam simultaneamente** graças aos 32 GB de RAM.
+**Resultado.** **Roteamento 0,95** em 21 casos (puros, combinado, ambíguo, fora-de-escopo, adversarial); juiz **rota 2,0/2**. Caracterizei o trade-off de hardware (7B na GPU vs 3B na CPU) com número — os **três tools rodam simultaneamente** graças aos 32 GB de RAM.
 
 > ⚖️ **O rigor corrigiu o juiz.** Ele penalizava "não rotear" nos casos fora-de-escopo/adversarial (onde declinar é o certo). Separar in-scope de declinados **tirou o artefato** — só então o número ficou honesto.
 
@@ -95,7 +95,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Problema.** IA regride **silenciosamente**. Como garantir que uma mudança não piora a qualidade? E como levar isso a produção sem gastar?
 
-**Como resolvemos.** Um **gate de avaliação** que lê os relatórios versionados e **reprova o CI** se qualquer métrica-chave cair; **GitHub Actions** (lint + testes + gate); MLflow + DVC; **drift por PSI**; e um **modelo de custo R$/1k** derivado da vazão medida.
+**Como resolvi.** Um **gate de avaliação** que lê os relatórios versionados e **reprova o CI** se qualquer métrica-chave cair; **GitHub Actions** (lint + testes + gate); MLflow + DVC; **drift por PSI**; e um **modelo de custo R$/1k** derivado da vazão medida.
 
 **Resultado.** **CI verde** com o gate barrando regressão (**15/15 portões**, 2 deles de segurança: detecção do red-team e vazamento de PII); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
 

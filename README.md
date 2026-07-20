@@ -15,7 +15,7 @@
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
 
-[**🔗 Demo ao vivo**](https://huggingface.co/spaces/alanjoffre/rodoia-rag) · [**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
+[**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
 
 </div>
 
@@ -25,20 +25,24 @@
 
 Projeto de portfólio **público e open-source**. Objetivo: provar, **com código, métrica e deploy**, o perfil completo de um Engenheiro de IA — a trilha moderna (LLM · RAG · agentes · MLOps) **e** o núcleo clássico (ML/DL do zero · fine-tuning · serving de modelo próprio). A maioria dos portfólios para em *"chamei a API da OpenAI e funcionou"*. Este vai do **fundamento matemático** ao **ciclo de produção**.
 
-## 📊 Resultados de relance
+## 🧭 Índice
 
-Cada fase é um marco publicável, testado e documentado antes da próxima começar.
+[📊 Resultados por fase](#-resultados-por-fase) · [🧭 Os cinco eixos](#-os-cinco-eixos) · [🏗️ Arquitetura](#-arquitetura-visão-de-destino) · [✅ Rastreabilidade requisito → fase](#-rastreabilidade-requisito--fase) · [🔬 Decisões e trade-offs](#-decisões-e-trade-offs-o-arco-do-projeto) · [🚀 Como rodar](#-como-rodar) · [🔒 Higiene do repositório](#-higiene-de-repositório-público) · [📚 Documentação](#-documentação)
 
-| Fase | Entrega | Métrica-chave (com evidência versionada) |
-|:---:|---|---|
-| **0 · Fundamentos** | backprop + self-attention à mão (NumPy/PyTorch puro); MLP de severidade de acidentes | **ROC-AUC 0,81** |
-| **1 · RAG** | busca híbrida (BM25+E5+RRF) sobre 125 normas / 3.647 chunks + guardrails | **hit@5 0,62** [0,48–0,74] · citação **0,92** · **κ humano 0,86 / 0,92** |
-| **2 · Fine-tuning** | QLoRA (Qwen2.5-3B) p/ NER jurídico + serving vLLM fp8 | **F1 0,13 → 0,77** (SOTA 0,89) · **205 tok/s** |
-| **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,01pp (IC [1,76; 4,40]) |
-| **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) |
-| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo · **red-team + lockfile/SBOM** | **gate 15/15** · **drift 0,005** · **ASR 0 (camada-1) · 0 CVEs** |
+## 📊 Resultados por fase
 
-> **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e nós reportamos o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
+**Status: todas as 6 fases concluídas ✅** — cada uma é um marco publicável, testado e documentado antes de a próxima começar.
+
+| Fase | Entrega | Métrica-chave (com evidência versionada) | Docs |
+|:---:|---|---|:---:|
+| **0 · Fundamentos** | backprop + self-attention à mão (NumPy/PyTorch puro); MLP de severidade de acidentes | **ROC-AUC 0,81** | [00–05](docs/) |
+| **1 · RAG** | busca híbrida (BM25+E5+RRF) sobre 125 normas / 3.647 chunks + guardrails | **hit@5 0,62** [0,48–0,74] · citação **0,92** · **κ humano 0,86 / 0,92** | [06–09](docs/09_fase1_api.md) |
+| **2 · Fine-tuning** | QLoRA (Qwen2.5-3B) p/ NER jurídico + serving vLLM fp8 | **F1 0,13 → 0,77** (SOTA 0,89) · **205 tok/s** | [13](docs/13_fase2_ner.md) |
+| **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,01pp (IC [1,76; 4,40]) | [14](docs/14_fase3_dados_estruturados.md) |
+| **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) | [15](docs/15_fase4_agente.md) |
+| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo · **red-team + lockfile/SBOM** | **gate 15/15** · **drift 0,005** · **ASR 0 (camada-1) · 0 CVEs** | [16](docs/16_fase5_mlops.md) |
+
+> **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e eu reportei o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
 
 ## 🧭 Os cinco eixos
 
@@ -73,17 +77,6 @@ Cada fase é um marco publicável, testado e documentado antes da próxima come�
 ```
 
 Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQUITETURA.md)**.
-
-## 🗺️ Roadmap e status — todas as fases ✅
-
-| Fase | Tema | Destaque |
-|:---:|---|---|
-| **0** | Fundamentos de ML/DL + higiene de repo | backprop/attention à mão com prova de equivalência ao autograd; MLP severidade **ROC-AUC 0,81** ([docs 00–05](docs/)) |
-| **1** | RAG avaliado sobre a regulação da ANTT | híbrido BM25+RRF, 125 normas / 3.647 chunks; **hit@5 0,62** [0,48–0,74], citação **0,92**; κ humano **0,86/0,92**; guardrails ([docs 06–09](docs/09_fase1_api.md)) |
-| **2** | Fine-tuning e serving de modelo próprio | QLoRA NER jurídico (LeNER-Br) **F1 0,13→0,77**, encostando no SOTA BERTimbau 0,89; vLLM fp8 205 tok/s. Precedido de um *estudo-baseline* honesto (FT **não** injeta conhecimento) → o arco negativo→pivô é a entrega ([docs/13](docs/13_fase2_ner.md)) |
-| **3** | Dados estruturados abertos da ANTT | Volume de Pedágio (2010–2026, **741k linhas**), esquema estrela DuckDB + SQL analítico; **Holt-Winters bate o naïve** (pareado Δ3,01pp, IC [1,76; 4,40], vence em 73% das praças) ([docs/14](docs/14_fase3_dados_estruturados.md)) |
-| **4** | Agente de orquestração (LangGraph) | grafo com **arestas condicionais reais** (guardrail + roteador) combinando RAG+FT+dados; **roteamento 0,95** (n=21); degradação graciosa testada ([docs/15](docs/15_fase4_agente.md)) |
-| **5** | MLOps, Cloud e operação | **gate de avaliação** (regressão reprova o CI, 15/15) · GitHub Actions · MLflow + DVC · container · **drift PSI 0,005** · **custo R$/1k das 2 rotas** · **red-team (ASR 0 na camada-1) + lockfile/SBOM + 0 CVEs** · **demo pública no ar** · deploy cloud = runbook ([docs/16](docs/16_fase5_mlops.md)) |
 
 ## ✅ Rastreabilidade requisito → fase
 
@@ -120,10 +113,10 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 
 ## 🔬 Decisões e trade-offs (o arco do projeto)
 
-O diferencial não são os números altos — é **o rigor ter corrigido os próprios números**. Cinco momentos em que a avaliação honesta mudou a conclusão:
+O diferencial não são os números altos — é **o rigor ter corrigido os próprios números**. Oito momentos em que a avaliação honesta mudou a conclusão:
 
-- **Fase 1 — a auditoria que achou defeito.** Um κ humano inter-anotador sobre os rótulos-gold do `hit@5` **rejeitou 16% deles** (resoluções mal atribuídas por resíduo de numeração antiga). Em vez de esconder, **rerotulamos pela fonte correta** e reportamos a faixa real (**[0,70; 0,76]**) ao lado do número do gate (0,62, mantido conservador). Auditar a própria métrica é a disciplina.
-- **Fase 2 — o pivô do fine-tuning.** Um *estudo-baseline* mostrou, com held-out, que o QLoRA **não injeta conhecimento factual** (in-sample melhorava, held-out piorava = memorização). Viramos para uma tarefa **objetiva** — NER jurídico — onde o FT vence com métrica dura (**F1 0,13→0,77**). O arco negativo→pivô é a entrega.
+- **Fase 1 — a auditoria que achou defeito.** Um κ humano inter-anotador sobre os rótulos-gold do `hit@5` **rejeitou 16% deles** (resoluções mal atribuídas por resíduo de numeração antiga). Em vez de esconder, **rerotulei pela fonte correta** e reportei a faixa real (**[0,70; 0,76]**) ao lado do número do gate (0,62, mantido conservador). Auditar a própria métrica é a disciplina.
+- **Fase 2 — o pivô do fine-tuning.** Um *estudo-baseline* mostrou, com held-out, que o QLoRA **não injeta conhecimento factual** (in-sample melhorava, held-out piorava = memorização). Virei para uma tarefa **objetiva** — NER jurídico — onde o FT vence com métrica dura (**F1 0,13→0,77**). O arco negativo→pivô é a entrega.
 - **Fase 3 — a cereja e a inconsistência.** Um "MAPE 5,9%" **cereja** virou ~13% no backtest de 63 praças + IC. E um **erro metodológico meu** (naïve de 1-passo × Holt-Winters de 12-passos) foi corrigido para **multi-step justo** — aí o Holt-Winters **bate o naïve com significância** (Δ3,01pp, IC [1,76; 4,40]).
 - **Fase 4 — o artefato do juiz.** O juiz penalizava "não rotear" nos casos fora-de-escopo/adversarial (onde declinar é o certo). Separar in-scope de declinados tirou o artefato: **roteamento 0,95** e juiz **rota 2,0/2**.
 - **Fase 5 — o drift enganoso.** PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
@@ -162,7 +155,7 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 | Documento | Para quê |
 |---|---|
 | [**PROMPT_MESTRE.md**](PROMPT_MESTRE.md) | Plano completo, critérios de conclusão e regras de condução |
-| [**docs/HISTORIA.md**](docs/HISTORIA.md) | Narrativa *problema → como resolvemos → resultado* de cada fase |
+| [**docs/HISTORIA.md**](docs/HISTORIA.md) | Narrativa *problema → como resolvi → resultado* de cada fase |
 | [**docs/DIARIO.md**](docs/DIARIO.md) | A construção contada **linha a linha** — os 81 passos reais, em ordem cronológica, em linguagem acessível |
 | [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md) | Mapa módulo a módulo de `src/rodoia/**` |
 | [**docs/GUIA_ENGENHARIA_IA.md**](docs/GUIA_ENGENHARIA_IA.md) | Não é da área? Cada termo e o fluxo mental de um Eng. de IA em linguagem acessível |
@@ -172,3 +165,11 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 ## 📄 Licença
 
 [MIT](LICENSE). Dados e modelos de terceiros seguem suas próprias licenças (ver [`NOTICE`](NOTICE)).
+
+---
+
+<div align="center">
+
+<sub>Última atualização: 20 de julho de 2026 · todas as 6 fases concluídas.</sub>
+
+</div>
