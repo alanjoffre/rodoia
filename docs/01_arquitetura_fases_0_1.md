@@ -1,5 +1,7 @@
 # 01 — Esboço de arquitetura das Fases 0 e 1
 
+> ⚠️ **Esboço de partida, superado.** Rascunho inicial das Fases 0–1 — algumas escolhas mudaram na execução (ex.: o ambiente virou **Nitro/WSL2**, não Mac/MPS). O mapa técnico definitivo e atual é [ARQUITETURA.md](ARQUITETURA.md). Mantido como registro da arquitetura de partida.
+
 > Ajustado à [validação de fontes](00_validacao_fontes_antt.md). É um esboço de partida; cada incremento é validado e testado antes do próximo. Uma fase por vez, um incremento testável por vez.
 
 ---

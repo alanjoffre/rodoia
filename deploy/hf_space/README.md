@@ -10,9 +10,11 @@ pinned: false
 license: mit
 ---
 
-# Demo pública gratuita — RAG sobre a regulação da ANTT
+# Demo pública — RAG sobre a regulação da ANTT (deploy Gradio · legado)
 
-Hospeda a demo do RAG avaliado (Fase 1) no **HuggingFace Spaces (CPU free-tier, R$0)**: retrieval
+> ⚠️ **Legado / substituído.** Esta variante **Gradio/Docker** deixou de ser gratuita — o HuggingFace passou a cobrar compute por Spaces Gradio/Docker. A **demo viva e gratuita** é a versão **Static (client-side)** em [`../hf_space_static/`](../hf_space_static/README.md). Este diretório fica como referência de como servir a geração completa (FastAPI + Ollama/vLLM).
+
+Hospeda a demo do RAG avaliado (Fase 1) no **HuggingFace Spaces (Gradio; hoje pago)**: retrieval
 híbrido (E5 + BM25 + RRF) com **citação de fonte**, guardrail anti-injection e PII masking. A
 geração da resposta é **opcional** via HuggingFace Inference API (defina o secret `HF_TOKEN`); sem
 token, a demo roda em modo *retrieval-only* (mostra os trechos citados) — leve e grátis.

@@ -1,5 +1,7 @@
 # 12 — Backlog de rigor e plano das próximas fases
 
+> ⚠️ **Documento histórico (2026-07-10).** As **Fases 3–5 aparecem abaixo como "a implementar", mas já foram TODAS concluídas** — ver [README](../README.md) e [HISTORIA](HISTORIA.md). Mantido como registro do plano de rigor daquele momento, não como estado atual do projeto.
+
 > Auditoria de nível especialista (2026-07-10) das Fases 0–2 entregues e plano de rigor
 > para as Fases 3–5. Objetivo: manter todas as fases no padrão do `PROMPT_MESTRE`
 > (avaliação com números, testes de caminhos críticos, observabilidade, reprodutibilidade).
@@ -66,14 +68,14 @@ ICs sobrepostos) — o dano factual era **artefato de small-data**. Mas o held-o
 (−4% → **+8%**): mais fine-tuning = memoriza mais, **generaliza pior**. Win-rate estilo controlado
 firme em **0.88 [0.76;0.94]**. Nenhuma ressalva de rigor pendente; expandir ainda mais é incremental.
 
-## Fase 3 — Ingestão de dados estruturados (a implementar, mesmo padrão)
+## Fase 3 — Ingestão de dados estruturados (✅ concluída — planejada aqui em 2026-07-10)
 - **Dados/licença:** Volume de Tráfego de Pedágio (carro-chefe), Praça+KMZ (geo), Receita; confirmar licença por dataset; pipeline `baixar_*` reproduzível (`sep=';'`, `latin-1`, `decimal=','`); brutos fora do Git (DVC).
 - **Modelagem justificada:** esquema **estrela** em DuckDB (fato `volume_trafego` + dims praça/concessionária/tempo/receita); documentar grão e chaves; justificar cada trade-off.
 - **SQL avançado:** queries com CTEs, window functions (LAG p/ MoM/YoY, RANK por praça), sazonalidade, JOIN geográfico; resultado esperado versionado.
 - **Camada de acesso** tipada (Pydantic), parametrizada (anti-injection), pensada como **tool do agente (Fase 4)**; testes de schema/encoding + queries contra fixture.
 - **Observabilidade/README:** métricas de ingestão (linhas, rejeições, cobertura temporal); README do modelo de dados (diagrama, dicionário, licença, reprodução); extra `estruturados` (duckdb) no pyproject.
 
-## Fase 4 — Agente LangGraph (a implementar)
+## Fase 4 — Agente LangGraph (✅ concluída)
 - [ ] Grafo com estado + **arestas condicionais reais** (roteamento, não linear).
 - [ ] Integrar 3 ferramentas: RAG (F1) + FT no vLLM (F2) + acesso a dados (F3) + nó de cálculo.
 - [ ] **FT + RAG combinados** — correção da citação 0/0 identificada na Fase 2.
@@ -82,7 +84,7 @@ firme em **0.88 [0.76;0.94]**. Nenhuma ressalva de rigor pendente; expandir aind
 - [ ] Tratamento de falha/fora-de-escopo/adversarial (reusar `rag/seguranca.py`).
 - [ ] Diagrama do grafo no README + testes dos nós + demo de custo zero.
 
-## Fase 5 — MLOps/Cloud (a implementar)
+## Fase 5 — MLOps/Cloud (✅ concluída)
 - [ ] Containerização (Docker/compose sobe a plataforma inteira; k8s opcional).
 - [ ] **CI/CD com a suíte de avaliação como GATE** (regressão de métrica reprova) — ativar badges do README.
 - [ ] MLflow + DVC (experimentos/prompts/configs versionados); migrar remote DVC → S3.

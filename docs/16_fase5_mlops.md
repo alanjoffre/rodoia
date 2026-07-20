@@ -305,10 +305,11 @@ a zero. Números em `reports/fase5_mlops/custo.json`.
 
 Tudo acima roda local. Há **dois caminhos**, e o gratuito está pronto:
 
-**(0) Demo pública GRÁTIS — HuggingFace Spaces (recomendado p/ portfólio).** Hospeda o RAG da
-Fase 1 no CPU free-tier (R$0, HTTPS + URL pública), com citação de fonte e guardrails; geração
-opcional via Inference API. Arquivos e passo a passo em [`deploy/hf_space/`](../deploy/hf_space/README.md).
-Resolve o "não tem demo viva" sem custo de nuvem.
+**(0) Demo pública GRÁTIS — HuggingFace Spaces Static (client-side, recomendado p/ portfólio).** A
+demo viva roda a busca semântica **no navegador do visitante** (Transformers.js), sem servidor e
+sem custo (HTTPS + URL pública). Arquivos e passo a passo em [`deploy/hf_space_static/`](../deploy/hf_space_static/README.md).
+Resolve o "não tem demo viva" sem custo de nuvem. *(O caminho anterior Gradio/Docker —
+[`deploy/hf_space/`](../deploy/hf_space/README.md) — virou pago no HF e é mantido só como legado.)*
 
 **(1) Cloud gerenciada (produção/escala) — NÃO executado, por decisão de orçamento:**
 
