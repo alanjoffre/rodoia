@@ -150,9 +150,7 @@ São **81 passos**, feitos entre **9 e 17 de julho de 2026**. Lidos em sequênci
 
 ## 🧵 O que este diário mostra
 
-Lido de ponta a ponta, o padrão fica claro: **construí rápido, mas voltei sem dó para endurecer cada número.** Os passos de 🔬 rigor não são detalhe — são metade do diário. Várias vezes a evidência contrariou a narrativa mais bonita (o rótulo-ouro errado, a comparação injusta de previsão, o reranker que "atrapalhava", o bug no guardrail) e, em todas, **o número honesto prevaleceu**.
-
-É por isso que o resultado final não é só "deu certo" — é "deu certo, e sei exatamente o quão certo, porque tentei derrubar cada afirmação".
+Lido de ponta a ponta, o padrão fica claro: **construí rápido, mas voltei sem dó para endurecer cada número** — os passos de 🔬 rigor são metade do diário. O apanhado dessas correções (o antes/depois de cada uma) vive numa fonte só: **[README § Decisões e trade-offs](../README.md#-decisões-e-trade-offs-o-arco-do-projeto)**.
 
 <div align="center">
 

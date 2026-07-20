@@ -105,14 +105,6 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 ## 🧵 O fio condutor
 
-O diferencial não é ter números altos — é o **rigor ter corrigido os próprios números** em toda fase:
-
-| Fase | O que o rigor corrigiu |
-|:---:|---|
-| **1** | a limpeza de boilerplate **reverteu** o rerank; a auditoria κ **achou 16% do gold errado** |
-| **2** | o held-out derrubou a **memorização** → pivô para tarefa objetiva |
-| **3** | o backtest + IC derrubaram a **cereja**; o multi-step justo revelou a **vitória real** |
-| **4** | a separação in-scope/declinado tirou o **artefato do juiz** |
-| **5** | a coorte corrigiu o **drift enganoso** (11 → 0,005) |
+O diferencial não é ter números altos — é o **rigor ter corrigido os próprios números** em toda fase (os callouts ⚖️ acima marcam cada correção). O apanhado completo — com o antes/depois de cada uma — vive numa fonte só: **[README § Decisões e trade-offs](../README.md#-decisões-e-trade-offs-o-arco-do-projeto)**.
 
 **Isso** é engenharia de IA a sério: deixar a evidência mandar, **mesmo quando ela contraria a narrativa que seria mais bonita**.
