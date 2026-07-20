@@ -21,17 +21,16 @@ Uso:  python -m rodoia.ft.juiz_winrate <base.json> <ft.json> <saida.json> [--con
 from __future__ import annotations
 
 import json
-import re
 import sys
 
 import requests
 
 from rodoia.estat import wilson
+from rodoia.juiz import extrair_json
 from rodoia.proveniencia import carimbar
 
 OLLAMA = "http://127.0.0.1:11434/api/chat"
 JUIZ = "qwen2.5:7b"
-_RE_JSON = re.compile(r"\{[^{}]*\}", re.S)
 
 _BASE_PROMPT = (
     "Você é um avaliador. Compare duas respostas à mesma PERGUNTA sobre a regulação "
@@ -52,14 +51,7 @@ _EXTRA_COMPRIMENTO = (
 
 def _parse_veredito(saida: str) -> str:
     """Extrai 'A' | 'B' | 'empate' do JSON do juiz (robusto a lixo em volta)."""
-    m = _RE_JSON.search(saida or "")
-    if not m:
-        return "empate"
-    try:
-        v = json.loads(m.group(0)).get("melhor", "empate")
-    except (ValueError, TypeError):
-        return "empate"
-    v = str(v).strip().upper()
+    v = str(extrair_json(saida).get("melhor", "empate")).strip().upper()
     return {"A": "A", "B": "B"}.get(v, "empate")
 
 

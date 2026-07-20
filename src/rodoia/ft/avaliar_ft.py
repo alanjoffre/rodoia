@@ -18,9 +18,9 @@ A lógica é testável no Mac; a execução real usa dois endpoints vLLM na Nitr
 from __future__ import annotations
 
 import json
-import re
 
 from rodoia.config import REPO_ROOT, settings
+from rodoia.juiz import extrair_json
 
 _PROMPT_JUIZ = (
     "Avalie a CORREÇÃO da resposta em relação à pergunta, usando o TEXTO DE "
@@ -29,7 +29,6 @@ _PROMPT_JUIZ = (
     'com JSON: {{"nota": <0-1>}}\n\n'
     "PERGUNTA: {pergunta}\n\nREFERÊNCIA:\n{referencia}\n\nRESPOSTA:\n{resposta}"
 )
-_RE_JSON = re.compile(r"\{[^{}]*\}", re.S)
 
 
 def carregar_referencias(max_chars: int = 4000) -> dict[str, str]:
@@ -42,11 +41,8 @@ def carregar_referencias(max_chars: int = 4000) -> dict[str, str]:
 
 
 def _nota(saida: str) -> float:
-    m = _RE_JSON.search(saida)
-    if not m:
-        return 0.0
     try:
-        return float(json.loads(m.group(0)).get("nota", 0.0))
+        return float(extrair_json(saida).get("nota", 0.0))
     except (ValueError, TypeError):
         return 0.0
 

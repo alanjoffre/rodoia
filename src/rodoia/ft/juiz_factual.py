@@ -12,18 +12,17 @@ Uso:  python -m rodoia.ft.juiz_factual reports/fase2_ft/respostas_base.json \
 from __future__ import annotations
 
 import json
-import re
 import sys
 
 import requests
 
 from rodoia.config import settings
 from rodoia.estat import bootstrap_ic
+from rodoia.juiz import extrair_json
 from rodoia.proveniencia import carimbar
 
 OLLAMA = "http://127.0.0.1:11434/api/chat"
 JUIZ = "llama3.1:8b"
-_RE_JSON = re.compile(r"\{[^{}]*\}", re.S)
 
 _PROMPT = (
     "Avalie a CORREÇÃO FACTUAL da RESPOSTA usando o TEXTO DE REFERÊNCIA (trecho da(s) "
@@ -43,11 +42,8 @@ def carregar_referencias(max_chars: int = 4000) -> dict[str, str]:
 
 
 def _nota(saida: str) -> float:
-    m = _RE_JSON.search(saida or "")
-    if not m:
-        return 0.0
     try:
-        return max(0.0, min(1.0, float(json.loads(m.group(0)).get("nota", 0.0))))
+        return max(0.0, min(1.0, float(extrair_json(saida).get("nota", 0.0))))
     except (ValueError, TypeError):
         return 0.0
 

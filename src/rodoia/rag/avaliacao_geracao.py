@@ -22,6 +22,7 @@ import re
 import statistics
 
 from rodoia.estat import bootstrap_ic
+from rodoia.juiz import extrair_json
 from rodoia.proveniencia import carimbar
 from rodoia.rag.gerar import montar_contexto, responder
 from rodoia.rag.recuperador import RecuperadorHibrido
@@ -46,16 +47,11 @@ PROMPT_JUIZ = (
     "PERGUNTA: {pergunta}\n\nCONTEXTO:\n{contexto}\n\nRESPOSTA:\n{resposta}"
 )
 
-_RE_JSON = re.compile(r"\{[^{}]*\}", re.S)
-
 
 def _parse_notas(texto: str) -> dict:
     """Extrai o primeiro objeto JSON da saída do juiz, de forma tolerante."""
-    m = _RE_JSON.search(texto)
-    if not m:
-        return {"faithfulness": 0.0, "relevancy": 0.0}
+    d = extrair_json(texto)
     try:
-        d = json.loads(m.group(0))
         return {
             "faithfulness": float(d.get("faithfulness", 0.0)),
             "relevancy": float(d.get("relevancy", 0.0)),

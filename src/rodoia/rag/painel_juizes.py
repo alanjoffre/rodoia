@@ -16,10 +16,10 @@ Uso:  python -m rodoia.rag.painel_juizes
 from __future__ import annotations
 
 import json
-import re
 
 from rodoia.config import REPO_ROOT
 from rodoia.estat import fleiss_kappa
+from rodoia.juiz import extrair_json
 from rodoia.proveniencia import carimbar
 from rodoia.rag.gerar import montar_contexto, responder
 
@@ -34,16 +34,12 @@ _PROMPT = (
     'Responda APENAS com JSON: {{"faithfulness": 0|1|2}}\n\n'
     "PERGUNTA: {pergunta}\n\nCONTEXTO:\n{contexto}\n\nRESPOSTA:\n{resposta}"
 )
-_RE_JSON = re.compile(r"\{[^{}]*\}", re.S)
 
 
 def _nota_012(texto: str) -> int:
     """Extrai a nota 0/1/2 da saída do juiz (tolerante); clampa ao intervalo."""
-    m = _RE_JSON.search(texto or "")
-    if not m:
-        return 0
     try:
-        v = int(round(float(json.loads(m.group(0)).get("faithfulness", 0))))
+        v = int(round(float(extrair_json(texto).get("faithfulness", 0))))
     except (ValueError, TypeError):
         return 0
     return max(0, min(2, v))
