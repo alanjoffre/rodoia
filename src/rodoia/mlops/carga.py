@@ -16,12 +16,12 @@ Uso:  python -m rodoia.mlops.carga
 from __future__ import annotations
 
 import json
-import math
 import random
 import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor
 
+from rodoia import estat
 from rodoia.config import REPO_ROOT
 from rodoia.observabilidade import CacheLRU
 from rodoia.proveniencia import carimbar
@@ -49,10 +49,8 @@ def _servico(consulta: str, cache: CacheLRU | None, backend_s: float) -> str:
 
 
 def _percentil(vals: list[float], p: float) -> float:
-    """Percentil nearest-rank (ceil), consistente com `ft.benchmark_vllm.percentil`."""
-    s = sorted(vals)
-    k = max(0, min(len(s) - 1, math.ceil(p / 100 * len(s)) - 1))
-    return s[k]
+    """Percentil nearest-rank; `p` em [0,100]. Delega ao contrato único em `estat`."""
+    return estat.percentil(vals, p / 100)
 
 
 def medir(reqs: list[str], backend_s: float, com_cache: bool, concorrencia: int = 10) -> dict:

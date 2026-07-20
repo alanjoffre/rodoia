@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import concurrent.futures as cf
 import json
-import math
 import subprocess
 import sys
 import time
 
 import requests
 
+from rodoia import estat
 from rodoia.proveniencia import carimbar
 
 PROMPT = ("Explique de forma detalhada as obrigacoes do transportador rodoviario "
@@ -26,12 +26,8 @@ PROMPT = ("Explique de forma detalhada as obrigacoes do transportador rodoviario
 
 
 def percentil(valores: list[float], p: float) -> float:
-    """Percentil simples (pura/testável). p em [0,1]."""
-    if not valores:
-        return 0.0
-    ordenado = sorted(valores)
-    idx = max(0, min(len(ordenado) - 1, math.ceil(p * len(ordenado)) - 1))  # nearest-rank
-    return round(ordenado[idx], 3)
+    """Percentil nearest-rank (p em [0,1]), arredondado a 3 casas p/ os relatórios."""
+    return round(estat.percentil(valores, p), 3)
 
 
 def vram_usada_mb() -> int | None:

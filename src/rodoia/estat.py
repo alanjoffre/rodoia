@@ -33,6 +33,19 @@ def bootstrap_ic(valores: list[float], n_boot: int = 2000, seed: int = 42) -> li
     return [round(float(lo), 3), round(float(hi), 3)]
 
 
+def percentil(valores: list[float], p: float) -> float:
+    """Percentil nearest-rank (ceil), puro e testável. `p` em [0,1]; lista vazia → 0.0.
+
+    Sem arredondamento — quem chama arredonda se quiser (contrato único usado por
+    `ft.benchmark_vllm.percentil` e `mlops.carga._percentil`).
+    """
+    if not valores:
+        return 0.0
+    ordenado = sorted(valores)
+    idx = max(0, min(len(ordenado) - 1, math.ceil(p * len(ordenado)) - 1))
+    return float(ordenado[idx])
+
+
 def cohen_kappa(a: Sequence[Hashable], b: Sequence[Hashable]) -> float:
     """κ de Cohen — concordância entre DOIS anotadores (labels categóricos), corrigida pelo acaso.
     κ=1 concordância perfeita, 0 = ao acaso, <0 pior que o acaso."""
