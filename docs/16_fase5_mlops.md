@@ -152,8 +152,9 @@ garantia. Três medidas fecham o flanco:
    hash, a instalação **falha** em vez de seguir com uma versão silenciosamente diferente. O stack
    de GPU (torch/vLLM) é específico de plataforma (CUDA) e fica pinado à parte
    (`reports/fase2_ft/versoes_nitro.txt`); o lock cobre o que o CI de cada push realmente roda.
-2. **SBOM** (`reports/sbom.cdx.json`, CycloneDX 1.6) — inventário legível por máquina dos 93
-   componentes e suas versões, o artefato-padrão de proveniência de dependências.
+2. **SBOM** (CycloneDX 1.6) — inventário legível por máquina dos 93 componentes e suas versões, o
+   artefato-padrão de proveniência de dependências. Gerado com `cyclonedx-py` a partir do lock
+   (`reports/sbom.cdx.json`, ~500 KB); regenerável, mantido fora do Git por peso.
 3. **Auditoria de CVEs** — job isolado no CI roda `pip-audit -r requirements-ci.lock` contra a base
    de vulnerabilidades conhecidas (PyPI Advisory + OSV). Estado atual: **0 vulnerabilidades**.
    Regenerar o trio após mudar dependência: as instruções estão no topo de `requirements-ci.in`.

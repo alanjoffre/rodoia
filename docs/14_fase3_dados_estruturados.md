@@ -80,7 +80,7 @@ variância entre praças). Nota metodológica de rigor: uma versão anterior com
 *1-passo-à-frente* (alimentados com o valor real recente) contra um HW *multi-step* — maçãs com
 laranjas, que inflava o naïve para 13,7% e mascarava o ganho. Padronizar **todos em 12-passos** é o
 justo **e** revelou o resultado que convence — mesma disciplina do held-out na Fase 2 (deixar o
-rigor corrigir o próprio número). Gráfico da praça mais longa em `reports/fase3_dados/previsao.png`.
+rigor corrigir o próprio número). Gráfico da praça mais longa gerado em `reports/fase3_dados/previsao.png` (regenerável por `python -m rodoia.dominio.previsao`; fora do Git por peso).
 
 ## 6. Reproduzir
 
