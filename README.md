@@ -162,6 +162,11 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 | [**docs/RUNBOOK.md**](docs/RUNBOOK.md) | Setup do zero, ambiente GPU (WSL2) |
 | [docs/MODEL_CARD.md](docs/MODEL_CARD.md) · [docs/DATASET_CARD.md](docs/DATASET_CARD.md) | Governança do modelo FT e dos dados |
 
+## 👤 Autor
+
+**Alan Joffre** — Engenheiro de IA
+[GitHub](https://github.com/alanjoffre) · [LinkedIn](https://www.linkedin.com/in/alanjoffre/)
+
 ## 📄 Licença
 
 [MIT](LICENSE). Dados e modelos de terceiros seguem suas próprias licenças (ver [`NOTICE`](NOTICE)).
