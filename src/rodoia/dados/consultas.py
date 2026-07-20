@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 
 from rodoia.config import REPO_ROOT
-from rodoia.dados.estrela import DB
+from rodoia.dados.estrela import consultar_ro
 from rodoia.proveniencia import carimbar
 
 # Crescimento MoM/YoY do volume total da rede (LAG sobre a série mensal).
@@ -64,13 +64,7 @@ CONSULTAS = {
 
 
 def rodar(sql: str) -> list[dict]:
-    import duckdb
-
-    con = duckdb.connect(str(DB), read_only=True)
-    try:
-        return con.execute(sql).df().to_dict(orient="records")
-    finally:
-        con.close()
+    return consultar_ro(sql)
 
 
 def main() -> None:

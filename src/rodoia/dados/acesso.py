@@ -10,18 +10,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from rodoia.dados.estrela import DB
+from rodoia.dados.estrela import consultar_ro
 
 
 def _consultar(sql: str, params: list[Any], db: Path | None = None) -> list[dict[str, Any]]:
-    import duckdb
-
-    con = duckdb.connect(str(db or DB), read_only=True)
-    try:
-        registros: list[dict[str, Any]] = con.execute(sql, params).df().to_dict(orient="records")
-        return registros
-    finally:
-        con.close()
+    return consultar_ro(sql, params, db)
 
 
 def ranking_pracas(top: int = 10, db: Path | None = None) -> list[dict[str, Any]]:

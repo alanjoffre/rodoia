@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from rodoia.config import REPO_ROOT, settings
 from rodoia.proveniencia import carimbar
@@ -26,6 +27,26 @@ from rodoia.proveniencia import carimbar
 DB = settings.data_processed / "volume.duckdb"
 _REPORT = REPO_ROOT / "reports" / "fase3_dados" / "estrela.json"
 _PARQUET = settings.data_processed / "volume_pedagio.parquet"
+
+
+def consultar_ro(
+    sql: str, params: list[Any] | None = None, db: Path | None = None
+) -> list[dict[str, Any]]:
+    """Query read-only sobre o DuckDB → registros (list[dict]). Parametrizada (`?`),
+    nunca concatene SQL. `db` permite um DuckDB de fixture nos testes.
+
+    Contrato único de acesso ao DuckDB, reusado por `dados.acesso` (ferramenta do agente)
+    e por `dados.consultas` (SQL analítico versionado).
+    """
+    import duckdb
+
+    con = duckdb.connect(str(db or DB), read_only=True)
+    try:
+        cur = con.execute(sql, params or [])
+        registros: list[dict[str, Any]] = cur.df().to_dict(orient="records")
+        return registros
+    finally:
+        con.close()
 
 _MESES = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
