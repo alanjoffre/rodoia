@@ -15,7 +15,7 @@
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
 
-[**🔗 Demo ao vivo**](https://huggingface.co/spaces/alanjoffre/rodoia-rag) · [**📖 A história**](docs/HISTORIA.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
+[**🔗 Demo ao vivo**](https://huggingface.co/spaces/alanjoffre/rodoia-rag) · [**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
 
 </div>
 
@@ -163,6 +163,7 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 |---|---|
 | [**PROMPT_MESTRE.md**](PROMPT_MESTRE.md) | Plano completo, critérios de conclusão e regras de condução |
 | [**docs/HISTORIA.md**](docs/HISTORIA.md) | Narrativa *problema → como resolvemos → resultado* de cada fase |
+| [**docs/DIARIO.md**](docs/DIARIO.md) | A construção contada **linha a linha** — os 81 passos reais, em ordem cronológica, em linguagem acessível |
 | [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md) | Mapa módulo a módulo de `src/rodoia/**` |
 | [**docs/GUIA_ENGENHARIA_IA.md**](docs/GUIA_ENGENHARIA_IA.md) | Não é da área? Cada termo e o fluxo mental de um Eng. de IA em linguagem acessível |
 | [**docs/RUNBOOK.md**](docs/RUNBOOK.md) | Setup do zero, ambiente GPU (WSL2) |

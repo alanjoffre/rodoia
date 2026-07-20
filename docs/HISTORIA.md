@@ -4,7 +4,7 @@
 
 **problema → como resolvemos → resultado** — o projeto contado fase a fase.
 
-[← README](../README.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md) · [📊 métricas cruas](../reports/)
+[← README](../README.md) · [📅 Diário (passo a passo)](DIARIO.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md) · [📊 métricas cruas](../reports/)
 
 </div>
 
