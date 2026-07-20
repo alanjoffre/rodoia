@@ -86,3 +86,12 @@ data/raw/lener_br/
 data/raw/volume_pedagio/
 data/processed/volume.duckdb
 data/processed/volume_pedagio.parquet
+
+# === Evidência pesada e regenerável em reports/ (NÃO lida pelo gate; regenera pelos
+# pipelines/CI). Os JSON-âncora do gate e as figuras EMBUTIDAS nos docs seguem versionados. ===
+/reports/sbom.cdx.json
+/reports/fase2_ft/comparacao.md
+/reports/fase2_ft/respostas_base.json
+/reports/fase2_ft/respostas_ft.json
+/reports/fase0_baseline/roc_pr_curvas.png
+/reports/fase3_dados/previsao.png
