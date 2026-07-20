@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O diário do RodoIA — 81 passos</title>
+<meta name="description" content="A construção do RodoIA contada linha a linha — os 81 passos, com as métricas em cada passo.">
+</head>
+<body>
+
+<div class="progress" aria-hidden="true"><span id="bar"></span></div>
+
+<main>
+
+  <header class="hero">
+    <p class="eyebrow">Registro de construção · 81 commits · 9–17 jul 2026</p>
+    <h1>O diário do RodoIA</h1>
+    <p class="lede">A construção de um portfólio de Engenharia de IA sobre os dados abertos da ANTT — contada <strong>linha a linha</strong>, na ordem real em que aconteceu. Cada passo abaixo é um commit: o que eu fiz e por que importava.</p>
+
+    <ul class="stats" aria-label="Resumo">
+      <li><span class="stat-n">81</span><span class="stat-l">passos</span></li>
+      <li><span class="stat-n">9</span><span class="stat-l">dias</span></li>
+      <li><span class="stat-n">6</span><span class="stat-l">fases</span></li>
+      <li><span class="stat-n">½</span><span class="stat-l">é rigor</span></li>
+    </ul>
+
+    <div class="filters" role="group" aria-label="Filtrar por tipo de passo">
+      <span class="filters-label">Filtrar</span>
+      <button class="chip is-on" data-kind="build" aria-pressed="true"><i class="sw k-build"></i>Construção</button>
+      <button class="chip is-on" data-kind="rigor" aria-pressed="true"><i class="sw k-rigor"></i>Rigor</button>
+      <button class="chip is-on" data-kind="deploy" aria-pressed="true"><i class="sw k-deploy"></i>Deploy</button>
+      <button class="chip is-on" data-kind="polish" aria-pressed="true"><i class="sw k-polish"></i>Docs &amp; visual</button>
+    </div>
+    <p class="filters-hint" id="hint"></p>
+  </header>
+
+  <div id="timeline"></div>
+
+  <footer class="outro">
+    <h2>O que este diário mostra</h2>
+    <p>Lido de ponta a ponta, o padrão fica claro: <strong>construí rápido, mas voltei sem dó para endurecer cada número.</strong> Os passos de rigor não são detalhe — são metade do diário. Várias vezes a evidência contrariou a narrativa mais bonita (o rótulo-ouro errado, a comparação injusta de previsão, o reranker que “atrapalhava”, o bug no guardrail) e, em todas, o número honesto prevaleceu.</p>
+    <p class="sig">Alan Joffre · Engenheiro de IA · <a href="https://github.com/alanjoffre">github.com/alanjoffre</a> · <a href="https://www.linkedin.com/in/alanjoffre/">LinkedIn</a></p>
+  </footer>
+
+</main>
+
+<style>
+  :root{
+    --bg:#eceae3; --surface:#f7f6f1; --surface-2:#f0efe8;
+    --ink:#22242b; --ink-soft:#5b5e67; --ink-faint:#8a8c94;
+    --line:#d7d5cb; --line-strong:#c7c4b8;
+    --rail:#c98f18;
+    --amber:#b57e15; --amber-bright:#e0a326;
+    --k-build:#b57e15; --k-rigor:#bb5637; --k-deploy:#357f5f; --k-polish:#6d70a6;
+    --shadow:0 1px 2px rgba(30,28,20,.05), 0 6px 20px -12px rgba(30,28,20,.18);
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#15171c; --surface:#1c1f26; --surface-2:#20242c;
+      --ink:#e9e8e2; --ink-soft:#a2a4ad; --ink-faint:#71747d;
+      --line:#2a2e37; --line-strong:#353a45;
+      --rail:#e0a326;
+      --amber:#e0a326; --amber-bright:#f2b942;
+      --k-build:#e0a326; --k-rigor:#d97a5c; --k-deploy:#4fa17b; --k-polish:#9195c9;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -16px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#eceae3; --surface:#f7f6f1; --surface-2:#f0efe8;
+    --ink:#22242b; --ink-soft:#5b5e67; --ink-faint:#8a8c94;
+    --line:#d7d5cb; --line-strong:#c7c4b8; --rail:#c98f18;
+    --amber:#b57e15; --amber-bright:#e0a326;
+    --k-build:#b57e15; --k-rigor:#bb5637; --k-deploy:#357f5f; --k-polish:#6d70a6;
+    --shadow:0 1px 2px rgba(30,28,20,.05), 0 6px 20px -12px rgba(30,28,20,.18);
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171c; --surface:#1c1f26; --surface-2:#20242c;
+    --ink:#e9e8e2; --ink-soft:#a2a4ad; --ink-faint:#71747d;
+    --line:#2a2e37; --line-strong:#353a45; --rail:#e0a326;
+    --amber:#e0a326; --amber-bright:#f2b942;
+    --k-build:#e0a326; --k-rigor:#d97a5c; --k-deploy:#4fa17b; --k-polish:#9195c9;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -16px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 50% -10%, color-mix(in srgb, var(--amber) 7%, transparent), transparent 45%);}
+
+  .progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;background:transparent}
+  .progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--amber-bright));
+    box-shadow:0 0 10px color-mix(in srgb,var(--amber) 60%, transparent)}
+
+  main{max-width:820px;margin:0 auto;padding:clamp(2.2rem,5vw,4.5rem) clamp(1.1rem,4vw,2rem) 5rem}
+
+  /* ---------- hero ---------- */
+  .hero{margin-bottom:clamp(2.4rem,5vw,4rem)}
+  .eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber);margin:0 0 1.1rem;font-weight:600}
+  h1{font-size:clamp(2.4rem,7vw,4rem);line-height:1.02;letter-spacing:-.03em;font-weight:800;
+    margin:0 0 1rem;text-wrap:balance}
+  .lede{font-size:clamp(1.02rem,2.3vw,1.2rem);color:var(--ink-soft);max-width:60ch;margin:0 0 2rem}
+  .lede strong{color:var(--ink);font-weight:600}
+
+  .stats{list-style:none;display:flex;flex-wrap:wrap;gap:0;margin:0 0 2rem;padding:0;
+    border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+  .stats li{flex:1 1 0;min-width:88px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.15rem;
+    border-right:1px solid var(--line)}
+  .stats li:last-child{border-right:0}
+  .stat-n{font-family:var(--mono);font-size:1.9rem;font-weight:700;line-height:1;color:var(--ink);
+    font-variant-numeric:tabular-nums}
+  .stat-l{font-size:.78rem;letter-spacing:.04em;color:var(--ink-faint);text-transform:uppercase}
+
+  .filters{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+  .filters-label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--ink-faint);margin-right:.2rem}
+  .chip{font-family:var(--mono);font-size:.8rem;font-weight:600;letter-spacing:.01em;
+    display:inline-flex;align-items:center;gap:.5rem;padding:.42rem .8rem;border-radius:999px;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-soft);cursor:pointer;
+    transition:background .15s,color .15s,border-color .15s,opacity .15s}
+  .chip .sw{width:.62rem;height:.62rem;border-radius:50%;background:var(--k-build);flex:none;
+    transition:transform .15s}
+  .chip.k-off{opacity:.5}
+  .chip.k-off .sw{transform:scale(.6);opacity:.5}
+  .chip.is-on{color:var(--ink);border-color:color-mix(in srgb,var(--ink) 22%, var(--line-strong))}
+  .chip:hover{border-color:var(--amber)}
+  .chip:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .sw.k-build{background:var(--k-build)} .sw.k-rigor{background:var(--k-rigor)}
+  .sw.k-deploy{background:var(--k-deploy)} .sw.k-polish{background:var(--k-polish)}
+  .filters-hint{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);min-height:1.2em;margin:.7rem 0 0}
+
+  /* ---------- day ---------- */
+  .day{margin-top:clamp(2rem,4vw,3rem)}
+  .day-head{display:flex;gap:1rem;align-items:baseline;padding-bottom:.6rem;margin-bottom:1.4rem;
+    border-bottom:1px solid var(--line);position:sticky;top:0;background:
+    linear-gradient(var(--bg) 72%, transparent);z-index:5;padding-top:.7rem}
+  .day-date{font-family:var(--mono);font-size:.82rem;font-weight:700;letter-spacing:.08em;
+    color:var(--amber);white-space:nowrap;padding-top:.15rem}
+  .day-info h2{font-size:clamp(1.15rem,3vw,1.5rem);letter-spacing:-.02em;font-weight:700;margin:0 0 .25rem;
+    text-wrap:balance}
+  .day-info p{font-size:.92rem;color:var(--ink-soft);margin:0;max-width:58ch;font-style:italic}
+
+  /* ---------- steps / rail ---------- */
+  .steps{list-style:none;margin:0;padding:0;position:relative}
+  .steps::before{content:"";position:absolute;left:19px;top:.4rem;bottom:1.2rem;width:0;
+    border-left:2px dashed color-mix(in srgb,var(--rail) 55%, transparent)}
+  .step{position:relative;display:grid;grid-template-columns:40px 1fr;gap:.9rem;align-items:start;
+    padding:0 0 .95rem}
+  .marker{position:relative;display:flex;justify-content:center;padding-top:.55rem}
+  .dot{width:15px;height:15px;border-radius:50%;background:var(--k-build);position:relative;z-index:2;
+    box-shadow:0 0 0 4px var(--bg), 0 0 0 5px color-mix(in srgb,var(--k-build) 35%, transparent)}
+  .dot.k-build{background:var(--k-build);box-shadow:0 0 0 4px var(--bg),0 0 0 5px color-mix(in srgb,var(--k-build) 40%,transparent)}
+  .dot.k-rigor{background:var(--k-rigor);box-shadow:0 0 0 4px var(--bg),0 0 0 5px color-mix(in srgb,var(--k-rigor) 40%,transparent)}
+  .dot.k-deploy{background:var(--k-deploy);box-shadow:0 0 0 4px var(--bg),0 0 0 5px color-mix(in srgb,var(--k-deploy) 40%,transparent)}
+  .dot.k-polish{background:var(--k-polish);box-shadow:0 0 0 4px var(--bg),0 0 0 5px color-mix(in srgb,var(--k-polish) 40%,transparent)}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:.85rem 1.05rem 1rem;box-shadow:var(--shadow);transition:border-color .18s,transform .18s}
+  .step:hover .card{border-color:var(--line-strong);transform:translateX(2px)}
+  .meta{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+  .num{font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--ink-faint);
+    font-variant-numeric:tabular-nums}
+  .tag{font-family:var(--mono);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+    padding:.14rem .46rem;border-radius:5px;line-height:1.3}
+  .tag.k-build{color:var(--k-build);background:color-mix(in srgb,var(--k-build) 14%, transparent)}
+  .tag.k-rigor{color:var(--k-rigor);background:color-mix(in srgb,var(--k-rigor) 15%, transparent)}
+  .tag.k-deploy{color:var(--k-deploy);background:color-mix(in srgb,var(--k-deploy) 15%, transparent)}
+  .tag.k-polish{color:var(--k-polish);background:color-mix(in srgb,var(--k-polish) 16%, transparent)}
+  .emoji{font-size:.95rem;margin-left:auto;filter:saturate(.9)}
+  .card h3{font-size:1rem;font-weight:650;letter-spacing:-.01em;margin:0 0 .28rem;line-height:1.35}
+  .card p{font-size:.9rem;color:var(--ink-soft);margin:0}
+  .metrics{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+  .metric{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--mono);font-size:.75rem;
+    font-weight:700;letter-spacing:.01em;color:var(--ink);font-variant-numeric:tabular-nums;
+    padding:.3rem .58rem .3rem .5rem;border-radius:7px;
+    background:color-mix(in srgb,var(--amber) 13%, transparent);
+    border:1px solid color-mix(in srgb,var(--amber) 40%, transparent)}
+  .metric .mdot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber-bright);flex:none;
+    box-shadow:0 0 7px color-mix(in srgb,var(--amber-bright) 75%, transparent)}
+
+  /* reveal + filter */
+  .step{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+  .step.in{opacity:1;transform:none}
+  .step.dim{display:none}
+  .day.empty{display:none}
+
+  /* ---------- outro ---------- */
+  .outro{margin-top:3.5rem;padding-top:2rem;border-top:2px dashed color-mix(in srgb,var(--rail) 50%,transparent)}
+  .outro h2{font-size:clamp(1.3rem,3.5vw,1.7rem);letter-spacing:-.02em;margin:0 0 .8rem;font-weight:750}
+  .outro p{color:var(--ink-soft);max-width:64ch;margin:0 0 1rem}
+  .outro strong{color:var(--ink)}
+  .sig{font-family:var(--mono);font-size:.82rem;color:var(--ink-faint)}
+  .sig a{color:var(--amber);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--amber) 40%,transparent)}
+  .sig a:hover{border-bottom-color:var(--amber)}
+  .sig a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  @media (max-width:560px){
+    .stats li{flex-basis:50%;border-bottom:1px solid var(--line)}
+    .day-head{flex-direction:column;gap:.15rem}
+    .day-head{position:static}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .step{opacity:1;transform:none;transition:none}
+    *{scroll-behavior:auto}
+  }
+</style>
+
+<script>
+(function(){
+  "use strict";
+
+  var DAYS = [
+    { date:"09 jul", title:"Do zero à Fase 1 inteira",
+      context:"O dia mais denso: montei a fundação, provei a matemática à mão e já entreguei o primeiro sistema de perguntas-e-respostas sobre a lei.",
+      items:[
+        {n:1,k:"build",t:"Fase 0",e:"🧮",h:"Montei o repositório público.",b:"Estrutura de pastas, licença, ambiente Python — o esqueleto onde tudo seria construído, já pensado para ser aberto e reprodutível."},
+        {n:2,k:"build",t:"Fase 1",e:"🔎",h:"Validei que as fontes da ANTT são reais.",b:"Antes de escrever qualquer código de dados, conferi que os dados públicos existem, abrem e batem com a realidade — para não construir sobre uma fonte imaginária."},
+        {n:3,k:"build",t:"Fase 0",e:"🧮",h:"Baixei os dados de acidentes.",b:"Um programa que busca os 39 arquivos CSV de acidentes em rodovias concedidas, lê e valida cada um (encoding, separadores, colunas)."},
+        {n:4,k:"build",t:"Fase 0",e:"🧮",h:"Consolidei os dados e treinei o primeiro modelo.",b:"Juntei os 39 arquivos numa base única (37 concessionárias reconciliadas) e treinei um classificador simples de “houve vítima?” — o ponto de partida."},
+        {n:5,k:"build",t:"Fase 0",e:"🧮",h:"Diagnostiquei o modelo.",b:"Medi se ele erra por falta de capacidade ou por excesso (viés/variância), se as probabilidades são confiáveis (calibração) e agrupei os dados para entender padrões."},
+        {n:6,k:"polish",t:"Docs",e:"📋",h:"Escrevi o runbook.",b:"Um guia passo a passo do “clonei o projeto” até “rodei a Fase 0”, para qualquer pessoa reproduzir."},
+        {n:7,k:"build",t:"Fase 0",e:"🧮",h:"Escrevi a rede neural à mão.",b:"Implementei backpropagation do zero em NumPy (sem biblioteca fazer a conta por mim) e uma rede MLP em PyTorch — para provar que entendo o motor, não só usá-lo."},
+        {n:8,k:"build",t:"Fase 0",e:"🧮",h:"Escrevi o self-attention à mão.",b:"O mecanismo por trás dos modelos modernos de linguagem, implementado do zero e conferido contra a versão oficial (mesmo resultado numérico — prova de que está correto)."},
+        {n:9,k:"build",t:"Fase 0",e:"🧮",h:"Fechei a Fase 0.",b:"Reuni a matemática aplicada num notebook e encerrei o bloco de fundamentos: modelo de severidade com ROC-AUC 0,81.",m:["ROC-AUC 0,81"]},
+        {n:10,k:"build",t:"Fase 1",e:"🔎",h:"Ingeri a legislação da ANTT.",b:"Baixei e limpei as normas (a lei não tem API — é HTML antigo) e as quebrei em pedaços por artigo, respeitando a estrutura jurídica."},
+        {n:11,k:"build",t:"Fase 1",e:"🔎",h:"Indexei e busquei com citação.",b:"Transformei os trechos em vetores para busca semântica, com filtro de vigência (só normas em vigor) e citação da resolução-fonte."},
+        {n:12,k:"build",t:"Fase 1",e:"🔎",h:"Busca híbrida.",b:"Combinei busca por significado (densa) + por palavra exata (BM25), fundidas numa só ordenação (RRF), com um reordenador e a primeira avaliação.",m:["hit@5 0,62 [0,48–0,74]"]},
+        {n:13,k:"build",t:"Fase 1",e:"🔎",h:"Geração de resposta ancorada.",b:"O modelo de linguagem (rodando localmente, via Ollama) passa a responder citando a norma — sem inventar.",m:["precisão de citação 0,92"]},
+        {n:14,k:"build",t:"Fase 1",e:"🔎",h:"Guardrails de segurança.",b:"Defesa contra injeção de comando, mascaramento de dados pessoais (PII) e trilha de auditoria."},
+        {n:15,k:"build",t:"Fase 1",e:"🔎",h:"Avaliação por juiz-LLM.",b:"Um segundo modelo avalia as respostas quanto a fidelidade à fonte e relevância."},
+        {n:16,k:"build",t:"Fase 1",e:"🔎",h:"Fechei a Fase 1.",b:"API web (FastAPI) + interface de demonstração no ar. O sistema de RAG está completo."},
+        {n:17,k:"build",t:"Fase 2",e:"🎯",h:"Montei o dataset de fine-tuning.",b:"84 exemplos a partir de 29 normas — o material para especializar um modelo."},
+        {n:18,k:"build",t:"Fase 2",e:"🎯",h:"Preparei os scripts para a GPU.",b:"Roteiros de treino (QLoRA), quantização e serving, empacotados num “handoff” auto-contido para rodar na máquina com placa de vídeo (a “Nitro”)."}
+      ]},
+    { date:"10 jul", title:"O fine-tuning na GPU e a primeira onda de rigor",
+      context:"Rodei o treino de verdade na placa de vídeo e, logo em seguida, voltei em cada fase para endurecer a avaliação.",
+      items:[
+        {n:19,k:"build",t:"Fase 2",e:"🎯",h:"Rodei o treino na Nitro.",b:"Fine-tuning com QLoRA, quantização fp8, serving com vLLM e avaliação — executados na máquina com GPU.",m:["205 tok/s (vLLM fp8)"]},
+        {n:20,k:"build",t:"Fase 2",e:"🎯",h:"Avaliei o modelo treinado com rigor.",b:"Medi perplexidade no domínio e taxa de vitória (win-rate) julgada por um modelo independente."},
+        {n:21,k:"rigor",t:"Rigor",e:"🔬",h:"Controlei o viés do juiz.",b:"Ajustei o win-rate para neutralizar preferências do avaliador e auditei os documentos, corrigindo inconsistências."},
+        {n:22,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei lacunas de rigor na Fase 0.",b:"Provas, testes do laço de treino, divisão de dados em 3 partes e rastreabilidade da origem dos dados."},
+        {n:23,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei lacunas de rigor na Fase 1.",b:"Observabilidade, juiz independente, conjunto-ouro com intervalo de confiança e defesa contra injeção indireta."},
+        {n:24,k:"rigor",t:"Rigor",e:"🔬",h:"2ª rodada de rigor na Fase 2.",b:"Teste com dados que o modelo nunca viu (held-out real), intervalo de confiança, benchmark reprodutível e proveniência."},
+        {n:25,k:"rigor",t:"Rigor",e:"🔬",h:"Resolvi ressalvas da Fase 2.",b:"Juiz factual com referência e medição do custo de qualidade da compressão (quantização) do modelo."},
+        {n:26,k:"rigor",t:"Rigor",e:"🔬",h:"Onda 2 de rigor.",b:"Expandi o golden set (para 50 casos) e o dataset de fine-tuning (para 158) e reavaliei com amostra maior."}
+      ]},
+    { date:"11 jul", title:"O pivô de NER e as Fases 3, 4 e 5",
+      context:"O dia em que um resultado negativo virou vitória, e em que as três últimas fases nasceram.",
+      items:[
+        {n:27,k:"build",t:"Fase 2",e:"🎯",h:"Estudo de NER no LeNER-Br.",b:"Montei o reconhecimento de entidades jurídicas sobre um dataset público e medi o teto de qualidade: BERTimbau, F1 0,895.",m:["SOTA · F1 0,895"]},
+        {n:28,k:"rigor",t:"Rigor",e:"🔬",h:"Corrigi a consistência (punch-list).",b:"Acertei números desencontrados entre documentos (throughput, divisões de dados, licenças)."},
+        {n:29,k:"build",t:"Fase 2",e:"🎯",h:"O NER vira a manchete — o pivô.",b:"A ideia original de fine-tuning falhava por memorização; pivotei para a tarefa objetiva de NER e o modelo treinado venceu: F1 0,13 → 0,77. Um negativo honesto virou entrega.",m:["F1 0,13 → 0,77"]},
+        {n:30,k:"rigor",t:"Rigor",e:"🔬",h:"Validação pós-pivô.",b:"Corrigi 10 itens de revisão (navegação, contagens, afirmações exageradas) para o texto refletir o novo rumo."},
+        {n:31,k:"build",t:"Fase 3",e:"📊",h:"Fase 3 — dados estruturados.",b:"Modelei o volume de tráfego de pedágio num esquema estrela (DuckDB), com SQL analítico e a primeira previsão de demanda.",m:["741.205 linhas limpas"]},
+        {n:32,k:"build",t:"Fase 3",e:"📊",h:"Previsão robusta.",b:"Troquei a avaliação ingênua por backtest com intervalo de confiança e modelo Holt-Winters, e padronizei a caixa dos textos."},
+        {n:33,k:"build",t:"Fase 3",e:"📊",h:"Previsão multi-step justa.",b:"Corrigi uma comparação injusta: passei a prever 12 meses à frente para todos os modelos e apliquei teste estatístico pareado.",m:["Holt-Winters > naïve · Δ3,01pp","IC [1,76; 4,40]"]},
+        {n:34,k:"build",t:"Fase 4",e:"🤖",h:"Fase 4 — o agente.",b:"Um orquestrador (LangGraph) que decide qual capacidade usar — RAG, modelo treinado ou dados — e combina as respostas."},
+        {n:35,k:"build",t:"Fase 5",e:"⚙️",h:"Fase 5 — MLOps.",b:"Portão de avaliação, integração contínua (CI/CD), rastreamento de experimentos (MLflow), versionamento de dados (DVC), container e detecção de drift.",m:["gate de avaliação 15/15"]},
+        {n:36,k:"rigor",t:"Rigor",e:"🔬",h:"Correções da revisão final.",b:"Auditoria de consistência de ponta a ponta."},
+        {n:37,k:"deploy",t:"Deploy",e:"🚀",h:"Guia, arquitetura e demo grátis.",b:"Escrevi o guia didático, o mapa de arquitetura, os cards de modelo/dataset e publiquei a demo gratuita no HuggingFace Spaces."}
+      ]},
+    { date:"12 jul", title:"Medindo o hardware e escrevendo a história",
+      context:"Caracterizei o trade-off de máquina com número e comecei a contar o projeto como narrativa.",
+      items:[
+        {n:38,k:"build",t:"Fase 4",e:"🤖",h:"Trade-off de hardware, medido.",b:"Caracterizei com número a escolha entre cérebro de 7B na GPU e 3B na CPU — e mostrei que os três tools rodam ao mesmo tempo graças aos 32 GB de RAM."},
+        {n:39,k:"polish",t:"Docs",e:"📖",h:"Escrevi o HISTORIA.md.",b:"A narrativa problema → solução → resultado, fase a fase."},
+        {n:40,k:"rigor",t:"Rigor",e:"🔬",h:"Correções da auditoria.",b:"Acertos de consistência no README e nos documentos novos."}
+      ]},
+    { date:"13 jul", title:"O especialista entra em cena (o dia da qualidade)",
+      context:"Criei um revisor de padrão extremo e passei o dia inteiro respondendo aos furos que ele apontava — mais o deploy da demo.",
+      items:[
+        {n:41,k:"rigor",t:"Rigor",e:"🔬",h:"Criei o subagente “Especialista de Engenharia de IA”.",b:"Um revisor automático calibrado no padrão mais alto, para caçar fraquezas no projeto."},
+        {n:42,k:"rigor",t:"Rigor",e:"🔬",h:"QA-1 + QA-2.",b:"Apliquei as primeiras correções do especialista e reproduzi os resultados de verdade, do zero."},
+        {n:43,k:"rigor",t:"Rigor",e:"🔬",h:"QA-3 — honestidade sobre limites.",b:"Em vez de inflar, assumi a limitação da avaliação onde ela existia."},
+        {n:44,k:"build",t:"Fase 4",e:"🤖",h:"QA-4 — roteamento avaliado a sério.",b:"Aumentei a avaliação do agente de 6 para 21 casos (puros, combinados, ambíguos, fora de escopo, adversariais).",m:["roteamento 0,95 (n=21)"]},
+        {n:45,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei residuais da reauditoria.",b:"Drift, documentação, reprodução em máquina limpa (GitHub-hosted) e testes.",m:["drift PSI 0,005 (estável)"]},
+        {n:46,k:"rigor",t:"Rigor",e:"🔬",h:"Banca de 3 juízes.",b:"Passei de um juiz para três juízes independentes com medida de concordância (κ de Fleiss) — rumo a um padrão sênior."},
+        {n:47,k:"build",t:"Fase 1",e:"🔎",h:"Tripliquei o corpus.",b:"Ampliei a base de normas (~3×), com 2ª âncora de reprodução e cache/observabilidade."},
+        {n:48,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei o punch-list da 3ª reauditoria.",b:"Evidência do corpus, 2ª âncora no CI e documentação de drift."},
+        {n:49,k:"build",t:"Fase 5",e:"⚙️",h:"Teste de carga do cache.",b:"Medi latência p50/p95 sob carga — reportando o número, sem afirmar o que não medi."},
+        {n:50,k:"deploy",t:"Deploy",e:"🚀",h:"Space turnkey.",b:"Uma versão do deploy que baixa o corpus e constrói o índice sozinha, com passo a passo do HuggingFace."},
+        {n:51,k:"deploy",t:"Deploy",e:"🚀",h:"Alternativa em Docker.",b:"Uma segunda via de deploy (SDK Docker, gratuita) na porta 7860."},
+        {n:52,k:"polish",t:"Visual",e:"🎨",h:"Limpeza de estilo.",b:"Correção de formatação no app do Space."},
+        {n:53,k:"deploy",t:"Deploy",e:"🚀",h:"Demo estática client-side.",b:"Como o HuggingFace passou a cobrar por Gradio/Docker, criei uma demo que roda no navegador do visitante (Transformers.js) — pública e de graça."},
+        {n:54,k:"polish",t:"Visual",e:"🎨",h:"Demo no ar.",b:"Link e selo da demo ao vivo no README."},
+        {n:55,k:"build",t:"Fase 1",e:"🔎",h:"De-boilerplate do corpus + reversão honesta.",b:"O especialista achou lixo repetido (cabeçalhos/rodapés) nas normas; ao limpar, o reordenador passou a ajudar — e reportei essa reviravolta abertamente."},
+        {n:56,k:"rigor",t:"Rigor",e:"🔬",h:"Kit de anotação humana.",b:"Ferramenta para dois anotadores humanos avaliarem em paralelo e medir a concordância real (κ de Cohen)."},
+        {n:57,k:"polish",t:"Visual",e:"🎨",h:"Ajustes de estilo e versionamento do kit.",b:"Correções de formatação e inclusão do arquivo de anotação no repositório."},
+        {n:58,k:"rigor",t:"Rigor",e:"🔬",h:"Kit em Excel.",b:"O kit de anotação passou a aceitar planilha (.xlsx) além de CSV, para facilitar a vida dos anotadores."},
+        {n:59,k:"build",t:"Fase 1",e:"🔎",h:"κ humano inter-anotador (0,86).",b:"Registrei a concordância entre humanos como evidência versionada da qualidade da avaliação.",m:["κ Cohen 0,86 (relevância)"]},
+        {n:60,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei 3 furos do κ.",b:"Correções dos pontos que o especialista apontou na medida de concordância."},
+        {n:61,k:"build",t:"Fase 5",e:"⚙️",h:"Custo de serving em R$/1k.",b:"Modelo de custo derivado da vazão medida — sem gastar de fato."},
+        {n:62,k:"rigor",t:"Rigor",e:"🔬",h:"Intervalo de confiança no juiz + custo da rota RAG.",b:"Refinos que elevaram o rigor da avaliação de geração e ligaram a concordância humana ao conjunto-ouro."},
+        {n:63,k:"rigor",t:"Rigor",e:"🔬",h:"Cobertura de testes e correção de docstring.",b:"Detalhes finos apontados pelo especialista."},
+        {n:64,k:"build",t:"Fase 1",e:"🔎",h:"Kit de validação dos rótulos-ouro do hit@5.",b:"Ferramenta para conferir, na fonte, se os rótulos usados na métrica-chave da Fase 1 estavam certos."}
+      ]},
+    { date:"15 jul", title:"A auditoria que corrigiu a métrica-chave + a repaginada visual",
+      context:"Descobri que parte dos rótulos da métrica principal estava errada, corrigi pela fonte, e dei tratamento visual à documentação.",
+      items:[
+        {n:65,k:"build",t:"Fase 1",e:"🔎",h:"κ humano dos rótulos-ouro (0,92).",b:"Dois anotadores conferiram os rótulos de fonte do hit@5 — o elo que faltava para confiar na métrica.",m:["κ Cohen 0,92 (rótulo-ouro)"]},
+        {n:66,k:"rigor",t:"Rigor",e:"🔬",h:"Corrigi exagero e propaguei a auditoria.",b:"Ajustei uma afirmação forte demais sobre a concordância e levei a auditoria até o número final do hit@5."},
+        {n:67,k:"build",t:"Fase 1",e:"🔎",h:"hit@5 definitivo pós-auditoria.",b:"A auditoria achou 16% dos rótulos errados; rerotulei pela fonte correta (não apaguei) e reportei o impacto — o número honesto ao lado do número do portão.",m:["hit@5 auditado [0,70; 0,76]"]},
+        {n:68,k:"polish",t:"Docs",e:"📖",h:"Distinção lastro humano vs documental.",b:"Deixei explícito no texto a diferença entre o que humanos refutaram e o que foi rerotulado por documento."},
+        {n:69,k:"polish",t:"Visual",e:"🎨",h:"README repaginado.",b:"Reescrita à altura do projeto e sincronização de números que haviam ficado defasados."},
+        {n:70,k:"polish",t:"Visual",e:"🎨",h:"Tratamento visual do HISTORIA.md.",b:"Cabeçalho, linha do tempo e destaques de rigor (os callouts ⚖️)."},
+        {n:71,k:"polish",t:"Visual",e:"🎨",h:"Tratamento visual do guia didático.",b:"Novos termos (κ, custo) e correções de números defasados."},
+        {n:72,k:"polish",t:"Visual",e:"🎨",h:"Tratamento visual da arquitetura.",b:"Mapa atualizado com os módulos novos da sessão."},
+        {n:73,k:"polish",t:"Visual",e:"🎨",h:"Banner no topo do README.",b:"A arte-cabeçalho (SVG) do RodoIA."},
+        {n:74,k:"polish",t:"Visual",e:"🎨",h:"Card para redes sociais (1200×1200).",b:"Peça para post no LinkedIn."},
+        {n:75,k:"polish",t:"Visual",e:"🎨",h:"Card mostra o hit@5 auditado.",b:"Troquei o número conservador pelo auditado (0,70–0,76) na peça social."},
+        {n:76,k:"polish",t:"Visual",e:"🎨",h:"Imagem de preview (1280×640).",b:"A prévia que aparece ao compartilhar o link (GitHub/OpenGraph)."}
+      ]},
+    { date:"17 jul", title:"A auditoria de portfólio e a camada de segurança",
+      context:"O fechamento: uma última auditoria, o endurecimento do CI e o red-team que achou um bug real.",
+      items:[
+        {n:77,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei os 5 achados da auditoria de portfólio.",b:"A última passada de revisão de ponta a ponta."},
+        {n:78,k:"build",t:"Fase 5",e:"⚙️",h:"Alinhei o Python em 3.12.",b:"Ajuste que destravou o portão de checagem de tipos (mypy) no CI."},
+        {n:79,k:"build",t:"Fase 1",e:"🔎",h:"2ª passada de de-boilerplate.",b:"Removi um rodapé que ainda escapava da limpeza — sem alterar o hit@5."},
+        {n:80,k:"build",t:"Fase 5",e:"⚙️",h:"Red-team adversarial.",b:"Um ataque automatizado mediu a taxa de sucesso de invasão (ASR) — e achou um bug real no guardrail, que corrigi.",m:["ASR 0 · detecção 100%","FPR 0% · PII 0%"]},
+        {n:81,k:"build",t:"Fase 5",e:"⚙️",h:"Segurança da cadeia de suprimentos.",b:"Trava de dependências com hash, inventário de componentes (SBOM) e auditoria de vulnerabilidades (CVEs).",m:["0 CVEs · SBOM CycloneDX"]}
+      ]}
+  ];
+
+  // ---- render ----
+  var esc = function(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;};
+  var mh = function(a){return '<div class="metrics">'+a.map(function(x){
+    return '<span class="metric"><span class="mdot" aria-hidden="true"></span>'+esc(x)+'</span>';}).join('')+'</div>';};
+  var pad = function(n){return n<10?("0"+n):(""+n);};
+  var tl = document.getElementById("timeline");
+  var frag = document.createDocumentFragment();
+
+  DAYS.forEach(function(day){
+    var sec = document.createElement("section");
+    sec.className = "day";
+    var head = '<header class="day-head"><div class="day-date">'+esc(day.date)+
+      '</div><div class="day-info"><h2>'+esc(day.title)+'</h2><p>'+esc(day.context)+'</p></div></header>';
+    var ol = '<ol class="steps" start="'+day.items[0].n+'">';
+    day.items.forEach(function(it){
+      ol += '<li class="step" data-kind="'+it.k+'">'+
+        '<div class="marker"><span class="dot k-'+it.k+'"></span></div>'+
+        '<div class="card"><div class="meta">'+
+          '<span class="num">#'+pad(it.n)+'</span>'+
+          '<span class="tag k-'+it.k+'">'+esc(it.t)+'</span>'+
+          '<span class="emoji" aria-hidden="true">'+it.e+'</span>'+
+        '</div><h3>'+esc(it.h)+'</h3><p>'+esc(it.b)+'</p>'+(it.m?mh(it.m):'')+'</div></li>';
+    });
+    ol += '</ol>';
+    sec.innerHTML = head + ol;
+    frag.appendChild(sec);
+  });
+  tl.appendChild(frag);
+
+  // ---- scroll reveal ----
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".step"));
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce || !("IntersectionObserver" in window)){
+    steps.forEach(function(s){s.classList.add("in");});
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target);} });
+    }, {rootMargin:"0px 0px -8% 0px", threshold:0.05});
+    steps.forEach(function(s){io.observe(s);});
+  }
+
+  // ---- filters ----
+  var active = {build:true, rigor:true, deploy:true, polish:true};
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var hint = document.getElementById("hint");
+  var LABEL = {build:"Construção", rigor:"Rigor", deploy:"Deploy", polish:"Docs & visual"};
+
+  function apply(){
+    var anyOff = false, on = [];
+    Object.keys(active).forEach(function(k){ active[k] ? on.push(k) : (anyOff=true); });
+    var showAll = on.length===4 || on.length===0;
+    var shown = 0;
+    steps.forEach(function(s){
+      var vis = showAll || active[s.getAttribute("data-kind")];
+      s.classList.toggle("dim", !vis);
+      if(vis) shown++;
+    });
+    document.querySelectorAll(".day").forEach(function(d){
+      var vis = d.querySelectorAll(".step:not(.dim)").length>0;
+      d.classList.toggle("empty", !vis);
+    });
+    if(showAll){ hint.textContent = ""; }
+    else if(on.length===0){ hint.textContent = "Nenhum tipo selecionado — mostrando tudo."; }
+    else {
+      var names = on.map(function(k){return LABEL[k];}).join(" + ");
+      hint.textContent = "Mostrando "+shown+" passos · "+names;
+    }
+  }
+
+  chips.forEach(function(chip){
+    chip.addEventListener("click", function(){
+      var k = chip.getAttribute("data-kind");
+      active[k] = !active[k];
+      chip.classList.toggle("is-on", active[k]);
+      chip.classList.toggle("k-off", !active[k]);
+      chip.setAttribute("aria-pressed", active[k] ? "true":"false");
+      apply();
+    });
+  });
+
+  // ---- progress bar ----
+  var bar = document.getElementById("bar");
+  var ticking = false;
+  function onScroll(){
+    if(ticking) return; ticking = true;
+    window.requestAnimationFrame(function(){
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var p = max>0 ? (h.scrollTop / max) : 0;
+      bar.style.width = (p*100).toFixed(1)+"%";
+      ticking = false;
+    });
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>
