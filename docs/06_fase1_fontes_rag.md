@@ -58,6 +58,8 @@ vigência` para a **citação da fonte** na resposta (requisito da Fase 1).
 
 ## Corpus inicial (baixado)
 
+> ⏱️ **Registro do 1º incremento.** Os números abaixo são do corpus **inicial** (45 resoluções / 3.432 chunks). O corpus foi depois **expandido para 125 normas / 3.647 chunks** (valor atual, canônico em [`reports/fase1_rag/corpus.json`](../reports/fase1_rag/corpus.json) e no [DATASET_CARD](DATASET_CARD.md)). Mantido como histórico da decisão de partida.
+
 - **Temas:** normas de cargas, produtos perigosos, carga lotação (transporte rodoviário).
 - **130 atos únicos enumerados** → **45 resoluções** com texto integral (2004–2024),
   todas vigentes. **4 milhões de caracteres**; mediana 35 KB/norma; maior norma 1,7 MB
