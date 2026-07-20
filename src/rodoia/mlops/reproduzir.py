@@ -45,14 +45,14 @@ def reproduzir_previsao(tol: float = 0.1) -> tuple[bool, dict]:
     Holt-Winters contra o report. Pula (sem falhar) se o DuckDB da Fase 3 não existir."""
     import numpy as np
 
-    from rodoia.dados.estrela import DB
+    from rodoia.dominio.estrela import DB
 
     rel = REPO_ROOT / "reports" / "fase3_dados" / "previsao.json"
     if not DB.exists():
         return True, {"ancora": "previsao_mape_holt_winters", "pulado": "DuckDB da Fase 3 ausente"}
     esperado = json.loads(rel.read_text(encoding="utf-8"))["modelos"]["holt_winters"]["mape_medio"]
 
-    from rodoia.dados.previsao import _prever_praca, _series_completas
+    from rodoia.dominio.previsao import _prever_praca, _series_completas
     vals = [v for _, s in _series_completas()
             if (v := _prever_praca(s).get("holt_winters")) is not None and np.isfinite(v)]
     novo = round(float(np.mean(vals)), 2)

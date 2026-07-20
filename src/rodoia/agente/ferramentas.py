@@ -60,7 +60,7 @@ def _crescimento_yoy(serie: list[dict[str, Any]]) -> float | None:
 def dados_real(db: Path | None = None) -> Ferramenta:
     """Interpreta a pergunta (heurística explícita) e chama a camada de acesso parametrizada.
     Intenções cobertas: ranking de praças, volume/crescimento de uma praça citada."""
-    from rodoia.dados.acesso import ranking_pracas, serie_mensal, volume_praca
+    from rodoia.dominio.acesso import ranking_pracas, serie_mensal, volume_praca
 
     def _f(pergunta: str) -> dict[str, Any]:
         p = pergunta.lower()

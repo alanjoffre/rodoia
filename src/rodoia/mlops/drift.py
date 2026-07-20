@@ -43,7 +43,7 @@ def drift_volume(db=None) -> dict:
     """PSI do volume mensal POR PRAÇA: últimos 12 meses vs. os 12 anteriores, na mesma coorte."""
     import duckdb
 
-    from rodoia.dados.estrela import DB
+    from rodoia.dominio.estrela import DB
     from rodoia.proveniencia import carimbar
 
     con = duckdb.connect(str(db or DB), read_only=True)

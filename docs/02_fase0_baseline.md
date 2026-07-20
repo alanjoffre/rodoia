@@ -48,8 +48,8 @@ e capotamentos elevam a severidade. O modelo aprendeu física do trânsito, não
 ## Reproduzir
 
 ```bash
-python -m rodoia.data.baixar_acidentes        # baixa CSVs (DVC)
-python -m rodoia.data.ingestao_acidentes      # -> data/processed/acidentes.parquet
+python -m rodoia.ingestao.baixar_acidentes        # baixa CSVs (DVC)
+python -m rodoia.ingestao.ingestao_acidentes      # -> data/processed/acidentes.parquet
 python -m rodoia.ml.classico                  # treina, avalia, gera reports/
 ```
 

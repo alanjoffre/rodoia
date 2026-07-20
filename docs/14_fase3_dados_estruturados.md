@@ -8,8 +8,8 @@
 ## 1. Dados — Volume de Tráfego nas Praças de Pedágio (ANTT)
 
 [Portal de Dados Abertos ANTT](https://dados.antt.gov.br/dataset/volume-trafego-praca-pedagio)
-— CSVs por ano, **2010–2026**. Pipeline reproduzível (`rodoia.data.baixar_volume` via API CKAN
-→ `rodoia.data.ingestao_volume`); dados brutos fora do Git (DVC).
+— CSVs por ano, **2010–2026**. Pipeline reproduzível (`rodoia.ingestao.baixar_volume` via API CKAN
+→ `rodoia.ingestao.ingestao_volume`); dados brutos fora do Git (DVC).
 
 **Desafios reais tratados na ingestão** (observabilidade: 3 linhas rejeitadas de ~2 M):
 - Encoding **ISO-8859-1**, separador `;`, decimal `,` (e milhar `.`).
@@ -20,7 +20,7 @@
   (nomes distintos; 383 pares praça×concessionária — ver `dim_praca` no §2).
 
 > **Evidência versionada:** a contagem acima não é narrativa — sai carimbada em
-> `reports/fase3_dados/estrela.json` (gerado por `python -m rodoia.dados.estrela`) e é
+> `reports/fase3_dados/estrela.json` (gerado por `python -m rodoia.dominio.estrela`) e é
 > **portão do gate** (`F3 · linhas do fato ≥ 700.000`). Antes ela só existia no stdout de quem
 > rodava a ingestão: era o único número da vitrine sem artefato que o CI pudesse defender.
 
@@ -86,10 +86,10 @@ rigor corrigir o próprio número). Gráfico da praça mais longa em `reports/fa
 
 ```bash
 pip install -e ".[estruturados]"
-python -m rodoia.data.baixar_volume && python -m rodoia.data.ingestao_volume
-python -m rodoia.dados.estrela        # esquema estrela -> data/processed/volume.duckdb
-python -m rodoia.dados.consultas      # SQL analítico -> reports/fase3_dados/analitico.json
-python -m rodoia.dados.previsao       # previsão -> reports/fase3_dados/previsao.json + .png
+python -m rodoia.ingestao.baixar_volume && python -m rodoia.ingestao.ingestao_volume
+python -m rodoia.dominio.estrela        # esquema estrela -> data/processed/volume.duckdb
+python -m rodoia.dominio.consultas      # SQL analítico -> reports/fase3_dados/analitico.json
+python -m rodoia.dominio.previsao       # previsão -> reports/fase3_dados/previsao.json + .png
 ```
 
 ## 7. Critérios de conclusão (todos ✓)

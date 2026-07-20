@@ -13,7 +13,7 @@ Dimensões:
 - `dim_tempo` (data → ano, mês, trimestre, nome_mes)
 - `dim_categoria` (categoria → tipo_de_veiculo)
 
-Uso:  python -m rodoia.dados.estrela
+Uso:  python -m rodoia.dominio.estrela
 """
 from __future__ import annotations
 

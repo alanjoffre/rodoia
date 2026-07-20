@@ -16,11 +16,11 @@
 src/rodoia/
 ├── fundamentos/   F0 · backprop e atenção à mão (PyTorch/NumPy puro)
 ├── ml/            F0 · ML clássico + MLP (severidade de acidente)
-├── data/          F0/F3 · download + ingestão dos CSVs públicos da ANTT
+├── ingestao/          F0/F3 · download + ingestão dos CSVs públicos da ANTT
 ├── rag/           F1 · corpus → chunking → índice → retrieval híbrido → geração → segurança → API
 ├── ft/            F2 · QLoRA, quantização, serving e avaliação (perplexidade, juízes, win-rate)
 ├── ner/           F2 · NER jurídico (LeNER-Br): generativo (FT) vs BERTimbau (SOTA)
-├── dados/         F3 · esquema estrela DuckDB, SQL analítico, acesso, previsão
+├── dominio/         F3 · esquema estrela DuckDB, SQL analítico, acesso, previsão
 ├── agente/        F4 · grafo LangGraph que orquestra RAG + modelo FT + dados
 ├── mlops/         F5 · gate de avaliação, rastreio MLflow, drift, custo, carga
 ├── api/           F1/F4 · FastAPI (RAG + agente)
@@ -46,9 +46,9 @@ src/rodoia/
 | `ml/classico.py` | Baseline de ML clássico (prever `houve_vitima`): pipelines sklearn + métricas | `avaliar`, `features`, `construir_modelos`, `construir_preprocessador` |
 | `ml/mlp_torch.py` | MLP em PyTorch com laço de treino manual + limiar por F1 | `treinar`, `MLP`, `dispositivo`, `_limiar_max_f1` |
 | `ml/diagnostico.py` | Diagnóstico (curvas de aprendizado/validação, calibração, clustering) | `diagnosticar`, `curva_aprendizado`, `diagrama_calibracao` |
-| `data/baixar_acidentes.py` | Download reprodutível dos CSVs de Acidentes (CKAN) | `baixar_acidentes`, `listar_recursos_csv`, `baixar_recurso` |
-| `data/esquema_acidentes.py` | Schema canônico + leitura robusta (latin-1, `;`, decimal `,`) | `validar_esquema`, `ler_csv_acidentes` |
-| `data/ingestao_acidentes.py` | Consolida 39 CSVs (37 concessionárias), deriva alvo e features | `consolidar`, `derivar_alvo`, `engenharia_features` |
+| `ingestao/baixar_acidentes.py` | Download reprodutível dos CSVs de Acidentes (CKAN) | `baixar_acidentes`, `listar_recursos_csv`, `baixar_recurso` |
+| `ingestao/esquema_acidentes.py` | Schema canônico + leitura robusta (latin-1, `;`, decimal `,`) | `validar_esquema`, `ler_csv_acidentes` |
+| `ingestao/ingestao_acidentes.py` | Consolida 39 CSVs (37 concessionárias), deriva alvo e features | `consolidar`, `derivar_alvo`, `engenharia_features` |
 
 ## 🔎 Fase 1 — RAG avaliado (`rag/`)
 
@@ -91,16 +91,16 @@ src/rodoia/
 | `ner/avaliar_generativo.py` | F1 de entidade do NER generativo (vLLM), base vs. FT | `avaliar`, `metricas_ner`, `parse_entidades` |
 | `ner/bertimbau.py` | NER com BERTimbau token-classification — a REFERÊNCIA SOTA | `treinar`, `_tokenizar_alinhar`, `_metricas` |
 
-## 📊 Fase 3 — Dados estruturados (`dados/`, `data/`)
+## 📊 Fase 3 — Dados estruturados (`dominio/`, `ingestao/`)
 
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
-| `data/baixar_volume.py` | Download do Volume de Pedágio (CKAN) | `baixar_volume`, `_recursos` |
-| `data/ingestao_volume.py` | Consolida CSVs → parquet limpo (datas mistas, caixa, granularidade) | `consolidar`, `_para_data`, `_ler_csv` |
-| `dados/estrela.py` | Constrói o esquema estrela (fato + dimensões) em DuckDB | `construir` |
-| `dados/consultas.py` | SQL analítico (CTEs + window: LAG/RANK/sazonalidade/composição) | `rodar` |
-| `dados/acesso.py` | Camada de acesso parametrizada (anti-injection) — ferramenta do agente | `ranking_pracas`, `volume_praca`, `serie_mensal`, `volume_por_ano` |
-| `dados/previsao.py` | Previsão multi-step (12m) + backtest 63 praças + IC + teste pareado | `avaliar`, `_prever_praca`, `_gb_recursivo`, `_series_completas`, `_mape` |
+| `ingestao/baixar_volume.py` | Download do Volume de Pedágio (CKAN) | `baixar_volume`, `_recursos` |
+| `ingestao/ingestao_volume.py` | Consolida CSVs → parquet limpo (datas mistas, caixa, granularidade) | `consolidar`, `_para_data`, `_ler_csv` |
+| `dominio/estrela.py` | Constrói o esquema estrela (fato + dimensões) em DuckDB | `construir` |
+| `dominio/consultas.py` | SQL analítico (CTEs + window: LAG/RANK/sazonalidade/composição) | `rodar` |
+| `dominio/acesso.py` | Camada de acesso parametrizada (anti-injection) — ferramenta do agente | `ranking_pracas`, `volume_praca`, `serie_mensal`, `volume_por_ano` |
+| `dominio/previsao.py` | Previsão multi-step (12m) + backtest 63 praças + IC + teste pareado | `avaliar`, `_prever_praca`, `_gb_recursivo`, `_series_completas`, `_mape` |
 
 ## 🤖 Fase 4 — Agente de orquestração (`agente/`)
 
@@ -139,7 +139,7 @@ pergunta → api/app.py:/agente → agente/grafo.responder
    → executar:
         regulatorio → rag/gerar.responder_seguro  (recuperador híbrido + LLM)
         entidades   → ner prompt + rag/llm.OpenAICompatLLM → vLLM (modelo FT)
-        dados       → dados/acesso.* (DuckDB) + cálculo
+        dados       → dominio/acesso.* (DuckDB) + cálculo
    → sintetizar (LLM) → mascarar_pii → resposta + fontes + trajetória
 ```
 

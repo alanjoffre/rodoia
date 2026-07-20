@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from rodoia.data.esquema_acidentes import (
+from rodoia.ingestao.esquema_acidentes import (
     COLUNAS_ESPERADAS,
     ErroDeEsquema,
     ler_csv_acidentes,

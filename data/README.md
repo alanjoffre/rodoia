@@ -22,11 +22,11 @@ Pipelines de obtenção já publicados (reproduzíveis, dados brutos fora do Git
 
 ```bash
 # Fase 0 — acidentes rodoviários (ML clássico):
-python -m rodoia.data.baixar_acidentes && python -m rodoia.data.ingestao_acidentes
+python -m rodoia.ingestao.baixar_acidentes && python -m rodoia.ingestao.ingestao_acidentes
 # Fase 1 — resoluções da ANTT (RAG):
 python -m rodoia.rag.baixar_normas
 # Fase 3 — dados estruturados (volume de pedágio):
-python -m rodoia.data.baixar_volume && python -m rodoia.data.ingestao_volume
+python -m rodoia.ingestao.baixar_volume && python -m rodoia.ingestao.ingestao_volume
 ```
 
 ### Datasets processados (`data/processed/*.jsonl`) — fora do Git, regeneráveis

@@ -18,7 +18,7 @@ from pathlib import Path
 import pandas as pd
 
 from rodoia.config import settings
-from rodoia.data.esquema_acidentes import COLUNAS_VEICULOS, ler_csv_acidentes
+from rodoia.ingestao.esquema_acidentes import COLUNAS_VEICULOS, ler_csv_acidentes
 
 # Alvo é derivado destas (não entram como feature).
 _COLUNAS_FERIDOS = ("levemente_feridos", "moderadamente_feridos", "gravemente_feridos")

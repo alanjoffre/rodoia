@@ -15,7 +15,7 @@ datasets consagrados** (ver `NOTICE` e [data/README.md](../data/README.md)). Dad
 - **Licença:** **CC-BY** (Decreto 8.777/2016) → atribuição à ANTT (no `NOTICE`).
 - **Escala:** 2010–2026; após ingestão → **741.205 linhas, 197 meses, 50 concessionárias, 292
   praças** (383 pares praça×concessionária).
-- **Obtenção:** `rodoia.data.baixar_volume` → `rodoia.data.ingestao_volume`.
+- **Obtenção:** `rodoia.ingestao.baixar_volume` → `rodoia.ingestao.ingestao_volume`.
 - **Qualidade tratada:** datas mistas (`DD/MM/AAAA` vs `MM/AAAA`), coluna `categoria`/`categoria_eixo`,
   granularidade diária→mensal, normalização de caixa.
 
@@ -23,7 +23,7 @@ datasets consagrados** (ver `NOTICE` e [data/README.md](../data/README.md)). Dad
 - **Uso:** classificação de severidade (`houve_vitima`).
 - **Licença:** **CC-BY** (confirmar por dataset).
 - **Escala:** ~1,03 M linhas; 39 CSVs → 37 concessionárias reconciliadas.
-- **Obtenção:** `rodoia.data.baixar_acidentes` → `rodoia.data.ingestao_acidentes`.
+- **Obtenção:** `rodoia.ingestao.baixar_acidentes` → `rodoia.ingestao.ingestao_acidentes`.
 
 ## 4. LeNER-Br — Fase 2 (NER / fine-tuning)
 - **Uso:** tarefa de rótulo objetivo (NER jurídico) para o fine-tuning e o baseline BERTimbau.

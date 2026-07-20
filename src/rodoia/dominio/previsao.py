@@ -6,7 +6,7 @@ depois agrega com **IC por bootstrap** sobre as praças. Compara baselines (naï
 sazonal-naïve), o clássico **Holt-Winters** (statsmodels) e um **Gradient Boosting** (lags +
 médias móveis + mês). Split temporal, sem vazamento. Métrica: **MAPE** (escala-livre, agregável).
 
-Uso:  python -m rodoia.dados.previsao
+Uso:  python -m rodoia.dominio.previsao
 """
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from rodoia.config import REPO_ROOT, settings
-from rodoia.dados.estrela import DB
+from rodoia.dominio.estrela import DB
 from rodoia.estat import bootstrap_ic
 from rodoia.proveniencia import carimbar
 

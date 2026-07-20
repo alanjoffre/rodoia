@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from rodoia.data.esquema_acidentes import COLUNAS_ESPERADAS
-from rodoia.data.ingestao_acidentes import derivar_alvo, engenharia_features
+from rodoia.ingestao.esquema_acidentes import COLUNAS_ESPERADAS
+from rodoia.ingestao.ingestao_acidentes import derivar_alvo, engenharia_features
 
 
 def _linha(**over) -> dict:

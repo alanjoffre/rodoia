@@ -7,8 +7,8 @@ adicionar concessionárias ou trocar IDs de recurso. Cada arquivo é 1 CSV por
 concessionária; o schema é consistente entre elas (validado em docs/00).
 
 Uso:
-    python -m rodoia.data.baixar_acidentes            # baixa todas as concessionárias
-    python -m rodoia.data.baixar_acidentes --limite 2 # baixa só as 2 primeiras (dev)
+    python -m rodoia.ingestao.baixar_acidentes            # baixa todas as concessionárias
+    python -m rodoia.ingestao.baixar_acidentes --limite 2 # baixa só as 2 primeiras (dev)
 
 Saída: arquivos em data/raw/acidentes/ + um manifesto.json com proveniência
 (URL, id do recurso, tamanho, sha256, data de coleta) — rastreabilidade exigida

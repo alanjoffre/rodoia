@@ -42,7 +42,7 @@ cp .env.example .env   # preencher só quando usar LLM (Fase 1+). NUNCA comitar 
 
 **Opção A — reproduzir do zero (recomendada, não depende de remote):**
 ```bash
-python -m rodoia.data.baixar_acidentes      # baixa 39 CSVs da ANTT -> data/raw/ (~126 MB)
+python -m rodoia.ingestao.baixar_acidentes      # baixa 39 CSVs da ANTT -> data/raw/ (~126 MB)
 dvc add data/raw/acidentes                   # (opcional) versiona no seu DVC
 ```
 
@@ -56,7 +56,7 @@ dvc pull                                                          # baixa dados 
 
 ```bash
 # 1) Consolida os 39 CSVs -> 37 concessionárias -> data/processed/acidentes.parquet (~1,03M acidentes)
-python -m rodoia.data.ingestao_acidentes
+python -m rodoia.ingestao.ingestao_acidentes
 
 # 2) Baseline: treina e compara 4 modelos -> reports/fase0_baseline/
 python -m rodoia.ml.classico
@@ -94,8 +94,8 @@ deve mostrar só `.env.example`), CI verde e README revisado.
 
 | Quero… | Comando |
 |---|---|
-| Baixar os dados | `python -m rodoia.data.baixar_acidentes` |
-| Gerar o parquet consolidado | `python -m rodoia.data.ingestao_acidentes` |
+| Baixar os dados | `python -m rodoia.ingestao.baixar_acidentes` |
+| Gerar o parquet consolidado | `python -m rodoia.ingestao.ingestao_acidentes` |
 | Treinar/comparar modelos | `python -m rodoia.ml.classico` |
 | Diagnosticar o modelo | `python -m rodoia.ml.diagnostico` |
 | Rodar os testes | `pytest` |

@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from rodoia.dados.estrela import consultar_ro
+from rodoia.dominio.estrela import consultar_ro
 
 
 def _consultar(sql: str, params: list[Any], db: Path | None = None) -> list[dict[str, Any]]:

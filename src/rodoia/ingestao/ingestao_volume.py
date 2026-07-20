@@ -5,7 +5,7 @@ mensal derivada de `mes_ano`. Valida o schema e reporta linhas/rejeições (obse
 de ingestão). Grão da linha: concessionária × praça × mês × sentido × cobrança × categoria
 × tipo de veículo → volume_total.
 
-Uso:  python -m rodoia.data.ingestao_volume
+Uso:  python -m rodoia.ingestao.ingestao_volume
 """
 from __future__ import annotations
 
@@ -40,7 +40,9 @@ def consolidar(destino=None) -> dict:
     destino = destino or (settings.data_processed / "volume_pedagio.parquet")
     arquivos = sorted(_DIR.glob("*.csv"))
     if not arquivos:
-        raise SystemExit(f"Sem CSVs em {_DIR} — rode `python -m rodoia.data.baixar_volume` antes.")
+        raise SystemExit(
+            f"Sem CSVs em {_DIR} — rode `python -m rodoia.ingestao.baixar_volume` antes."
+        )
 
     partes, lidas, rejeitadas = [], 0, 0
     for arq in arquivos:

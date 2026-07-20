@@ -4,7 +4,7 @@ Dados abertos (dados.antt.gov.br), série 2010–2026 por praça/concessionária
 mensal. Baixa via API CKAN os CSVs anuais/mensais-consolidados (ignora os diários, grandes
 e desnecessários p/ a previsão mensal). Reproduzível; dados brutos fora do Git (DVC).
 
-Uso:  python -m rodoia.data.baixar_volume [--limite N]
+Uso:  python -m rodoia.ingestao.baixar_volume [--limite N]
 """
 from __future__ import annotations
 

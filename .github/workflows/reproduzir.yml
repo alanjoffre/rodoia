@@ -32,9 +32,9 @@ jobs:
 
       - name: Âncora 2 — volume + DuckDB (previsão; tolerante a CKAN fora do ar)
         run: |
-          python -m rodoia.data.baixar_volume \
-            && python -m rodoia.data.ingestao_volume \
-            && python -m rodoia.dados.estrela \
+          python -m rodoia.ingestao.baixar_volume \
+            && python -m rodoia.ingestao.ingestao_volume \
+            && python -m rodoia.dominio.estrela \
             || echo "volume indisponível — a âncora de previsão pulará (sem falhar)"
 
       - name: Reproduzir as âncoras (re-executa o pipeline e confere; grava evidência)

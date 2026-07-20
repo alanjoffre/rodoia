@@ -5,14 +5,14 @@ de Tráfego de Pedágio. Cada uma responde a uma pergunta de negócio e serve de
 camada de acesso (ferramenta do agente) e para a previsão. Resultados versionados em
 `reports/fase3_dados/analitico.json`.
 
-Uso:  python -m rodoia.dados.consultas
+Uso:  python -m rodoia.dominio.consultas
 """
 from __future__ import annotations
 
 import json
 
 from rodoia.config import REPO_ROOT
-from rodoia.dados.estrela import consultar_ro
+from rodoia.dominio.estrela import consultar_ro
 from rodoia.proveniencia import carimbar
 
 # Crescimento MoM/YoY do volume total da rede (LAG sobre a série mensal).

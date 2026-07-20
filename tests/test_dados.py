@@ -3,8 +3,8 @@ import duckdb
 import pandas as pd
 import pytest
 
-from rodoia.dados.acesso import ranking_pracas, serie_mensal, volume_praca
-from rodoia.dados.previsao import _mape
+from rodoia.dominio.acesso import ranking_pracas, serie_mensal, volume_praca
+from rodoia.dominio.previsao import _mape
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ def test_previsao_multistep_justa():
     se algum modelo 'espiar' o teste (1-passo alimentado com o real), o teste denuncia."""
     import numpy as np
 
-    from rodoia.dados.previsao import _prever_praca
+    from rodoia.dominio.previsao import _prever_praca
 
     idx = pd.date_range("2010-01-01", periods=120, freq="MS")
     t = np.arange(120)
@@ -68,7 +68,7 @@ def test_previsao_multistep_justa():
 
 
 def test_para_data_formatos_mistos():
-    from rodoia.data.ingestao_volume import _para_data
+    from rodoia.ingestao.ingestao_volume import _para_data
     d = _para_data(pd.Series(["01/01/2010", "03/2024"]))
     assert str(d.iloc[0].date()) == "2010-01-01"
     assert str(d.iloc[1].date()) == "2024-03-01"
