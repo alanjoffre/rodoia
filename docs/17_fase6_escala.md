@@ -147,17 +147,50 @@ Custo medido na Nitro: ~2,5 min de download + ~20 min de parse.
 - [x] Contagem **carimbada em artefato versionado** e defendida por 2 portões do gate
 - [x] Armadilhas do dado **documentadas no código**, não só no doc (WAF, 3 formatos de data)
 - [x] Testes dos caminhos críticos (9), **sem rede**, verdes em pyarrow 24 e 25
-- [ ] `dvc add data/raw/cfpb data/processed/cfpb` — o `.gitignore` protege o repo, mas ainda
-      falta o `.dvc` com o hash do dado
+- [x] `dvc add` dos dados brutos e processados (ponteiros versionados, dado fora do Git)
+- [x] **Benchmark externo ingerido e aferido** — CUAD com 13.823 spans de gold, **0 offsets
+      divergentes** (§8), 2 portões adicionais
+- [ ] Avaliação de recuperação sobre o CUAD (Recall@k / MRR / abstenção)
 - [ ] Benchmark de motor (DuckDB vs Spark) sobre o mesmo conjunto de queries
 
-## 8. Próximo passo — bloco "benchmark externo" (CUAD)
+## 8. Bloco "benchmark externo" — CUAD ingerido e aferido
 
-O segundo bloco da Fase 6 não depende de LLM para a parte que mais importa. O
-[CUAD](https://www.atticusprojectai.org/cuad) traz **510 contratos com 20.910 perguntas e 13.823
-spans de resposta anotados** — com gold de terceiros dá para calcular **Recall@k, MRR e nDCG sem
-uma única chamada de modelo**, reusando a máquina do `rag/avaliacao_retrieval.py` e o `estat.py`.
+[CUAD](https://www.atticusprojectai.org/cuad) (Apache 2.0) — 510 contratos comerciais anotados
+por advogados. `rag/baixar_cuad.py` → `rag/cuad.py` normaliza o `CUAD_v1.json` (SQuAD 2.0) para
+`contratos.jsonl` + `perguntas.jsonl`, e afere a integridade:
 
-E **67,9% das perguntas são `is_impossible`**: a resposta correta é *"não consta no contrato"*.
-Isso permite medir **abstenção** — se o sistema recupera lixo quando não há nada a recuperar —
-que é a métrica que quase nenhum portfólio mostra.
+| | medido |
+|---|---:|
+| Contratos | **510** |
+| Perguntas | **20.910** |
+| `is_impossible` | **14.208** (67,95%) |
+| Spans de resposta | **13.823** |
+| Categorias de cláusula | **41** |
+| **Spans cujo offset confere com o texto** | **13.823 — 0 divergentes** |
+
+> **A última linha é o portão que importa.** `answer_start` é offset de caractere no contrato
+> inteiro; gold desalinhado **não quebra nada visivelmente** — produz métrica plausível e falsa.
+> Conferir é barato e a ausência da conferência é cara, então `spans_divergentes` tem teto 0,
+> sem folga, como o vazamento de PII da Fase 1.
+
+Duas decisões de parsing registradas no código: **`is_impossible` não é descartado** (o reflexo
+comum ao ver "impossible" jogaria fora 2/3 do benchmark e justamente a parte difícil — são elas
+que medem **abstenção**), e **os offsets são preservados** em vez de só o texto do span, porque
+o mapeamento span→chunk da avaliação depende deles e re-encontrar por busca de string é ambíguo
+quando o mesmo trecho se repete.
+
+**Contraste de portão, deliberado:** o CUAD usa **igualdade** (`n_contratos == 510`) enquanto o
+CFPB usa **piso**. Não é inconsistência — o CUAD é dataset acadêmico congelado, e se 510 virar
+outro número o espelho mudou sob nossos pés e toda comparação com SOTA fica inválida; o bulk da
+CFPB é série viva que só cresce.
+
+Também verificado: a **API pública do Kaggle dispensa credencial** (sem conta, sem `kaggle.json`,
+sem o pacote `kaggle`), mas **responde 404 a HEAD** e 200 a GET — a consulta de metadados abre
+com GET e fecha antes do corpo. E `User-Agent` com acento derruba a requisição com **400**:
+cabeçalho HTTP não aceita não-ASCII.
+
+### Próximo passo — avaliação, ainda sem LLM
+
+Com o gold conferido, **Recall@k, MRR e nDCG saem sem uma única chamada de modelo**, reusando
+`rag/avaliacao_retrieval.py` e o `estat.py` (Wilson/bootstrap). O que exige API é só a geração —
+e só depois que a recuperação justificar o gasto.

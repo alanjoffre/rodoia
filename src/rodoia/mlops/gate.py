@@ -83,6 +83,16 @@ GATES: tuple[Meta, ...] = (
     # qualquer métrica de recuperação. Piso sob as 3.825.572 medidas.
     Meta("F6 · narrativas do CFPB", "reports/fase6_escala/contagem_cfpb.json",
          "com_narrativa", ">=", 3_700_000),
+    # CUAD — benchmark externo. Aqui igualdade É correta, ao contrário do CFPB acima: é um
+    # dataset acadêmico CONGELADO, não uma série viva. Se 510 virar outro número, o espelho do
+    # Kaggle mudou sob nossos pés e toda métrica de recuperação comparada a SOTA fica inválida.
+    Meta("F6 · CUAD contratos", "reports/fase6_cuad/integridade.json",
+         "n_contratos", "==", 510),
+    # O portão mais importante da Fase 6: cada span de ouro precisa casar com o texto no offset
+    # declarado. Gold desalinhado não quebra nada visivelmente — produz métrica plausível e
+    # FALSA. Teto 0, sem folga, pelo mesmo motivo do vazamento de PII acima.
+    Meta("F6 · CUAD offsets divergentes", "reports/fase6_cuad/integridade.json",
+         "spans_divergentes", "<=", 0),
 )
 
 

@@ -1,0 +1,6 @@
+outs:
+- md5: c9f86441c3c599352542bd3ec6ab5067.dir
+  size: 42610000
+  nfiles: 2
+  hash: md5
+  path: cuad
