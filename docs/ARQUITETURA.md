@@ -117,7 +117,7 @@ src/rodoia/
 
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
-| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (19 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
+| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (21 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
 | `mlops/rastreio.py` | Consolida métricas das fases em runs MLflow (sqlite) | `coletar`, `registrar` |
 | `mlops/drift.py` | Drift por PSI (coorte de praças, 12m vs 12m) | `psi`, `drift_volume`, `classificar` |
 | `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval`, `reproduzir_previsao` |
@@ -146,7 +146,7 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 ## 🔬 Onde ver as evidências
 
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
-- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 19 portões) e o CI em `.github/workflows/ci.yml`.
+- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 21 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
 - **Testes:** `tests/test_*.py` (175 testes; 158 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/16`; decisões/trade-offs no [README](../README.md).

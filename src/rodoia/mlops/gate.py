@@ -93,6 +93,16 @@ GATES: tuple[Meta, ...] = (
     # FALSA. Teto 0, sem folga, pelo mesmo motivo do vazamento de PII acima.
     Meta("F6 · CUAD offsets divergentes", "reports/fase6_cuad/integridade.json",
          "spans_divergentes", "<=", 0),
+    # Baseline de recuperação (BM25, sem LLM) sobre o benchmark externo. Piso com folga sob os
+    # 0,588 medidos: é o número que qualquer melhoria de arquitetura (denso, híbrido, rerank,
+    # chunking por cláusula) precisa bater — e que uma regressão silenciosa derrubaria.
+    Meta("F6 · CUAD recall@5 (BM25)", "reports/fase6_cuad/retrieval_bm25.json",
+         "metricas.recall_at_5.media", ">=", 0.55),
+    # Invariante do mapeamento span->chunk: toda pergunta respondível precisa ter ao menos um
+    # chunk de gold. Se um refactor de chunking quebrar o alinhamento, o Recall cairia de forma
+    # plausível em vez de falhar — este portão faz falhar. Teto 0, sem folga.
+    Meta("F6 · CUAD perguntas sem gold", "reports/fase6_cuad/retrieval_bm25.json",
+         "n_sem_gold", "<=", 0),
 )
 
 

@@ -189,8 +189,66 @@ sem o pacote `kaggle`), mas **responde 404 a HEAD** e 200 a GET — a consulta d
 com GET e fecha antes do corpo. E `User-Agent` com acento derruba a requisição com **400**:
 cabeçalho HTTP não aceita não-ASCII.
 
-### Próximo passo — avaliação, ainda sem LLM
+## 9. Avaliação de recuperação — baseline BM25, zero LLM
 
-Com o gold conferido, **Recall@k, MRR e nDCG saem sem uma única chamada de modelo**, reusando
-`rag/avaliacao_retrieval.py` e o `estat.py` (Wilson/bootstrap). O que exige API é só a geração —
-e só depois que a recuperação justificar o gasto.
+`rag/avaliacao_cuad.py`: chunking com offsets → mapeamento span→chunk → BM25 → métricas com IC.
+**510 contratos, 20.806 chunks, 6.702 perguntas respondíveis. 15,8 s de execução, custo de API
+zero.**
+
+**Recall@k aqui é Recall de verdade, não hit-rate.** A Fase 1 documenta honestamente que mede
+*hit-rate* porque cada pergunta tem UMA fonte-gold. No CUAD o gold é exaustivo por pergunta, então
+a fração de *todos* os relevantes recuperados é computável — e as duas métricas são reportadas
+lado a lado, porque medem coisas diferentes.
+
+| k | Recall@k (IC95 bootstrap) | Hit@k (IC95 Wilson) |
+|---:|---|---|
+| 1 | 0,275 [0,266; 0,284] | 0,431 [0,419; 0,443] |
+| 3 | 0,491 [0,480; 0,502] | 0,625 [0,614; 0,637] |
+| 5 | **0,588** [0,577; 0,599] | 0,705 [0,694; 0,716] |
+| 10 | 0,724 [0,714; 0,733] | 0,812 [0,803; 0,821] |
+
+**MRR 0,557** [0,547; 0,567]. E **`n_sem_gold = 0`**: toda pergunta respondível mapeou para pelo
+menos um chunk — o alinhamento span→chunk fecha ponta a ponta, não por suposição.
+
+### 9.1 O resultado negativo que importa — abstenção não funciona com BM25
+
+O diagnóstico de abstenção compara o escore do top-1 nas duas populações:
+
+| | p10 | mediana | p90 |
+|---|---:|---:|---:|
+| Respondível | 6,25 | **15,26** | 34,13 |
+| `is_impossible` | 2,55 | **14,85** | 30,02 |
+
+As medianas diferem em **+0,41 (2,7%)** e as distribuições se sobrepõem quase inteiramente.
+**Nenhum limiar sobre o escore BM25 separa "o contrato tem essa cláusula" de "não tem."**
+
+Isso não é falha do experimento — é o experimento funcionando. O diagnóstico foi escrito
+justamente para detectar isso *antes* de construir uma política de abstenção sobre um sinal sem
+informação. A razão é estrutural: BM25 devolve o chunk que melhor casa lexicalmente, e linguagem
+contratual é homogênea — sempre há *algum* trecho que casa razoavelmente, exista a cláusula ou
+não.
+
+### 9.2 A média de 0,588 esconde um fator de 5,3×
+
+Recall@5 por categoria de cláusula:
+
+| melhores | | piores | |
+|---|---:|---|---:|
+| Renewal Term | 0,922 | Affiliate License-Licensor | 0,336 |
+| Governing Law | 0,893 | Document Name | 0,322 |
+| Termination For Convenience | 0,885 | Exclusivity | 0,277 |
+| Notice Period To Terminate Renewal | 0,851 | Parties | 0,255 |
+| Insurance | 0,827 | **Volume Restriction** | **0,173** |
+
+O padrão nas piores é diagnóstico: `Document Name` e `Parties` são metadados — o nome do contrato
+e quem o assina. O texto que os contém **não repete os termos da query**, então BM25 não tem por
+onde casar. É o caso clássico de lacuna lexical, e é exatamente onde recuperação densa deve ganhar
+— o que torna a comparação denso vs BM25 o próximo experimento com hipótese, não com esperança.
+
+Reportar só a média de 0,588 esconderia essa estrutura inteira.
+
+### Próximo passo
+
+Recuperação densa (e5 na 4050, ~20,8k chunks — trivial) contra este baseline, por categoria. A
+hipótese é específica: o ganho deve se concentrar nas categorias de lacuna lexical. Só depois, e
+só se a recuperação justificar, entra API para a geração.
