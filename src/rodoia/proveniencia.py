@@ -19,6 +19,10 @@ _LIBS = (
     "numpy", "scikit-learn", "torch", "pandas",
     "transformers", "peft", "trl", "bitsandbytes", "accelerate", "datasets",
     "vllm", "sentence-transformers", "qdrant-client",
+    # Fase 6: pyarrow é de carga (schema/leitura do Parquet particionado) e a versão MUDA
+    # comportamento — a 24 materializa a chave de partição na leitura, a 25 não. Sem carimbar,
+    # um número da Fase 6 fica irrastreável.
+    "pyarrow", "duckdb",
 )
 
 

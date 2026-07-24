@@ -1,0 +1,107 @@
+{
+  "linhas_total": 17226584,
+  "com_narrativa": 3825572,
+  "pct_narrativa": 22.21,
+  "caracteres_narrativa": 3906519554,
+  "periodo": {
+    "min": "2011-12-01",
+    "max": "2026-07-24"
+  },
+  "por_ano": {
+    "2011": {
+      "linhas": 2536,
+      "com_narrativa": 0
+    },
+    "2012": {
+      "linhas": 72368,
+      "com_narrativa": 0
+    },
+    "2013": {
+      "linhas": 108216,
+      "com_narrativa": 0
+    },
+    "2014": {
+      "linhas": 152910,
+      "com_narrativa": 0
+    },
+    "2015": {
+      "linhas": 168273,
+      "com_narrativa": 54723
+    },
+    "2016": {
+      "linhas": 191297,
+      "com_narrativa": 77768
+    },
+    "2017": {
+      "linhas": 242749,
+      "com_narrativa": 115313
+    },
+    "2018": {
+      "linhas": 257133,
+      "com_narrativa": 118393
+    },
+    "2019": {
+      "linhas": 277242,
+      "com_narrativa": 124843
+    },
+    "2020": {
+      "linhas": 444214,
+      "com_narrativa": 174298
+    },
+    "2021": {
+      "linhas": 495940,
+      "com_narrativa": 203570
+    },
+    "2022": {
+      "linhas": 800268,
+      "com_narrativa": 337284
+    },
+    "2023": {
+      "linhas": 1292066,
+      "com_narrativa": 487413
+    },
+    "2024": {
+      "linhas": 2734308,
+      "com_narrativa": 814388
+    },
+    "2025": {
+      "linhas": 5443425,
+      "com_narrativa": 1222151
+    },
+    "2026": {
+      "linhas": 4543639,
+      "com_narrativa": 95428
+    }
+  },
+  "particoes": 16,
+  "limite_aplicado": null,
+  "snapshot": {
+    "sha256": "1025b80370c9987beff634b83674b12cb517c59b5501cd678e5a9a8abead9118",
+    "last_modified": "Fri, 24 Jul 2026 09:31:30 GMT",
+    "bytes": 1426782518
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "263abab",
+    "git_dirty": true,
+    "git_diff_sha1": "c26ac7c7d0c9",
+    "timestamp_utc": "2026-07-24T14:57:21+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0",
+      "pyarrow": "24.0.0",
+      "duckdb": "1.5.4"
+    }
+  }
+}

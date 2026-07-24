@@ -10,7 +10,7 @@
 # NÃO são à prova de ambiente. O lock fixa a árvore RESOLVIDA com hash de conteúdo — a alegação de
 # reprodutibilidade deixa de ser aspiracional. O stack de GPU (ft/vLLM) é específico de plataforma
 # (CUDA) e fica pinado à parte em reports/fase2_ft/versoes_nitro.txt.
-.[dev,agente,estruturados]
+.[dev,agente,escala,estruturados]
 qdrant-client
 rank-bm25
 fastapi

@@ -1,0 +1,6 @@
+outs:
+- md5: a483a1ac7e63d721106013989396dfc1.dir
+  size: 1426783116
+  nfiles: 2
+  hash: md5
+  path: cfpb

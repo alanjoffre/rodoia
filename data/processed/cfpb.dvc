@@ -1,0 +1,6 @@
+outs:
+- md5: ebf64e97a45820a575d46b747566b140.dir
+  size: 1078927304
+  nfiles: 16
+  hash: md5
+  path: cfpb

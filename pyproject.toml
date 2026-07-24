@@ -35,6 +35,11 @@ ft = ["transformers>=5.0", "peft>=0.19", "trl>=1.0", "bitsandbytes>=0.45", "acce
 estruturados = ["duckdb>=1.0", "pandas>=2.2", "scikit-learn>=1.5", "matplotlib>=3.9", "statsmodels>=0.14", "openpyxl>=3.1"]
 # Fase 4 — agente
 agente = ["langgraph>=1.0"]
+# Fase 6 — escala e benchmark externo. pyspark fica DE FORA do conjunto do CI:
+# ele é usado só no benchmark de motor (DuckDB vs Spark) e arrasta um stack JVM
+# que não precisa entrar no lock com hash. duckdb vem de `estruturados`.
+escala = ["pyarrow>=17.0"]
+benchmark-motor = ["pyspark>=3.5"]
 # MLOps (transversal)
 mlops = ["mlflow>=2.14", "dvc[s3]>=3.51"]
 # Dev

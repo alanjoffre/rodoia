@@ -6,7 +6,7 @@ from rodoia.mlops.gate import _acessar, _passou, avaliar
 # Espelha o número anunciado no badge do README ("gate de avaliação 12/12"). É um LITERAL de
 # propósito: derivá-lo de `len(GATES)` tornaria o teste tautológico (passaria sempre) e não
 # protegeria o badge, que é justamente o que ele existe para proteger.
-N_PORTOES_ANUNCIADOS = 15
+N_PORTOES_ANUNCIADOS = 17
 
 
 def test_reports_atuais_passam():

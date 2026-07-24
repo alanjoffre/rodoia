@@ -72,6 +72,17 @@ GATES: tuple[Meta, ...] = (
          "resumo.acerto_roteamento", ">=", 0.85),
     Meta("F4 · juiz rota adequada", "reports/fase4_agente/avaliacao.json",
          "resumo.rota_ok_medio", ">=", 1.5),
+    # Fase 6 — escala. O bulk da CFPB é republicado DIARIAMENTE e só cresce, então igualdade
+    # contra literal quebraria amanhã: o piso fica com folga sob as 17.226.584 linhas do snapshot
+    # de 2026-07-24 (sha256 carimbado no próprio report). Queda abaixo de 17M denuncia ingestão
+    # truncada — o risco real ao ler um zip de 1,43 GB por streaming.
+    Meta("F6 · linhas do CFPB (bulk)", "reports/fase6_escala/contagem_cfpb.json",
+         "linhas_total", ">=", 17_000_000),
+    # Narrativa é o insumo do corpus de texto (só 22,21% das linhas têm). Se a CFPB mudar a
+    # política de publicação por consentimento, a queda aparece aqui ANTES de contaminar
+    # qualquer métrica de recuperação. Piso sob as 3.825.572 medidas.
+    Meta("F6 · narrativas do CFPB", "reports/fase6_escala/contagem_cfpb.json",
+         "com_narrativa", ">=", 3_700_000),
 )
 
 
