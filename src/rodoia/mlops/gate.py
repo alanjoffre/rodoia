@@ -113,6 +113,11 @@ GATES: tuple[Meta, ...] = (
     # superioridade estatística, que o próprio relatório reporta como não-significativa.
     Meta("F6 · CUAD recall@5 (híbrido)", "reports/fase6_cuad/retrieval_hibrido.json",
          "metricas.recall_at_5.media", ">=", 0.55),
+    # Benchmark de motor: o portão é CORREÇÃO, não velocidade. DuckDB e Spark precisam dar a mesma
+    # resposta nas 6 queries — tempo é dependente de hardware (não é regressão de métrica), mas
+    # divergência de resultado invalidaria a comparação inteira. Teto 0, sem folga.
+    Meta("F6 · motor DuckDB≡Spark (divergências)", "reports/fase6_escala/benchmark_motor.json",
+         "divergencias", "<=", 0),
 )
 
 

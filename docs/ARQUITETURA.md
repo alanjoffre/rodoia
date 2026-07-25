@@ -118,12 +118,13 @@ src/rodoia/
 
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
-| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (23 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
+| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (24 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
 | `mlops/rastreio.py` | Consolida métricas das fases em runs MLflow (sqlite) | `coletar`, `registrar` |
 | `mlops/drift.py` | Drift por PSI (coorte de praças, 12m vs 12m) | `psi`, `drift_volume`, `classificar` |
 | `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval`, `reproduzir_previsao` |
 | `mlops/carga.py` | Teste de carga do cache: mede p50/p95 sob concorrência (efeito medido, não afirmado) | `teste_carga`, `medir` |
 | `mlops/custo.py` | Custo de serving **R$/1k req** da vazão medida (rota FT vazão · rota RAG latência) | `calcular`, `_linha`, `_linha_latencia` |
+| `mlops/benchmark_motor.py` | F6 · benchmark DuckDB vs Spark sobre 17,2 M (mesmo SQL) + cross-check de correção | `comparar`, `rodar_duckdb`, `rodar_spark`, `_normalizar` |
 
 ## 📈 Fase 6 — Escala e benchmark externo (`ingestao/`, `rag/`)
 
@@ -159,7 +160,7 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 ## 🔬 Onde ver as evidências
 
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
-- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 23 portões) e o CI em `.github/workflows/ci.yml`.
+- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 24 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
 - **Testes:** `tests/test_*.py` (175 testes; 158 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/16`; decisões/trade-offs no [README](../README.md).

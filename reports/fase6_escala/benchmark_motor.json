@@ -1,0 +1,75 @@
+{
+  "n_queries": 6,
+  "divergencias": 0,
+  "tempo_total_duckdb_s": 0.533,
+  "tempo_total_spark_s": 3.565,
+  "speedup_total_duckdb": 6.69,
+  "por_query": {
+    "linhas_por_ano": {
+      "duckdb_s": 0.0083,
+      "spark_s": 0.5076,
+      "speedup_duckdb": 61.4,
+      "resultados_concordam": true,
+      "linhas": 16
+    },
+    "top10_produtos": {
+      "duckdb_s": 0.0286,
+      "spark_s": 0.5149,
+      "speedup_duckdb": 18.01,
+      "resultados_concordam": true,
+      "linhas": 10
+    },
+    "taxa_narrativa_por_ano": {
+      "duckdb_s": 0.4202,
+      "spark_s": 1.3783,
+      "speedup_duckdb": 3.28,
+      "resultados_concordam": true,
+      "linhas": 16
+    },
+    "top10_empresas": {
+      "duckdb_s": 0.0396,
+      "spark_s": 0.5193,
+      "speedup_duckdb": 13.11,
+      "resultados_concordam": true,
+      "linhas": 10
+    },
+    "empresas_distintas": {
+      "duckdb_s": 0.0329,
+      "spark_s": 0.5561,
+      "speedup_duckdb": 16.91,
+      "resultados_concordam": true,
+      "linhas": 1
+    },
+    "pruning_um_ano": {
+      "duckdb_s": 0.0033,
+      "spark_s": 0.0887,
+      "speedup_duckdb": 27.17,
+      "resultados_concordam": true,
+      "linhas": 1
+    }
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "7503a4c",
+    "git_dirty": true,
+    "git_diff_sha1": "bf7f689f52d4",
+    "timestamp_utc": "2026-07-25T14:41:04+00:00",
+    "versoes": {
+      "numpy": "2.5.1",
+      "scikit-learn": "n/d",
+      "torch": "n/d",
+      "pandas": "n/d",
+      "transformers": "n/d",
+      "peft": "n/d",
+      "trl": "n/d",
+      "bitsandbytes": "n/d",
+      "accelerate": "n/d",
+      "datasets": "n/d",
+      "vllm": "n/d",
+      "sentence-transformers": "n/d",
+      "qdrant-client": "n/d",
+      "pyarrow": "25.0.0",
+      "duckdb": "1.5.5"
+    }
+  }
+}

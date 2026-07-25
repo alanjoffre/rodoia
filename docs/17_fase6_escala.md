@@ -150,8 +150,8 @@ Custo medido na Nitro: ~2,5 min de download + ~20 min de parse.
 - [x] `dvc add` dos dados brutos e processados (ponteiros versionados, dado fora do Git)
 - [x] **Benchmark externo ingerido e aferido** — CUAD com 13.823 spans de gold, **0 offsets
       divergentes** (§8), 2 portões adicionais
-- [ ] Avaliação de recuperação sobre o CUAD (Recall@k / MRR / abstenção)
-- [ ] Benchmark de motor (DuckDB vs Spark) sobre o mesmo conjunto de queries
+- [x] Avaliação de recuperação sobre o CUAD — BM25 (§9), denso (§10), híbrido (§11), tudo com IC
+- [x] **Benchmark de motor (DuckDB vs Spark)** — DuckDB 6,7× mais rápido, **0 divergências** (§12)
 
 ## 8. Bloco "benchmark externo" — CUAD ingerido e aferido
 
@@ -337,9 +337,52 @@ que lê query+trecho juntos e desempata *por query* — o que o RRF não consegu
 recuperação da Fase 1 (denso + BM25 + RRF + rerank) não foi escolha de fé; este experimento a
 justifica peça por peça, com IC, num dataset que não é o nosso.
 
-### Próximo passo
+## 12. Motor de dados — Spark medido e rejeitado com número, não com opinião
 
-Encerrado o eixo de recuperação, o item aberto da Fase 6 é o **benchmark de motor** (DuckDB vs
-Spark) sobre os 17,2 M do CFPB (§7). Recuperação densa forte (bge-large-en) e rerank sobre o CUAD
-ficam como extensão natural, mas o achado estrutural — complementaridade + limite do RRF — já está
-estabelecido e não muda de forma com um modelo melhor.
+`mlops/benchmark_motor.py` roda **6 queries analíticas idênticas** (mesmo SQL) sobre os 17,2 M do
+CFPB, nos dois motores, e compara tempo **e resultado**. A ingestão usa DuckDB (§3); este benchmark
+justifica a escolha em vez de afirmá-la.
+
+| query | DuckDB | Spark | speedup |
+|---|---:|---:|---:|
+| linhas por ano | 0,008s | 0,508s | **61,4×** |
+| pruning (1 ano) | 0,003s | 0,089s | 27,2× |
+| top-10 produtos | 0,029s | 0,515s | 18,0× |
+| empresas distintas | 0,033s | 0,556s | 16,9× |
+| top-10 empresas | 0,040s | 0,519s | 13,1× |
+| taxa de narrativa/ano | 0,420s | 1,378s | **3,3×** |
+| **total** | **0,533s** | **3,565s** | **6,7×** |
+
+**DuckDB é 6,7× mais rápido no total** — a hipótese (num único nó com RAM suficiente, o overhead de
+JVM/shuffle do Spark não se paga) confirmada com número. Mas a **variação do speedup é o achado**,
+e é o que impede a leitura preguiçosa "Spark é ruim":
+
+- **61,4× na contagem por ano** — query trivial, onde o custo é quase todo **overhead fixo por
+  stage** do Spark (agendamento, serialização, JVM). DuckDB responde em 8 ms; o Spark paga 500 ms
+  de infraestrutura para fazer 8 ms de trabalho.
+- **3,3× na taxa de narrativa** — a query com **compute real** (CASE + avg sobre a coluna de
+  narrativa inteira, 3,9 bi de caracteres). Aqui o paralelismo de 16 cores do Spark **faz trabalho
+  de verdade** e a vantagem do DuckDB despenca de 61× para 3,3×.
+
+O padrão mostra **exatamente onde o modelo do Spark começaria a pagar**: quanto mais compute por
+query — e, sobretudo, quando o dado passar da RAM de um nó — o crossover se inverte. Abaixo disso,
+que é o CFPB (17 M linhas, 1,1 GB de Parquet), Spark é overhead puro. A decisão de motor da
+ingestão não foi enfeite de currículo evitado — foi **enfeite medido e rejeitado, com o número que
+também mostra a condição em que ele venceria**.
+
+**Correção acima do tempo: 0 divergências** nas 6 queries. Os dois motores dão a MESMA resposta
+célula a célula (invariante gated) — então a escolha é sobre velocidade e operação, não correção.
+Um motor rápido que errasse a conta seria descartado apesar do tempo.
+
+*Reprodução:* pyspark exige JVM e briga com o stack CUDA da Fase 2, então roda num **venv isolado**
+(`/tmp/spark_venv` + `openjdk-17-jre` + o extra `benchmark-motor`), nunca no ambiente de GPU. O
+teste no CI cobre a comparação (pura) e o caminho DuckDB com um Parquet de fixture; `rodar_spark`
+não entra no CI.
+
+## Fase 6 — encerrada
+
+Os dois eixos fechados: **escala** (ingestão de 17,2 M + motor escolhido com benchmark) e
+**benchmark externo** (CUAD, com o arco BM25 → denso → híbrido re-derivando a arquitetura da Fase 1
+sobre gold de terceiros, com IC). Extensões naturais que **não mudam nenhuma conclusão de forma**:
+um embedder inglês forte (bge-large-en) e o rerank cross-encoder sobre o CUAD; a geração ancorada
+sobre os contratos (única parte que exigiria API, e só se a recuperação justificar).
