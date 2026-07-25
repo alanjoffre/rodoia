@@ -27,12 +27,14 @@ _LIBS = (
 
 
 def _git_sha() -> str:
+    # Bytes + decode explícito (ver nota em _git_dirty): o hash é ASCII, mas manter o mesmo
+    # padrão evita reintroduzir o crash de cp1252 se alguém copiar este bloco.
     try:
         out = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
-            capture_output=True, text=True, timeout=5, check=True,
+            capture_output=True, timeout=5, check=True,
         )
-        return out.stdout.strip()
+        return out.stdout.decode("utf-8", "replace").strip()
     except (subprocess.SubprocessError, OSError):
         return "desconhecido"
 
@@ -40,20 +42,25 @@ def _git_sha() -> str:
 def _git_dirty() -> dict[str, Any]:
     """Denuncia árvore suja: se há mudança não commitada (tracked ou não), marca `git_dirty`
     e o hash do diff. Sem isso, um número pode sair de working tree modificado sem rastro."""
+    # `status`/`diff` são lidos como BYTES, sem `text=True`. No Windows `text=True` decodifica
+    # com a codepage ANSI (cp1252) e um diff com byte inválido nela (ex.: 0x90) faz o subprocess
+    # devolver stdout=None → crash. O diff só é usado para hash, então hashear os bytes crus é
+    # mais correto E imune a encoding; o status é decodificado com errors="replace". Bug de
+    # ambiente (Linux/UTF-8 nunca cai): passar no CI não prova que passa no Windows.
     try:
         status = subprocess.run(
             ["git", "status", "--porcelain"],
-            capture_output=True, text=True, timeout=5, check=True,
-        ).stdout
+            capture_output=True, timeout=5, check=True,
+        ).stdout.decode("utf-8", "replace")
     except (subprocess.SubprocessError, OSError):
         return {"git_dirty": None}
     if not status.strip():
         return {"git_dirty": False}
     try:
-        diff = subprocess.run(
-            ["git", "diff", "HEAD"], capture_output=True, text=True, timeout=5, check=True,
+        diff_bytes = subprocess.run(
+            ["git", "diff", "HEAD"], capture_output=True, timeout=5, check=True,
         ).stdout
-        h = hashlib.sha1(diff.encode("utf-8", "ignore")).hexdigest()[:12]
+        h = hashlib.sha1(diff_bytes).hexdigest()[:12]
     except (subprocess.SubprocessError, OSError):
         h = None
     return {"git_dirty": True, "git_diff_sha1": h}
