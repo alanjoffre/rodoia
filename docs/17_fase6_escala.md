@@ -247,8 +247,55 @@ onde casar. É o caso clássico de lacuna lexical, e é exatamente onde recupera
 
 Reportar só a média de 0,588 esconderia essa estrutura inteira.
 
+## 10. Denso vs BM25 — a média é o resumo errado
+
+`rag/avaliacao_cuad_denso.py`: recuperação densa (multilingual-e5-small, 384 dim, na 4050) contra
+o baseline BM25, **pela mesma máquina de métricas** (`consolidar` foi extraído para os dois
+recuperadores compartilharem — o refator reproduz o 0,588 do BM25 bit a bit, senão a comparação
+mediria o código). Sem Qdrant: recuperação dentro do contrato é produto escalar de vetores
+normalizados. 2m48s de encode na GPU, custo de API zero.
+
+**No agregado, o denso perde:**
+
+| | BM25 | Denso | Δ |
+|---|---:|---:|---:|
+| recall@5 | 0,588 | 0,535 | **−0,053** |
+| MRR | 0,557 | 0,496 | −0,061 |
+
+Parar aqui seria a leitura preguiçosa. A média de −0,053 é a soma de **dois efeitos opostos** que
+se cancelam — o denso vence em 12 das 41 categorias e o padrão de quem vence onde é o resultado:
+
+| Denso VENCE (lacuna lexical) | BM25→Denso | | BM25 VENCE (termo raro/distintivo) | BM25→Denso |
+|---|---:|---|---|---:|
+| **Document Name** | 0,322 → 0,482 (**+0,161**) | | Unlimited/All-You-Can-Eat-License | 0,671 → 0,324 (−0,347) |
+| No-Solicit Of Employees | 0,648 → 0,758 (+0,110) | | Non-Transferable License | 0,645 → 0,331 (−0,315) |
+| **Volume Restriction** | 0,173 → 0,282 (**+0,108**) | | Irrevocable Or Perpetual License | 0,775 → 0,481 (−0,293) |
+| Warranty Duration | 0,565 → 0,671 (+0,106) | | Effective Date | 0,689 → 0,411 (−0,278) |
+
+**A hipótese da §9.2 se confirma com precisão.** As duas piores categorias do BM25 eram
+`Volume Restriction` (0,173) e `Document Name` (0,322) — metadados cujo texto não repete os termos
+da query. São exatamente os **dois maiores ganhos** do denso. Onde BM25 tem lacuna lexical, o
+denso casa por significado.
+
+**E as perdas são igualmente diagnósticas.** O denso despenca em `Unlimited/All-You-Can-Eat-License`,
+`Non-Transferable License`, `Irrevocable Or Perpetual License` — categorias com **terminologia
+jurídica rara e distintiva**, onde o casamento exato do BM25 é força e um modelo pequeno e
+multilíngue **dilui** o token inglês raro. "Unlimited/All-You-Can-Eat-License" é uma expressão que
+o BM25 acerta na mosca e o e5-small borra.
+
+**A conclusão não é "denso perde" — é que os dois são complementares**, e é o argumento textual do
+híbrido. A Fase 1 já escolheu BM25+E5+RRF (docs/07); este experimento **re-deriva o porquê do
+híbrido sobre um benchmark de terceiros**, categoria a categoria, em vez de sobre o gold próprio.
+A escolha arquitetural da Fase 1 fica validada externamente.
+
+Dois caveats honestos, no relatório e aqui: (a) um embedder inglês forte (bge-large-en) quase
+certamente levantaria o lado denso — mas o achado **estrutural** (forças complementares) independe
+do modelo; (b) a abstenção continua impossível — as medianas do cosseno do top-1 são 0,836
+(respondível) vs 0,827 (impossível), sobreposição ainda maior que a do BM25. Nenhum recuperador
+isolado separa "tem cláusula" de "não tem".
+
 ### Próximo passo
 
-Recuperação densa (e5 na 4050, ~20,8k chunks — trivial) contra este baseline, por categoria. A
-hipótese é específica: o ganho deve se concentrar nas categorias de lacuna lexical. Só depois, e
-só se a recuperação justificar, entra API para a geração.
+Fusão híbrida (RRF de BM25 + denso) sobre o CUAD — a hipótese é que ela bate os dois isolados
+justamente por herdar os ganhos de cada um nas categorias opostas. Só depois, e só se a
+recuperação justificar, entra API para a geração.

@@ -103,6 +103,11 @@ GATES: tuple[Meta, ...] = (
     # plausível em vez de falhar — este portão faz falhar. Teto 0, sem folga.
     Meta("F6 · CUAD perguntas sem gold", "reports/fase6_cuad/retrieval_bm25.json",
          "n_sem_gold", "<=", 0),
+    # Recuperação densa (e5 na GPU) — piso com folga sob os 0,535 medidos. O denso PERDE do BM25
+    # no agregado (o valor é o padrão por categoria, ver docs/17 §10), mas o piso protege contra
+    # uma regressão que quebre o pipeline de embeddings sem ninguém notar.
+    Meta("F6 · CUAD recall@5 (denso)", "reports/fase6_cuad/retrieval_denso.json",
+         "metricas.recall_at_5.media", ">=", 0.50),
 )
 
 

@@ -149,54 +149,41 @@ def _ranquear(bm25: Any, chunks: list[Chunk], query: str) -> tuple[list[str], fl
     return [chunks[i].id for i in ordem], top1
 
 
-def avaliar(
-    contratos: list[Contrato], max_chars: int = MAX_CHARS, overlap: int = OVERLAP
+@dataclass(frozen=True)
+class Avaliada:
+    """O resultado de UMA pergunta, no formato que a consolidação de métricas
+    consome — independente do recuperador (BM25 ou denso) que a produziu.
+
+    Este é o contrato que impede a comparação de medir a implementação em vez
+    dos recuperadores: as métricas, os ICs e o corte por categoria são
+    calculados por `consolidar` a partir DESTES registros, iguais para os dois.
+    """
+
+    categoria: str
+    impossivel: bool
+    top1: float
+    tem_gold: bool
+    recall_por_k: dict[int, float]  # vazio p/ impossível e sem-gold
+    rr: float  # reciprocal rank; 0 quando não há gold no ranking
+
+
+def _media(v: list[float]) -> float:
+    return round(sum(v) / len(v), 4) if v else 0.0
+
+
+def consolidar(
+    avaliadas: list[Avaliada], corpus: dict[str, Any], config: dict[str, Any]
 ) -> dict[str, Any]:
-    """Roda a avaliação completa e devolve o dicionário do relatório."""
-    recalls: dict[int, list[float]] = {k: [] for k in KS}
-    reciprocos: list[float] = []
-    escores_respondivel: list[float] = []
-    escores_impossivel: list[float] = []
+    """Agrega os registros por-pergunta no relatório final — MESMA máquina para
+    BM25 e denso, para a comparação medir os recuperadores e não o código."""
+    respondiveis = [a for a in avaliadas if not a.impossivel and a.tem_gold]
+    recalls = {k: [a.recall_por_k[k] for a in respondiveis] for k in KS}
+    reciprocos = [a.rr for a in respondiveis]
+    escores_resp = [a.top1 for a in respondiveis]
+    escores_imp = [a.top1 for a in avaliadas if a.impossivel]
     por_categoria: dict[str, list[float]] = {}
-    n_respondiveis = n_impossiveis = 0
-    sem_gold = 0
-    total_chunks = 0
-
-    for contrato in contratos:
-        chunks = chunkar(contrato.texto, contrato.titulo, max_chars, overlap)
-        total_chunks += len(chunks)
-        if not chunks:
-            continue
-        bm25 = _indice_bm25(chunks)  # uma vez por contrato, reusado nas 41 perguntas
-        for pergunta in contrato.perguntas:
-            query = montar_query(pergunta)
-            if pergunta.impossivel:
-                n_impossiveis += 1
-                _, top1 = _ranquear(bm25, chunks, query)
-                escores_impossivel.append(top1)
-                continue
-
-            gold = gold_da_pergunta(pergunta, chunks)
-            if not gold:
-                # Span existe mas nenhum chunk o intersecta — só possível se o
-                # offset estiver fora do texto. Contado, não escondido.
-                sem_gold += 1
-                continue
-            n_respondiveis += 1
-            ranking, top1 = _ranquear(bm25, chunks, query)
-            escores_respondivel.append(top1)
-
-            for k in KS:
-                topk = set(ranking[:k])
-                recalls[k].append(len(gold & topk) / len(gold))
-            posicao = next((i + 1 for i, cid in enumerate(ranking) if cid in gold), None)
-            reciprocos.append(1.0 / posicao if posicao else 0.0)
-            por_categoria.setdefault(pergunta.categoria, []).append(
-                len(gold & set(ranking[:5])) / len(gold)
-            )
-
-    def _media(v: list[float]) -> float:
-        return round(sum(v) / len(v), 4) if v else 0.0
+    for a in respondiveis:
+        por_categoria.setdefault(a.categoria, []).append(a.recall_por_k[5])
 
     # Recall@k é média de frações (não proporção binária), então o IC vem de
     # bootstrap. Wilson entra na taxa de acerto-em-algum-lugar do top-k, que É
@@ -214,17 +201,11 @@ def avaliar(
         }
 
     return {
-        "config": {"max_chars": max_chars, "overlap": overlap, "ks": list(KS)},
-        "corpus": {
-            "n_contratos": len(contratos),
-            "n_chunks": total_chunks,
-            "chunks_por_contrato_mediana": round(total_chunks / len(contratos), 1)
-            if contratos
-            else 0.0,
-        },
-        "n_respondiveis": n_respondiveis,
-        "n_impossiveis": n_impossiveis,
-        "n_sem_gold": sem_gold,
+        "config": config,
+        "corpus": corpus,
+        "n_respondiveis": len(respondiveis),
+        "n_impossiveis": sum(1 for a in avaliadas if a.impossivel),
+        "n_sem_gold": sum(1 for a in avaliadas if not a.impossivel and not a.tem_gold),
         "metricas": metricas,
         "mrr": {"media": _media(reciprocos), "ic95_bootstrap": bootstrap_ic(reciprocos)},
         # Diagnóstico de abstenção: se estas duas distribuições se sobrepõem,
@@ -232,14 +213,14 @@ def avaliar(
         # de construir a política.
         "diagnostico_abstencao": {
             "escore_top1_respondivel": {
-                "mediana": round(percentil(escores_respondivel, 0.5), 3),
-                "p10": round(percentil(escores_respondivel, 0.10), 3),
-                "p90": round(percentil(escores_respondivel, 0.90), 3),
+                "mediana": round(percentil(escores_resp, 0.5), 3),
+                "p10": round(percentil(escores_resp, 0.10), 3),
+                "p90": round(percentil(escores_resp, 0.90), 3),
             },
             "escore_top1_impossivel": {
-                "mediana": round(percentil(escores_impossivel, 0.5), 3),
-                "p10": round(percentil(escores_impossivel, 0.10), 3),
-                "p90": round(percentil(escores_impossivel, 0.90), 3),
+                "mediana": round(percentil(escores_imp, 0.5), 3),
+                "p10": round(percentil(escores_imp, 0.10), 3),
+                "p90": round(percentil(escores_imp, 0.90), 3),
             },
         },
         "recall_at_5_por_categoria": {
@@ -247,6 +228,65 @@ def avaliar(
             for cat, v in sorted(por_categoria.items(), key=lambda kv: -sum(kv[1]) / len(kv[1]))
         },
     }
+
+
+def _metricas_por_pergunta(gold: set[str], ranking: list[str], top1: float) -> Avaliada:
+    """Constrói o registro de uma pergunta respondível a partir do ranking —
+    partilhado por qualquer recuperador (recebe o ranking já pronto)."""
+    recall_por_k = {k: len(gold & set(ranking[:k])) / len(gold) for k in KS}
+    posicao = next((i + 1 for i, cid in enumerate(ranking) if cid in gold), None)
+    return Avaliada(
+        categoria="",  # preenchido pelo chamador
+        impossivel=False,
+        top1=top1,
+        tem_gold=True,
+        recall_por_k=recall_por_k,
+        rr=1.0 / posicao if posicao else 0.0,
+    )
+
+
+def _corpus_info(contratos: list[Contrato], total_chunks: int) -> dict[str, Any]:
+    return {
+        "n_contratos": len(contratos),
+        "n_chunks": total_chunks,
+        "chunks_por_contrato_mediana": round(total_chunks / len(contratos), 1)
+        if contratos
+        else 0.0,
+    }
+
+
+def avaliar(
+    contratos: list[Contrato], max_chars: int = MAX_CHARS, overlap: int = OVERLAP
+) -> dict[str, Any]:
+    """Avaliação BM25 completa: produz os registros e consolida."""
+    avaliadas: list[Avaliada] = []
+    total_chunks = 0
+    for contrato in contratos:
+        chunks = chunkar(contrato.texto, contrato.titulo, max_chars, overlap)
+        total_chunks += len(chunks)
+        if not chunks:
+            continue
+        bm25 = _indice_bm25(chunks)  # uma vez por contrato, reusado nas 41 perguntas
+        for pergunta in contrato.perguntas:
+            ranking, top1 = _ranquear(bm25, chunks, montar_query(pergunta))
+            if pergunta.impossivel:
+                avaliadas.append(
+                    Avaliada(pergunta.categoria, True, top1, False, {}, 0.0)
+                )
+                continue
+            gold = gold_da_pergunta(pergunta, chunks)
+            if not gold:
+                # Span existe mas nenhum chunk o intersecta — só possível se o
+                # offset estiver fora do texto. Registrado (tem_gold=False), não escondido.
+                avaliadas.append(Avaliada(pergunta.categoria, False, top1, False, {}, 0.0))
+                continue
+            reg = _metricas_por_pergunta(gold, ranking, top1)
+            avaliadas.append(
+                Avaliada(pergunta.categoria, False, top1, True, reg.recall_por_k, reg.rr)
+            )
+
+    config = {"recuperador": "bm25", "max_chars": max_chars, "overlap": overlap, "ks": list(KS)}
+    return consolidar(avaliadas, _corpus_info(contratos, total_chunks), config)
 
 
 def main() -> None:
