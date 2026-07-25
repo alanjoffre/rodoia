@@ -25,7 +25,8 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 | **2** · 🎯 | Especializar um modelo e provar o ganho | F1 **0,13 → 0,77** |
 | **3** · 📊 | Do CSV sujo à previsão que convence | Holt-Winters bate o naïve (**Δ3,01pp**) |
 | **4** · 🤖 | Juntar tudo e decidir | roteamento **0,95** (n=21) |
-| **5** · ⚙️ | Não quebrar e não piorar | gate **15/15** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
+| **5** · ⚙️ | Não quebrar e não piorar | gate **24/24** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
+| **6** · 📈 | E se o teste não for meu? | **17,2 M linhas** · CUAD (gold de terceiros) **0,588 → 0,595** com IC · DuckDB **6,7×** Spark |
 
 ---
 
@@ -97,9 +98,25 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Como resolvi.** Um **gate de avaliação** que lê os relatórios versionados e **reprova o CI** se qualquer métrica-chave cair; **GitHub Actions** (lint + testes + gate); MLflow + DVC; **drift por PSI**; e um **modelo de custo R$/1k** derivado da vazão medida.
 
-**Resultado.** **CI verde** com o gate barrando regressão (**15/15 portões**, 2 deles de segurança: detecção do red-team e vazamento de PII); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
+**Resultado.** **CI verde** com o gate barrando regressão (**15 portões na época, 24 hoje**, 2 deles de segurança: detecção do red-team e vazamento de PII); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
 
 > ⚖️ **O rigor corrigiu o drift.** O PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
+
+---
+
+## 📈 Fase 6 — Escala e benchmark externo · *"e se o teste não for meu?"*
+
+**Problema.** Duas objeções que as fases anteriores não conseguiam responder. A primeira: o corpus da ANTT tem **3.647 chunks** — não exerce escala nenhuma. A segunda, mais incômoda: a avaliação toda roda contra **gold que eu mesmo rotulei**. A auditoria κ tratou isso por dentro (Fase 1), mas *"ele rotulou o próprio teste"* só morre com dado de terceiros.
+
+**Como resolvi.** Dois eixos. **Escala:** o bulk da CFPB (EUA) — 1,43 GB de zip → Parquet particionado por streaming, sem materializar os 13,5 GB de CSV intermediários; e o motor de dados escolhido por **benchmark**, não por opinião. **Benchmark externo:** o CUAD — 510 contratos anotados por advogados, com **13.823 spans de gold cujo offset eu conferi um a um** antes de medir qualquer coisa.
+
+**Resultado.** **17.226.584 linhas** ingeridas (13,5 GB → 1,1 GB, ~12:1). No CUAD, o arco completo com IC: BM25 **0,588** → denso **0,535** → híbrido **0,595**. E **DuckDB 6,7× mais rápido que Spark**, com **0 divergências** de resultado.
+
+> ⚖️ **O rigor derrubou a premissa antes do código.** A ideia original era RAG sobre as manifestações de ouvidoria da ANTT. Antes de construir, fui **medir o dado**: o campo `mensagem` do SOU é um **ID numérico de 7 dígitos**, não o texto do cidadão — confirmado pelo dicionário oficial. **A premissa do projeto estava morta, e descobrir isso no dia 0 custou uma tarde em vez de dois meses.**
+
+> ⚖️ **O rigor recusou a conclusão fácil, duas vezes.** (1) O denso **perde** do BM25 no agregado — mas vence exatamente nas categorias de **lacuna lexical** (metadados como *Document Name*), e perde onde o termo é raro e distintivo. Não é "denso é pior": são **forças complementares**, que é o argumento textual do híbrido. (2) O híbrido é o melhor em toda métrica — **mas o IC [0,584; 0,605] sobrepõe o do BM25 [0,577; 0,599]**. O ganho de +0,007 **não é estatisticamente distinguível**, e está reportado assim. Anunciar "o híbrido vence" seria a métrica maquiada que este projeto já reprovou uma vez.
+
+**O fecho do arco:** partindo do zero sobre um benchmark que não é meu, com IC em cada passo, a sequência BM25 → denso → híbrido **re-derivou a arquitetura da Fase 1** (denso + BM25 + RRF + rerank) peça por peça — e mostrou por que o rerank é o estágio que faltava: RRF é **consenso, não seletor**, e compromete justamente onde os dois recuperadores discordam forte.
 
 ---
 
