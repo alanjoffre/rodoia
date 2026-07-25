@@ -108,6 +108,11 @@ GATES: tuple[Meta, ...] = (
     # uma regressão que quebre o pipeline de embeddings sem ninguém notar.
     Meta("F6 · CUAD recall@5 (denso)", "reports/fase6_cuad/retrieval_denso.json",
          "metricas.recall_at_5.media", ">=", 0.50),
+    # Híbrido RRF — o melhor estimador de ponto (0,595), mas o ganho sobre o BM25 fica DENTRO do
+    # IC (ver docs/17 §11). O piso 0,55 protege o pipeline de fusão contra regressão; não afirma
+    # superioridade estatística, que o próprio relatório reporta como não-significativa.
+    Meta("F6 · CUAD recall@5 (híbrido)", "reports/fase6_cuad/retrieval_hibrido.json",
+         "metricas.recall_at_5.media", ">=", 0.55),
 )
 
 

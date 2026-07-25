@@ -1,0 +1,419 @@
+{
+  "config": {
+    "recuperador": "hibrido_rrf",
+    "modelo": "intfloat/multilingual-e5-small",
+    "k_rrf": 60,
+    "max_chars": 1500,
+    "overlap": 200,
+    "ks": [
+      1,
+      3,
+      5,
+      10
+    ]
+  },
+  "corpus": {
+    "n_contratos": 510,
+    "n_chunks": 20806,
+    "chunks_por_contrato_mediana": 40.8
+  },
+  "n_respondiveis": 6702,
+  "n_impossiveis": 14208,
+  "n_sem_gold": 0,
+  "metricas": {
+    "recall_at_1": {
+      "media": 0.2753,
+      "ic95_bootstrap": [
+        0.266,
+        0.284
+      ]
+    },
+    "hit_at_1": {
+      "taxa": 0.4349,
+      "ic95_wilson": [
+        0.423,
+        0.447
+      ]
+    },
+    "recall_at_3": {
+      "media": 0.4906,
+      "ic95_bootstrap": [
+        0.48,
+        0.501
+      ]
+    },
+    "hit_at_3": {
+      "taxa": 0.6261,
+      "ic95_wilson": [
+        0.614,
+        0.638
+      ]
+    },
+    "recall_at_5": {
+      "media": 0.5947,
+      "ic95_bootstrap": [
+        0.584,
+        0.605
+      ]
+    },
+    "hit_at_5": {
+      "taxa": 0.7126,
+      "ic95_wilson": [
+        0.702,
+        0.723
+      ]
+    },
+    "recall_at_10": {
+      "media": 0.7404,
+      "ic95_bootstrap": [
+        0.731,
+        0.75
+      ]
+    },
+    "hit_at_10": {
+      "taxa": 0.8263,
+      "ic95_wilson": [
+        0.817,
+        0.835
+      ]
+    }
+  },
+  "mrr": {
+    "media": 0.5621,
+    "ic95_bootstrap": [
+      0.553,
+      0.572
+    ]
+  },
+  "diagnostico_abstencao": {
+    "escore_top1_respondivel": {
+      "mediana": 0.033,
+      "p10": 0.031,
+      "p90": 0.033
+    },
+    "escore_top1_impossivel": {
+      "mediana": 0.032,
+      "p10": 0.031,
+      "p90": 0.033
+    }
+  },
+  "recall_at_5_por_categoria": {
+    "Renewal Term": 0.9305,
+    "Termination For Convenience": 0.8948,
+    "Governing Law": 0.8888,
+    "Notice Period To Terminate Renewal": 0.8874,
+    "Insurance": 0.8403,
+    "Uncapped Liability": 0.8356,
+    "Expiration Date": 0.8042,
+    "No-Solicit Of Employees": 0.7816,
+    "Source Code Escrow": 0.75,
+    "Change Of Control": 0.7445,
+    "Audit Rights": 0.7291,
+    "Anti-Assignment": 0.6946,
+    "Cap On Liability": 0.6843,
+    "Irrevocable Or Perpetual License": 0.668,
+    "Third Party Beneficiary": 0.6562,
+    "Warranty Duration": 0.6139,
+    "Minimum Commitment": 0.6054,
+    "Liquidated Damages": 0.6047,
+    "License Grant": 0.5908,
+    "Non-Transferable License": 0.5768,
+    "Post-Termination Services": 0.5746,
+    "Affiliate License-Licensee": 0.5731,
+    "Unlimited/All-You-Can-Eat-License": 0.5676,
+    "Effective Date": 0.5667,
+    "No-Solicit Of Customers": 0.5525,
+    "Joint Ip Ownership": 0.5357,
+    "Covenant Not To Sue": 0.52,
+    "Rofr/Rofo/Rofn": 0.5174,
+    "Non-Disparagement": 0.5044,
+    "Agreement Date": 0.4702,
+    "Price Restrictions": 0.4528,
+    "Ip Ownership Assignment": 0.4427,
+    "Competitive Restriction Exception": 0.4265,
+    "Non-Compete": 0.4039,
+    "Document Name": 0.3863,
+    "Most Favored Nation": 0.3839,
+    "Affiliate License-Licensor": 0.3511,
+    "Revenue/Profit Sharing": 0.3459,
+    "Exclusivity": 0.3202,
+    "Parties": 0.2686,
+    "Volume Restriction": 0.2158
+  },
+  "tres_vias_por_categoria": {
+    "n_categorias": 41,
+    "hibrido_>=_melhor_isolado_em": 17,
+    "por_categoria": {
+      "No-Solicit Of Customers": {
+        "bm25": 0.4748,
+        "denso": 0.4667,
+        "hibrido": 0.5525,
+        "hibrido_vs_melhor_isolado": 0.0777
+      },
+      "Non-Disparagement": {
+        "bm25": 0.443,
+        "denso": 0.3969,
+        "hibrido": 0.5044,
+        "hibrido_vs_melhor_isolado": 0.0614
+      },
+      "Expiration Date": {
+        "bm25": 0.7533,
+        "denso": 0.7576,
+        "hibrido": 0.8042,
+        "hibrido_vs_melhor_isolado": 0.0466
+      },
+      "Minimum Commitment": {
+        "bm25": 0.5727,
+        "denso": 0.4502,
+        "hibrido": 0.6054,
+        "hibrido_vs_melhor_isolado": 0.0327
+      },
+      "Uncapped Liability": {
+        "bm25": 0.8063,
+        "denso": 0.708,
+        "hibrido": 0.8356,
+        "hibrido_vs_melhor_isolado": 0.0293
+      },
+      "Cap On Liability": {
+        "bm25": 0.6562,
+        "denso": 0.6193,
+        "hibrido": 0.6843,
+        "hibrido_vs_melhor_isolado": 0.0281
+      },
+      "No-Solicit Of Employees": {
+        "bm25": 0.6483,
+        "denso": 0.7582,
+        "hibrido": 0.7816,
+        "hibrido_vs_melhor_isolado": 0.0234
+      },
+      "Most Favored Nation": {
+        "bm25": 0.3661,
+        "denso": 0.2768,
+        "hibrido": 0.3839,
+        "hibrido_vs_melhor_isolado": 0.0178
+      },
+      "Exclusivity": {
+        "bm25": 0.2771,
+        "denso": 0.3045,
+        "hibrido": 0.3202,
+        "hibrido_vs_melhor_isolado": 0.0157
+      },
+      "Change Of Control": {
+        "bm25": 0.731,
+        "denso": 0.6468,
+        "hibrido": 0.7445,
+        "hibrido_vs_melhor_isolado": 0.0135
+      },
+      "Insurance": {
+        "bm25": 0.8273,
+        "denso": 0.7072,
+        "hibrido": 0.8403,
+        "hibrido_vs_melhor_isolado": 0.013
+      },
+      "Joint Ip Ownership": {
+        "bm25": 0.5232,
+        "denso": 0.4978,
+        "hibrido": 0.5357,
+        "hibrido_vs_melhor_isolado": 0.0125
+      },
+      "Competitive Restriction Exception": {
+        "bm25": 0.4156,
+        "denso": 0.341,
+        "hibrido": 0.4265,
+        "hibrido_vs_melhor_isolado": 0.0109
+      },
+      "Termination For Convenience": {
+        "bm25": 0.8848,
+        "denso": 0.8429,
+        "hibrido": 0.8948,
+        "hibrido_vs_melhor_isolado": 0.01
+      },
+      "Renewal Term": {
+        "bm25": 0.922,
+        "denso": 0.8117,
+        "hibrido": 0.9305,
+        "hibrido_vs_melhor_isolado": 0.0085
+      },
+      "Revenue/Profit Sharing": {
+        "bm25": 0.3391,
+        "denso": 0.3171,
+        "hibrido": 0.3459,
+        "hibrido_vs_melhor_isolado": 0.0068
+      },
+      "Ip Ownership Assignment": {
+        "bm25": 0.4393,
+        "denso": 0.3711,
+        "hibrido": 0.4427,
+        "hibrido_vs_melhor_isolado": 0.0034
+      },
+      "Notice Period To Terminate Renewal": {
+        "bm25": 0.8514,
+        "denso": 0.8889,
+        "hibrido": 0.8874,
+        "hibrido_vs_melhor_isolado": -0.0015
+      },
+      "Governing Law": {
+        "bm25": 0.8926,
+        "denso": 0.7857,
+        "hibrido": 0.8888,
+        "hibrido_vs_melhor_isolado": -0.0038
+      },
+      "Price Restrictions": {
+        "bm25": 0.4578,
+        "denso": 0.3194,
+        "hibrido": 0.4528,
+        "hibrido_vs_melhor_isolado": -0.005
+      },
+      "Source Code Escrow": {
+        "bm25": 0.7551,
+        "denso": 0.6397,
+        "hibrido": 0.75,
+        "hibrido_vs_melhor_isolado": -0.0051
+      },
+      "Third Party Beneficiary": {
+        "bm25": 0.663,
+        "denso": 0.599,
+        "hibrido": 0.6562,
+        "hibrido_vs_melhor_isolado": -0.0068
+      },
+      "Covenant Not To Sue": {
+        "bm25": 0.5308,
+        "denso": 0.4067,
+        "hibrido": 0.52,
+        "hibrido_vs_melhor_isolado": -0.0108
+      },
+      "Affiliate License-Licensor": {
+        "bm25": 0.3363,
+        "denso": 0.3621,
+        "hibrido": 0.3511,
+        "hibrido_vs_melhor_isolado": -0.011
+      },
+      "Agreement Date": {
+        "bm25": 0.4298,
+        "denso": 0.4819,
+        "hibrido": 0.4702,
+        "hibrido_vs_melhor_isolado": -0.0117
+      },
+      "Audit Rights": {
+        "bm25": 0.7437,
+        "denso": 0.6347,
+        "hibrido": 0.7291,
+        "hibrido_vs_melhor_isolado": -0.0146
+      },
+      "Liquidated Damages": {
+        "bm25": 0.6211,
+        "denso": 0.4971,
+        "hibrido": 0.6047,
+        "hibrido_vs_melhor_isolado": -0.0164
+      },
+      "Affiliate License-Licensee": {
+        "bm25": 0.5419,
+        "denso": 0.5921,
+        "hibrido": 0.5731,
+        "hibrido_vs_melhor_isolado": -0.019
+      },
+      "License Grant": {
+        "bm25": 0.61,
+        "denso": 0.4514,
+        "hibrido": 0.5908,
+        "hibrido_vs_melhor_isolado": -0.0192
+      },
+      "Post-Termination Services": {
+        "bm25": 0.5961,
+        "denso": 0.5096,
+        "hibrido": 0.5746,
+        "hibrido_vs_melhor_isolado": -0.0215
+      },
+      "Non-Compete": {
+        "bm25": 0.3433,
+        "denso": 0.4335,
+        "hibrido": 0.4039,
+        "hibrido_vs_melhor_isolado": -0.0296
+      },
+      "Parties": {
+        "bm25": 0.2545,
+        "denso": 0.2983,
+        "hibrido": 0.2686,
+        "hibrido_vs_melhor_isolado": -0.0297
+      },
+      "Rofr/Rofo/Rofn": {
+        "bm25": 0.5523,
+        "denso": 0.351,
+        "hibrido": 0.5174,
+        "hibrido_vs_melhor_isolado": -0.0349
+      },
+      "Anti-Assignment": {
+        "bm25": 0.7457,
+        "denso": 0.5677,
+        "hibrido": 0.6946,
+        "hibrido_vs_melhor_isolado": -0.0511
+      },
+      "Warranty Duration": {
+        "bm25": 0.5645,
+        "denso": 0.671,
+        "hibrido": 0.6139,
+        "hibrido_vs_melhor_isolado": -0.0571
+      },
+      "Volume Restriction": {
+        "bm25": 0.1732,
+        "denso": 0.2817,
+        "hibrido": 0.2158,
+        "hibrido_vs_melhor_isolado": -0.0659
+      },
+      "Non-Transferable License": {
+        "bm25": 0.6455,
+        "denso": 0.3307,
+        "hibrido": 0.5768,
+        "hibrido_vs_melhor_isolado": -0.0687
+      },
+      "Document Name": {
+        "bm25": 0.3216,
+        "denso": 0.4824,
+        "hibrido": 0.3863,
+        "hibrido_vs_melhor_isolado": -0.0961
+      },
+      "Unlimited/All-You-Can-Eat-License": {
+        "bm25": 0.6706,
+        "denso": 0.3235,
+        "hibrido": 0.5676,
+        "hibrido_vs_melhor_isolado": -0.103
+      },
+      "Irrevocable Or Perpetual License": {
+        "bm25": 0.7746,
+        "denso": 0.4812,
+        "hibrido": 0.668,
+        "hibrido_vs_melhor_isolado": -0.1066
+      },
+      "Effective Date": {
+        "bm25": 0.6889,
+        "denso": 0.4109,
+        "hibrido": 0.5667,
+        "hibrido_vs_melhor_isolado": -0.1222
+      }
+    }
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "7503a4c",
+    "git_dirty": true,
+    "git_diff_sha1": "20a6be537755",
+    "timestamp_utc": "2026-07-25T13:53:45+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0",
+      "pyarrow": "24.0.0",
+      "duckdb": "1.5.4"
+    }
+  }
+}

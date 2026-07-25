@@ -294,8 +294,52 @@ do modelo; (b) a abstenção continua impossível — as medianas do cosseno do 
 (respondível) vs 0,827 (impossível), sobreposição ainda maior que a do BM25. Nenhum recuperador
 isolado separa "tem cláusula" de "não tem".
 
+## 11. Híbrido (RRF) — melhor em todo ponto, mas o ganho não é significativo
+
+`rag/avaliacao_cuad_hibrido.py` funde BM25 + denso por **Reciprocal Rank Fusion**, reusando a
+`fundir_rrf` da Fase 1 (`rag/recuperador.py`) — RRF funde POSIÇÃO no ranking, o que torna escore
+BM25 (~15) e cosseno (~0,8) combináveis apesar de escalas incomparáveis. Mesma máquina de
+métricas dos outros dois.
+
+| | BM25 | Denso | **Híbrido** |
+|---|---:|---:|---:|
+| recall@5 | 0,588 [0,577; 0,599] | 0,535 | **0,595** [0,584; 0,605] |
+| recall@10 | 0,724 [0,714; 0,733] | 0,699 | **0,740** [0,731; 0,750] |
+| MRR | 0,557 [0,547; 0,567] | 0,496 | **0,562** [0,553; 0,572] |
+
+**O híbrido é o melhor estimador de ponto em toda métrica** — a direção que a Fase 1 previu. Mas
+a régua do projeto exige olhar o IC, não só o ponto: o IC do híbrido no recall@5 **[0,584; 0,605]
+sobrepõe** o do BM25 **[0,577; 0,599]**. O ganho de +0,007 está **dentro da incerteza — não é
+estatisticamente distinguível** do BM25 sozinho. O mesmo vale para MRR e recall@10 (ICs
+sobrepostos). Reportar "híbrido vence" sem o IP seria a métrica maquiada que a auditoria da Fase 1
+já reprovou uma vez.
+
+**Por que o ganho é modesto — e é o achado sobre RRF.** O híbrido fica `>= melhor isolado` em
+apenas **17 das 41 categorias**. O padrão de onde ganha e onde perde explica:
+
+| Híbrido GANHA (rankers concordam) | bm25 / denso → hib | | Híbrido PERDE (rankers discordam forte) | bm25 / denso → hib |
+|---|---|---|---|---|
+| No-Solicit Of Customers | 0,475 / 0,467 → **0,552** | | Effective Date | 0,689 / 0,411 → 0,567 |
+| Expiration Date | 0,753 / 0,758 → **0,804** | | Irrevocable/Perpetual License | 0,775 / 0,481 → 0,668 |
+| Uncapped Liability | 0,806 / 0,708 → **0,836** | | Unlimited/All-License | 0,671 / 0,324 → 0,568 |
+
+**RRF é um mecanismo de consenso, não um seletor do melhor.** Onde os dois rankers **concordam**
+(ambos medíocres ou ambos bons), a fusão amplifica — os dois põem o gold perto do topo e o RRF o
+concentra. Onde **discordam forte** — `Effective Date`, BM25 0,689 vs denso 0,411 — a fusão
+**compromete**: arrasta o vencedor na direção do perdedor, porque RRF não tem como saber *qual*
+ranker confiar naquela query. Ganha robustez, perde o pico.
+
+**O arco fecha, e re-deriva a Fase 1 inteira.** Sobre um benchmark de terceiros, do zero:
+BM25 → denso (complementar, §10) → híbrido RRF (melhor no agregado, mas o ganho é limitado pelo
+lado denso fraco e pelo compromisso do RRF na discordância). O lever para tornar o ganho
+significativo é exatamente o **próximo estágio que a Fase 1 já tem**: um **reranker cross-encoder**,
+que lê query+trecho juntos e desempata *por query* — o que o RRF não consegue. A arquitetura de
+recuperação da Fase 1 (denso + BM25 + RRF + rerank) não foi escolha de fé; este experimento a
+justifica peça por peça, com IC, num dataset que não é o nosso.
+
 ### Próximo passo
 
-Fusão híbrida (RRF de BM25 + denso) sobre o CUAD — a hipótese é que ela bate os dois isolados
-justamente por herdar os ganhos de cada um nas categorias opostas. Só depois, e só se a
-recuperação justificar, entra API para a geração.
+Encerrado o eixo de recuperação, o item aberto da Fase 6 é o **benchmark de motor** (DuckDB vs
+Spark) sobre os 17,2 M do CFPB (§7). Recuperação densa forte (bge-large-en) e rerank sobre o CUAD
+ficam como extensão natural, mas o achado estrutural — complementaridade + limite do RRF — já está
+estabelecido e não muda de forma com um modelo melhor.
