@@ -123,5 +123,5 @@ Pense num médico que primeiro entende o paciente, depois escolhe o exame, depoi
 | A visão geral e os resultados | [README.md](../README.md) |
 | A narrativa fase a fase | [HISTORIA.md](HISTORIA.md) |
 | O mapa técnico dos arquivos | [ARQUITETURA.md](ARQUITETURA.md) |
-| Cada fase em detalhe | `docs/00` a `docs/16` |
+| Cada fase em detalhe | `docs/00` a `docs/17` |
 | A governança do modelo e dos dados | [MODEL_CARD.md](MODEL_CARD.md) · [DATASET_CARD.md](DATASET_CARD.md) |

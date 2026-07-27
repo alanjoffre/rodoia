@@ -25,7 +25,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 | **2** · 🎯 | Especializar um modelo e provar o ganho | F1 **0,13 → 0,77** |
 | **3** · 📊 | Do CSV sujo à previsão que convence | Holt-Winters bate o naïve (**Δ3,01pp**) |
 | **4** · 🤖 | Juntar tudo e decidir | roteamento **0,95** (n=21) |
-| **5** · ⚙️ | Não quebrar e não piorar | gate **24/24** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
+| **5** · ⚙️ | Não quebrar e não piorar | gate **27/27** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
 | **6** · 📈 | E se o teste não for meu? | **17,2 M linhas** · CUAD (gold de terceiros) **0,588 → 0,652** (rerank, IC disjunto) · alucinação **1,3%** · DuckDB **6,7×** Spark |
 
 ---

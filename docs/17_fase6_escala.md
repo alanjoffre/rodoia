@@ -134,7 +134,7 @@ pip install -e ".[escala]"
 python -m rodoia.ingestao.baixar_cfpb --verificar   # HEAD: confere se o WAF ainda libera
 python -m rodoia.ingestao.baixar_cfpb               # ~1,43 GB, idempotente
 python -m rodoia.ingestao.ingestao_cfpb             # -> reports/fase6_escala/contagem_cfpb.json
-python -m rodoia.mlops.gate                         # 17/17
+python -m rodoia.mlops.gate                         # 27/27
 ```
 
 Custo medido na Nitro: ~2,5 min de download + ~20 min de parse.

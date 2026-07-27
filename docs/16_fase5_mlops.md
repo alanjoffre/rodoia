@@ -32,9 +32,13 @@ $ python -m rodoia.mlops.gate
   15/15 portões OK — APROVADO
 ```
 
+> **Nota:** o bloco acima é o **snapshot da Fase 5** (15 portões). O gate cresce a cada fase —
+> hoje são **27**; o número corrente é o do badge do [README](../README.md). O mecanismo abaixo é
+> justamente o que obriga os dois a andarem juntos.
+
 O nº de portões é travado por teste (`tests/test_gate.py::test_numero_de_portoes_travado`):
-um `>=` permitiria remover portões com o CI verde e o badge "15/15" virando mentira em
-silêncio. Com a igualdade, mexer no gate obriga a atualizar o badge no mesmo diff.
+um `>=` permitiria remover portões com o CI verde e o badge virando mentira em silêncio. Com a
+igualdade, mexer no gate obriga a atualizar o badge no mesmo diff.
 
 Os pisos ficam **abaixo** dos valores atuais (toleram ruído de reexecução, pegam regressão real).
 Baixar um piso é uma decisão consciente — aparece no diff e no code review.
