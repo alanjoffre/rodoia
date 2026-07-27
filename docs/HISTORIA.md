@@ -26,7 +26,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 | **3** · 📊 | Do CSV sujo à previsão que convence | Holt-Winters bate o naïve (**Δ3,01pp**) |
 | **4** · 🤖 | Juntar tudo e decidir | roteamento **0,95** (n=21) |
 | **5** · ⚙️ | Não quebrar e não piorar | gate **24/24** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
-| **6** · 📈 | E se o teste não for meu? | **17,2 M linhas** · CUAD (gold de terceiros) **0,588 → 0,595** com IC · DuckDB **6,7×** Spark |
+| **6** · 📈 | E se o teste não for meu? | **17,2 M linhas** · CUAD (gold de terceiros) **0,588 → 0,652** (rerank, IC disjunto) · alucinação **1,3%** · DuckDB **6,7×** Spark |
 
 ---
 
@@ -116,7 +116,11 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 > ⚖️ **O rigor recusou a conclusão fácil, duas vezes.** (1) O denso **perde** do BM25 no agregado — mas vence exatamente nas categorias de **lacuna lexical** (metadados como *Document Name*), e perde onde o termo é raro e distintivo. Não é "denso é pior": são **forças complementares**, que é o argumento textual do híbrido. (2) O híbrido é o melhor em toda métrica — **mas o IC [0,584; 0,605] sobrepõe o do BM25 [0,577; 0,599]**. O ganho de +0,007 **não é estatisticamente distinguível**, e está reportado assim. Anunciar "o híbrido vence" seria a métrica maquiada que este projeto já reprovou uma vez.
 
-**O fecho do arco:** partindo do zero sobre um benchmark que não é meu, com IC em cada passo, a sequência BM25 → denso → híbrido **re-derivou a arquitetura da Fase 1** (denso + BM25 + RRF + rerank) peça por peça — e mostrou por que o rerank é o estágio que faltava: RRF é **consenso, não seletor**, e compromete justamente onde os dois recuperadores discordam forte.
+> ⚖️ **O rigor derrubou uma previsão minha.** Eu havia escrito no doc que "um embedder inglês forte quase certamente levantaria o lado denso". Rodei o bge-large-en: **2,8× maior, 7,3× mais lento, e ICs sobrepostos — nenhuma diferença**. A previsão estava errada, e está registrada como errada. O que funcionou foi outra coisa: o **rerank cross-encoder**, único estágio cujo ganho tem **IC disjunto** (0,595 → 0,652).
+
+> ⚖️ **O rigor pegou um viés que era meu.** Ao medir alucinação, o resultado foi **98,7% de não-alucinação** — que sozinho pareceria um triunfo. A segunda taxa desmentiu: **cobertura de 27%**, ou seja, o sistema recusava 3 de cada 4 perguntas que *tinham* resposta, ficando a 0,13 de um modelo que responde "não consta" a tudo. E parte da culpa era **do meu prompt**: suavizá-lo recuperou 10 pontos de cobertura **sem custo nenhum** de alucinação.
+
+**O fecho do arco:** partindo do zero sobre um benchmark que não é meu, com IC em cada passo, a sequência BM25 → denso → híbrido → **rerank** **re-derivou a arquitetura da Fase 1** peça por peça — e mostrou por que o rerank é o estágio que faltava: RRF é **consenso, não seletor**, e compromete justamente onde os dois recuperadores discordam forte. Onde o RRF entregava *menos* que o BM25 sozinho (`Effective Date`, 0,689 → 0,567), o cross-encoder recupera e **supera** (0,776).
 
 ---
 

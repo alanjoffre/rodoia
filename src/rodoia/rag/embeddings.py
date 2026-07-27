@@ -42,3 +42,56 @@ class E5Embedder:
 
     def encode_queries(self, textos: list[str]) -> np.ndarray:
         return self._encode(textos, "query")
+
+
+class BGEEmbedder:
+    """Embedder da família **BGE** (inglês) — usado no benchmark externo (Fase 6).
+
+    **Não é o E5 com outro nome, e a diferença é silenciosa.** Cada família tem
+    sua convenção de prefixo, e usar a errada não quebra nada — só degrada a
+    qualidade sem aviso:
+
+    | família | query | passage |
+    |---|---|---|
+    | E5 | `query: {t}` | `passage: {t}` |
+    | **BGE** | `Represent this sentence for searching relevant passages: {t}` | **sem prefixo** |
+
+    Por isso é uma CLASSE separada e não um parâmetro de `E5Embedder`: prefixo é
+    convenção de família de modelo, não botão de configuração que alguém possa
+    setar errado. Ambas satisfazem o Protocol `Embedder`, então o resto do
+    pipeline não muda.
+    """
+
+    _PREFIXO_QUERY = "Represent this sentence for searching relevant passages: "
+
+    def __init__(self, modelo: str = "BAAI/bge-large-en-v1.5", device: str | None = None):
+        from sentence_transformers import SentenceTransformer
+
+        self._m = SentenceTransformer(modelo, device=device)
+        self.dim = self._m.get_sentence_embedding_dimension()
+
+    def encode_passages(self, textos: list[str]) -> np.ndarray:
+        # BGE não prefixa passagem — prefixar aqui degradaria a recuperação.
+        return np.asarray(self._m.encode(textos, normalize_embeddings=True))
+
+    def encode_queries(self, textos: list[str]) -> np.ndarray:
+        marcados = [f"{self._PREFIXO_QUERY}{t}" for t in textos]
+        return np.asarray(self._m.encode(marcados, normalize_embeddings=True))
+
+
+# Modelo padrão de cada família (o do E5 vem de settings — é o da Fase 1).
+MODELO_PADRAO: dict[str, str] = {"bge": "BAAI/bge-large-en-v1.5"}
+
+
+def construir_embedder(
+    familia: str, modelo: str | None = None, device: str | None = None
+) -> Embedder:
+    """Fábrica por família — evita que o chamador escolha a classe errada para o
+    modelo e aplique o prefixo de outra família (falha silenciosa)."""
+    from rodoia.config import settings
+
+    if familia == "e5":
+        return E5Embedder(modelo=modelo or settings.embedding_model, device=device)
+    if familia == "bge":
+        return BGEEmbedder(modelo=modelo or MODELO_PADRAO["bge"], device=device)
+    raise ValueError(f"família de embedder inválida: {familia!r} (use 'e5' ou 'bge')")

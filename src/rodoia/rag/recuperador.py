@@ -53,12 +53,21 @@ class Reranker:
 
         self._m = CrossEncoder(modelo)
 
+    def pontuar(self, consulta: str, textos: list[str]) -> list[float]:
+        """Escores brutos de (consulta, texto). Expõe o número que `reordenar` já
+        calculava internamente — quem precisa do ESCORE (e não só da ordem) não
+        deve ter que furar o encapsulamento e chamar `._m` direto."""
+        if not textos:
+            return []
+        escores = self._m.predict([[consulta, t] for t in textos])
+        return [float(e) for e in np.asarray(escores).ravel()]
+
     def reordenar(
         self, consulta: str, chunks: list[dict[str, Any]], k: int
     ) -> list[dict[str, Any]]:
         if not chunks:
             return []
-        escores = self._m.predict([[consulta, c["texto"]] for c in chunks])
+        escores = self.pontuar(consulta, [c["texto"] for c in chunks])
         ordem = np.argsort(escores)[::-1][:k]
         return [chunks[i] for i in ordem]
 

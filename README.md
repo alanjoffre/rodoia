@@ -9,12 +9,12 @@
 [![CI](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml/badge.svg)](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Tests](https://img.shields.io/badge/testes-229%20passando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/testes-247%20passando-brightgreen.svg)
 ![Tipos](https://img.shields.io/badge/mypy-strict%20no%20núcleo-brightgreen.svg)
-![Gate](https://img.shields.io/badge/gate%20de%20avaliação-24%2F24-brightgreen.svg)
+![Gate](https://img.shields.io/badge/gate%20de%20avaliação-27%2F27-brightgreen.svg)
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
-[![Diário visual](https://img.shields.io/badge/📅_diário_visual-timeline_dos_81_passos-e0a326.svg)](https://alanjoffre.github.io/rodoia/diario.html)
+[![Diário visual](https://img.shields.io/badge/📅_diário_visual-timeline_dos_92_passos-e0a326.svg)](https://alanjoffre.github.io/rodoia/diario.html)
 
 [**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
 
@@ -41,8 +41,8 @@ Projeto de portfólio **público e open-source**. Objetivo: provar, **com códig
 | **2 · Fine-tuning** | QLoRA (Qwen2.5-3B) p/ NER jurídico + serving vLLM fp8 | **F1 0,13 → 0,77** (SOTA 0,89) · **205 tok/s** | [13](docs/13_fase2_ner.md) |
 | **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,01pp (IC [1,76; 4,40]) | [14](docs/14_fase3_dados_estruturados.md) |
 | **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) | [15](docs/15_fase4_agente.md) |
-| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo · **red-team + lockfile/SBOM** | **gate 24/24** · **drift 0,005** · **ASR 0 (camada-1) · 0 CVEs** | [16](docs/16_fase5_mlops.md) |
-| **6 · Escala + benchmark externo** | ingestão de 1,43 GB → Parquet particionado (17,2 M linhas) · **avaliação sobre gold de TERCEIROS (CUAD)** · motor escolhido por benchmark | CUAD **recall@5 0,588 BM25 · 0,535 denso · 0,595 híbrido** (ganho **não-significativo**, ICs sobrepostos) · **DuckDB 6,7× Spark, 0 divergências** | [17](docs/17_fase6_escala.md) |
+| **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo · **red-team + lockfile/SBOM** | **gate 27/27** · **drift 0,005** · **ASR 0 (camada-1) · 0 CVEs** | [16](docs/16_fase5_mlops.md) |
+| **6 · Escala + benchmark externo** | ingestão de 1,43 GB → Parquet particionado (17,2 M linhas) · **avaliação sobre gold de TERCEIROS (CUAD)** · motor escolhido por benchmark | CUAD recall@5 **0,588 BM25 → 0,595 híbrido** (não-signif.) **→ 0,652 +rerank (IC disjunto)** · geração: **98,7% não-alucinação / 37,3% cobertura** · **DuckDB 6,7× Spark** | [17](docs/17_fase6_escala.md) |
 
 > **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e eu reportei o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
 
@@ -89,7 +89,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 
 | Requisito | Onde é provado | Evidência |
 |---|---|---|
-| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 229 testes (212 no CI) · `async` nos endpoints |
+| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 247 testes (230 no CI) · `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
 | SQL avançado e modelagem | Fase 3 | Esquema **estrela** (DuckDB, 741k linhas), window functions (LAG/RANK), camada de acesso testada + **previsão de demanda** (MAPE) |

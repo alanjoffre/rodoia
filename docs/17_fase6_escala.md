@@ -379,10 +379,153 @@ Um motor rápido que errasse a conta seria descartado apesar do tempo.
 teste no CI cobre a comparação (pura) e o caminho DuckDB com um Parquet de fixture; `rodar_spark`
 não entra no CI.
 
+## 13. As extensões — uma previsão errada e uma confirmada
+
+A §12 listou três extensões como "não mudam nenhuma conclusão de forma". Rodá-las mostrou que
+**uma delas eu tinha previsto errado**, e que a outra não era extensão — era o estágio que faltava.
+
+### 13.1 O embedder inglês forte NÃO ajudou — a previsão que falhou
+
+A §10 registrou: *"um embedder inglês forte (bge-large-en) quase certamente levantaria o lado
+denso"*. Medido:
+
+| | BM25 | **e5-small** (118M, multilíngue) | **bge-large-en** (335M, inglês) |
+|---|---:|---:|---:|
+| recall@5 | 0,588 | **0,535** [0,524; 0,545] | **0,532** [0,522; 0,543] |
+| MRR | 0,557 | 0,496 | 0,512 |
+| tempo de encode | — | 2m48s | **20m32s** |
+
+**Δ = −0,003, ICs sobrepostos.** Um modelo **2,8× maior**, específico para inglês, com o dobro de
+dimensões e **7,3× mais lento**, não produziu diferença estatisticamente distinguível. A previsão
+estava **errada na primeira metade e certa na segunda**: o modelo forte não levantou o denso, mas o
+achado estrutural (complementaridade) sobreviveu.
+
+O detalhe que fecha o argumento: nas categorias de **lacuna lexical** — onde o denso deveria
+brilhar — o modelo maior é frequentemente **pior**.
+
+| categoria | BM25 | e5-small | bge-large |
+|---|---:|---:|---:|
+| Document Name | 0,322 | **0,482** | 0,307 |
+| Parties | 0,255 | **0,298** | 0,241 |
+| Volume Restriction | 0,173 | **0,282** | 0,259 |
+
+Três hipóteses, marcadas como hipóteses: (a) o gargalo é o **chunking** (janela cega), não o
+embedder; (b) as queries são **rótulos de categoria**, não perguntas naturais, e bi-encoders são
+treinados em perguntas; (c) linguagem contratual é homogênea e a similaridade satura. Testá-las é
+trabalho futuro — o que está **medido** é que trocar de modelo não é o lever.
+
+**Consequência prática:** o rerank abaixo roda com **e5-small**, escolhido pela medição e não pelo
+tamanho. Um resultado que economiza 7× de compute é resultado.
+
+### 13.2 O rerank cross-encoder — a hipótese confirmada, com IC disjunto
+
+A §11 diagnosticou: RRF é **consenso, não seletor**, e o lever seria o cross-encoder, que desempata
+**por query**. Rodando a pilha completa da Fase 1 (`denso + BM25 → RRF → rerank`):
+
+| | BM25 | Híbrido | **+ Rerank** |
+|---|---:|---:|---:|
+| recall@1 | 0,275 | 0,275 | **0,313** |
+| recall@5 | 0,588 [0,577; 0,599] | 0,595 [0,584; 0,605] | **0,652 [0,642; 0,662]** |
+| recall@10 | 0,724 | 0,740 | **0,774** |
+| MRR | 0,557 | 0,562 | **0,604** |
+
+**Os ICs do rerank e do híbrido são DISJUNTOS** — o ganho de **+0,057** é, este sim,
+estatisticamente significativo, ao contrário do +0,007 do híbrido sozinho. É a diferença entre
+"melhor estimador de ponto" e "melhor, com evidência".
+
+E o **mecanismo previsto se confirma na categoria certa**. As maiores vitórias do rerank sobre o
+híbrido são exatamente onde o RRF comprometia por discordância dos rankers:
+
+| categoria | BM25 | denso | híbrido (RRF) | **+rerank** |
+|---|---:|---:|---:|---:|
+| **Effective Date** | 0,689 | 0,411 | **0,567** ← RRF piorou | **0,776** |
+| **Document Name** | 0,322 | 0,482 | **0,386** ← RRF piorou | **0,608** |
+| Agreement Date | 0,430 | 0,482 | — | **+0,305** |
+
+Em `Effective Date` o RRF entregou **menos que o BM25 sozinho** (0,567 vs 0,689) — o compromisso
+custando caro. O cross-encoder não só recupera como **supera o melhor isolado** (0,776). Lendo
+query e trecho juntos, ele decide *por query* qual sinal confiar; o RRF, por construção, não pode.
+
+### 13.3 Abstenção — o escore finalmente separa (mas não o bastante)
+
+O diagnóstico de abstenção rodou nos três recuperadores. A separação entre as medianas do escore
+do top-1 (respondível − impossível):
+
+| recuperador | resp. (mediana) | imposs. (mediana) | separação |
+|---|---:|---:|---:|
+| BM25 | 15,256 | 14,849 | **+0,407** (2,7%) |
+| Híbrido (RRF) | 0,033 | 0,032 | **+0,001** ← escore RRF é comprimido, inútil aqui |
+| **Rerank** | −3,184 | −6,942 | **+3,758** |
+
+O cross-encoder é o primeiro sinal com separação **real** — ~9× a do BM25. **Mas as distribuições
+ainda se sobrepõem:** o p10 dos respondíveis (−8,17) fica abaixo do p90 dos impossíveis (−2,31).
+Um limiar erraria muito. Melhorou de "impossível" para "difícil", não para "resolvido" — e é assim
+que está reportado.
+
+### 13.4 Geração ancorada — a métrica que sozinha seria mentira
+
+`rag/avaliacao_cuad_geracao.py` fecha o eixo: todas as métricas anteriores medem **recuperação**;
+esta mede o que o gerador faz com o contexto. Roda no **LLM local** (Ollama, qwen2.5:7b) — **custo
+de API zero**. Amostra estratificada por categoria, 150 por população, seed fixa.
+
+O CUAD viabiliza a pergunta que quase nenhum portfólio responde: *quando a cláusula **não existe**,
+o sistema se cala ou inventa?* Mas medir só isso seria maquiagem — um modelo que responde "não
+consta" a **tudo** teria não-alucinação perfeita e seria inútil. Daí as **duas taxas**:
+
+| | não-alucinação | cobertura | balanceada |
+|---|---:|---:|---:|
+| *Baseline trivial: abster de tudo* | *1,000* | *0,000* | *0,500* |
+| Prompt **estrito** | 0,987 [0,953; 0,996] | 0,273 [0,208; 0,350] | 0,630 |
+| Prompt **equilibrado** | 0,987 [0,953; 0,996] | **0,373** [0,300; 0,453] | **0,680** |
+
+**O sistema está a +0,180 de um modelo que diz "não consta" a tudo.** Reportar apenas
+"98,7% de não-alucinação" seria verdade e seria enganoso.
+
+**E não é falha de recuperação.** O teto — fração de perguntas em que algum chunk de gold está no
+top-5 (hit@5 do híbrido) — é **0,713**. A geração aproveita **52%** dele: em quase metade dos casos
+o trecho certo **estava no contexto** e o modelo disse "não consta" mesmo assim.
+
+**A ablação de prompt — um confundidor que eu mesmo introduzi.** O prompt inicial dizia *"Never
+guess, never use outside knowledge"*. Sem testar, "o modelo abstém demais" seria indistinguível de
+"o prompt do autor induziu abstenção". Suavizar o prompt recuperou **+0,100 de cobertura com
+não-alucinação IDÊNTICA (0,987)** — ganho de graça, e prova de que **parte do problema era meu, não
+do modelo**.
+
+Duas ressalvas honestas sobre essa ablação: (a) os **ICs de cobertura se sobrepõem**
+([0,208; 0,350] vs [0,300; 0,453]), então o ganho de 10 pp **não é significativo** a este n; (b) o
+desenho é **pareado** (mesma amostra, mesma seed, mesmas perguntas), então um **teste de McNemar**
+seria bem mais potente que a comparação de ICs — **não foi computado**, e a comparação de ICs
+sobrepostos é o teste conservador. O sinal é consistente, a prova estatística não está fechada.
+
+O que sobra depois de descontar o confundidor: mesmo no melhor prompt, **o gargalo é o gerador, não
+a busca**. Levers plausíveis — modelo maior, few-shot, ou uma política de abstenção calibrada sobre
+o escore do cross-encoder (§13.3, o primeiro sinal com separação real) — ficam medidos como
+*próximos*, não como *feitos*.
+
 ## Fase 6 — encerrada
 
 Os dois eixos fechados: **escala** (ingestão de 17,2 M + motor escolhido com benchmark) e
-**benchmark externo** (CUAD, com o arco BM25 → denso → híbrido re-derivando a arquitetura da Fase 1
-sobre gold de terceiros, com IC). Extensões naturais que **não mudam nenhuma conclusão de forma**:
-um embedder inglês forte (bge-large-en) e o rerank cross-encoder sobre o CUAD; a geração ancorada
-sobre os contratos (única parte que exigiria API, e só se a recuperação justificar).
+**benchmark externo** (CUAD, o arco completo BM25 → denso → híbrido → **rerank**, mais a geração
+ancorada — tudo com IC, tudo sobre gold de terceiros, **custo de API zero**).
+
+O arco de recuperação, medido de ponta a ponta:
+
+| recuperador | recall@5 | ganho significativo? |
+|---|---:|---|
+| BM25 | 0,588 | — (baseline) |
+| denso e5-small | 0,535 | perde no agregado, **complementar** por categoria |
+| denso bge-large-en | 0,532 | **não** — 7,3× mais lento, ICs sobrepostos |
+| híbrido RRF | 0,595 | **não** — IC sobrepõe o BM25 |
+| **+ rerank cross-encoder** | **0,652** | **SIM — IC disjunto** |
+
+Isso **re-deriva a arquitetura da Fase 1** (denso + BM25 + RRF + rerank) peça por peça, num dataset
+que não é nosso — e mostra que o rerank não é enfeite: é o único estágio cujo ganho sobrevive ao IC.
+
+**As três "extensões" da §12 renderam mais que o previsto:** uma **refutou minha própria previsão**
+(o embedder forte não ajudou), uma **confirmou a hipótese com evidência** (rerank), e a terceira
+expôs que **o gargalo migrou da busca para o gerador** — com uma ablação mostrando que parte do
+problema era o prompt de quem media.
+
+O que fica genuinamente aberto, e agora com número para priorizar: política de abstenção calibrada
+sobre o escore do cross-encoder (§13.3), chunking consciente de cláusula (a hipótese (a) da §13.1),
+e um gerador maior. Nenhum deles muda os achados **estruturais** já estabelecidos.

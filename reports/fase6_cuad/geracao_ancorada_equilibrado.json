@@ -1,0 +1,93 @@
+{
+  "config": {
+    "top_k": 5,
+    "seed": 42,
+    "modelo": "qwen2.5:7b",
+    "prompt": "equilibrado"
+  },
+  "n_impossiveis": 150,
+  "n_respondiveis": 150,
+  "nao_alucinacao": {
+    "taxa": 0.9867,
+    "ic95_wilson": [
+      0.953,
+      0.996
+    ],
+    "descricao": "abstenção correta nas perguntas is_impossible"
+  },
+  "cobertura": {
+    "taxa": 0.3733,
+    "ic95_wilson": [
+      0.3,
+      0.453
+    ],
+    "descricao": "resposta dada nas perguntas com gold (não recusou indevidamente)"
+  },
+  "media_balanceada": 0.68,
+  "abstencao_por_categoria": {
+    "Affiliate License-Licensee": 1.0,
+    "Affiliate License-Licensor": 0.75,
+    "Agreement Date": 1.0,
+    "Anti-Assignment": 1.0,
+    "Audit Rights": 1.0,
+    "Cap On Liability": 1.0,
+    "Change Of Control": 1.0,
+    "Competitive Restriction Exception": 1.0,
+    "Covenant Not To Sue": 1.0,
+    "Effective Date": 0.75,
+    "Exclusivity": 1.0,
+    "Expiration Date": 1.0,
+    "Governing Law": 1.0,
+    "Insurance": 1.0,
+    "Ip Ownership Assignment": 1.0,
+    "Irrevocable Or Perpetual License": 1.0,
+    "Joint Ip Ownership": 1.0,
+    "License Grant": 1.0,
+    "Liquidated Damages": 1.0,
+    "Minimum Commitment": 1.0,
+    "Most Favored Nation": 1.0,
+    "No-Solicit Of Customers": 1.0,
+    "No-Solicit Of Employees": 1.0,
+    "Non-Compete": 1.0,
+    "Non-Disparagement": 1.0,
+    "Non-Transferable License": 1.0,
+    "Notice Period To Terminate Renewal": 1.0,
+    "Parties": 1.0,
+    "Post-Termination Services": 1.0,
+    "Price Restrictions": 1.0,
+    "Renewal Term": 1.0,
+    "Revenue/Profit Sharing": 1.0,
+    "Rofr/Rofo/Rofn": 1.0,
+    "Source Code Escrow": 1.0,
+    "Termination For Convenience": 1.0,
+    "Third Party Beneficiary": 1.0,
+    "Uncapped Liability": 1.0,
+    "Unlimited/All-You-Can-Eat-License": 1.0,
+    "Volume Restriction": 1.0,
+    "Warranty Duration": 1.0
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "7503a4c",
+    "git_dirty": true,
+    "git_diff_sha1": "0c8caa1514d0",
+    "timestamp_utc": "2026-07-27T12:47:54+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0",
+      "pyarrow": "24.0.0",
+      "duckdb": "1.5.4"
+    }
+  }
+}

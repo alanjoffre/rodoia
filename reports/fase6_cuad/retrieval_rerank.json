@@ -1,0 +1,211 @@
+{
+  "config": {
+    "recuperador": "hibrido_rrf_rerank",
+    "modelo_embedding": "intfloat/multilingual-e5-small",
+    "modelo_rerank": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "candidatos": 20,
+    "max_chars": 1500,
+    "overlap": 200,
+    "ks": [
+      1,
+      3,
+      5,
+      10
+    ]
+  },
+  "corpus": {
+    "n_contratos": 510,
+    "n_chunks": 20806,
+    "chunks_por_contrato_mediana": 40.8
+  },
+  "n_respondiveis": 6702,
+  "n_impossiveis": 14208,
+  "n_sem_gold": 0,
+  "metricas": {
+    "recall_at_1": {
+      "media": 0.3126,
+      "ic95_bootstrap": [
+        0.303,
+        0.322
+      ]
+    },
+    "hit_at_1": {
+      "taxa": 0.4734,
+      "ic95_wilson": [
+        0.462,
+        0.485
+      ]
+    },
+    "recall_at_3": {
+      "media": 0.5468,
+      "ic95_bootstrap": [
+        0.536,
+        0.557
+      ]
+    },
+    "hit_at_3": {
+      "taxa": 0.6792,
+      "ic95_wilson": [
+        0.668,
+        0.69
+      ]
+    },
+    "recall_at_5": {
+      "media": 0.652,
+      "ic95_bootstrap": [
+        0.642,
+        0.662
+      ]
+    },
+    "hit_at_5": {
+      "taxa": 0.7693,
+      "ic95_wilson": [
+        0.759,
+        0.779
+      ]
+    },
+    "recall_at_10": {
+      "media": 0.7742,
+      "ic95_bootstrap": [
+        0.765,
+        0.783
+      ]
+    },
+    "hit_at_10": {
+      "taxa": 0.8591,
+      "ic95_wilson": [
+        0.851,
+        0.867
+      ]
+    }
+  },
+  "mrr": {
+    "media": 0.604,
+    "ic95_bootstrap": [
+      0.594,
+      0.614
+    ]
+  },
+  "diagnostico_abstencao": {
+    "escore_top1_respondivel": {
+      "mediana": -3.184,
+      "p10": -8.173,
+      "p90": 0.978
+    },
+    "escore_top1_impossivel": {
+      "mediana": -6.942,
+      "p10": -10.253,
+      "p90": -2.312
+    }
+  },
+  "recall_at_5_por_categoria": {
+    "Governing Law": 0.9441,
+    "Third Party Beneficiary": 0.9266,
+    "Renewal Term": 0.9111,
+    "Notice Period To Terminate Renewal": 0.8904,
+    "Termination For Convenience": 0.8566,
+    "Uncapped Liability": 0.8401,
+    "Insurance": 0.8363,
+    "No-Solicit Of Employees": 0.8169,
+    "Source Code Escrow": 0.7987,
+    "Expiration Date": 0.7805,
+    "Effective Date": 0.7756,
+    "Agreement Date": 0.7755,
+    "Anti-Assignment": 0.7572,
+    "Irrevocable Or Perpetual License": 0.7187,
+    "Audit Rights": 0.7036,
+    "Cap On Liability": 0.6979,
+    "Change Of Control": 0.6658,
+    "Warranty Duration": 0.6643,
+    "Affiliate License-Licensee": 0.6537,
+    "Joint Ip Ownership": 0.6147,
+    "Document Name": 0.6078,
+    "Liquidated Damages": 0.6027,
+    "License Grant": 0.5852,
+    "Post-Termination Services": 0.551,
+    "Minimum Commitment": 0.5498,
+    "Non-Transferable License": 0.5202,
+    "Competitive Restriction Exception": 0.5033,
+    "Non-Disparagement": 0.489,
+    "No-Solicit Of Customers": 0.4807,
+    "Ip Ownership Assignment": 0.48,
+    "Non-Compete": 0.4414,
+    "Price Restrictions": 0.4306,
+    "Unlimited/All-You-Can-Eat-License": 0.4294,
+    "Covenant Not To Sue": 0.4183,
+    "Rofr/Rofo/Rofn": 0.4015,
+    "Exclusivity": 0.377,
+    "Parties": 0.3462,
+    "Affiliate License-Licensor": 0.345,
+    "Revenue/Profit Sharing": 0.3302,
+    "Most Favored Nation": 0.2589,
+    "Volume Restriction": 0.1264
+  },
+  "delta_vs_hibrido_por_categoria": {
+    "Agreement Date": 0.3053,
+    "Third Party Beneficiary": 0.2704,
+    "Document Name": 0.2215,
+    "Effective Date": 0.2089,
+    "Affiliate License-Licensee": 0.0806,
+    "Joint Ip Ownership": 0.079,
+    "Parties": 0.0776,
+    "Competitive Restriction Exception": 0.0768,
+    "Anti-Assignment": 0.0626,
+    "Exclusivity": 0.0568,
+    "Governing Law": 0.0553,
+    "Irrevocable Or Perpetual License": 0.0507,
+    "Warranty Duration": 0.0504,
+    "Source Code Escrow": 0.0487,
+    "Non-Compete": 0.0375,
+    "Ip Ownership Assignment": 0.0373,
+    "No-Solicit Of Employees": 0.0353,
+    "Cap On Liability": 0.0136,
+    "Uncapped Liability": 0.0045,
+    "Notice Period To Terminate Renewal": 0.003,
+    "Liquidated Damages": -0.002,
+    "Insurance": -0.004,
+    "License Grant": -0.0056,
+    "Affiliate License-Licensor": -0.0061,
+    "Non-Disparagement": -0.0154,
+    "Revenue/Profit Sharing": -0.0157,
+    "Renewal Term": -0.0194,
+    "Price Restrictions": -0.0222,
+    "Post-Termination Services": -0.0236,
+    "Expiration Date": -0.0237,
+    "Audit Rights": -0.0255,
+    "Termination For Convenience": -0.0382,
+    "Minimum Commitment": -0.0556,
+    "Non-Transferable License": -0.0566,
+    "No-Solicit Of Customers": -0.0718,
+    "Change Of Control": -0.0787,
+    "Volume Restriction": -0.0894,
+    "Covenant Not To Sue": -0.1017,
+    "Rofr/Rofo/Rofn": -0.1159,
+    "Most Favored Nation": -0.125,
+    "Unlimited/All-You-Can-Eat-License": -0.1382
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "7503a4c",
+    "git_dirty": true,
+    "git_diff_sha1": "0c8caa1514d0",
+    "timestamp_utc": "2026-07-27T11:43:10+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0",
+      "pyarrow": "24.0.0",
+      "duckdb": "1.5.4"
+    }
+  }
+}

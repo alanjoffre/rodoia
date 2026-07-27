@@ -74,6 +74,7 @@ def avaliar_denso(
     embedder: Embedder,
     max_chars: int = MAX_CHARS,
     overlap: int = OVERLAP,
+    nome_modelo: str | None = None,
 ) -> dict[str, Any]:
     """Avaliação densa completa: encoda em lote, ranqueia por cosseno, consolida.
 
@@ -128,7 +129,7 @@ def avaliar_denso(
 
     config = {
         "recuperador": "denso",
-        "modelo": settings.embedding_model,
+        "modelo": nome_modelo or settings.embedding_model,
         "max_chars": max_chars,
         "overlap": overlap,
         "ks": list(KS),
@@ -161,24 +162,33 @@ def main() -> None:
     parser.add_argument("--zip", type=Path, default=None, help="caminho do cuad.zip")
     parser.add_argument("--modelo", type=str, default=None, help="override do modelo de embeddings")
     parser.add_argument("--device", type=str, default=None, help="cuda|cpu (default: auto)")
+    parser.add_argument(
+        "--familia", type=str, default="e5", choices=("e5", "bge"),
+        help="família do embedder (define o PREFIXO — errar degrada em silêncio)",
+    )
     args = parser.parse_args()
 
-    from rodoia.rag.embeddings import E5Embedder
+    from rodoia.rag.embeddings import MODELO_PADRAO, construir_embedder
 
-    modelo = args.modelo or settings.embedding_model
-    embedder = E5Embedder(modelo=modelo, device=args.device)
+    modelo = args.modelo or (
+        MODELO_PADRAO["bge"] if args.familia == "bge" else settings.embedding_model
+    )
+    embedder = construir_embedder(args.familia, modelo=modelo, device=args.device)
 
     contratos = carregar(zip_path=args.zip)
     if args.limite:
         contratos = contratos[: args.limite]
-    relatorio = avaliar_denso(contratos, embedder)
+    relatorio = avaliar_denso(contratos, embedder, nome_modelo=modelo)
 
     destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
     destino.mkdir(parents=True, exist_ok=True)
     relatorio["delta_vs_bm25_por_categoria"] = _comparar_categorias(
         destino / "retrieval_bm25.json", relatorio
     )
-    caminho = destino / "retrieval_denso.json"
+    # Sufixo por família: o relatório do bge NÃO sobrescreve o do e5 — os dois são
+    # evidência versionada e a comparação entre eles é o ponto (docs/17 §13).
+    sufixo = "" if args.familia == "e5" else f"_{args.familia}"
+    caminho = destino / f"retrieval_denso{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(relatorio), ensure_ascii=False, indent=2))
 
     m = relatorio["metricas"]

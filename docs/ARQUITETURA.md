@@ -58,7 +58,7 @@ src/rodoia/
 | `rag/baixar_normas.py` | Baixa o corpus de resoluções (ANTTlegis) | `baixar_corpus` |
 | `rag/fontes_antt.py` | Cliente ANTTlegis: lista atos, limpa HTML, checa vigência | `listar_atos`, `baixar_ato`, `limpar_html`, `esta_vigente` |
 | `rag/chunking.py` | Chunking consciente da estrutura jurídica (por artigos) + **de-boilerplate** | `chunk_norma`, `dividir_por_artigos`, `_cortar_ate_cabecalho`, `_e_boilerplate` |
-| `rag/embeddings.py` | Embeddings locais (E5 multilingual, custo zero) | `E5Embedder`, `Embedder` (Protocol) |
+| `rag/embeddings.py` | Embeddings locais, custo zero. **Classe por família** — o prefixo do E5 e do BGE difere e errar degrada em silêncio | `E5Embedder`, `BGEEmbedder`, `construir_embedder`, `Embedder` (Protocol) |
 | `rag/indice.py` | Índice vetorial Qdrant (modo local, sem servidor) | `criar_cliente`, `indexar`, `buscar` |
 | `rag/construir_indice.py` | Constrói o índice + emite a composição do corpus versionada | `construir`, `carregar_chunks`, `escrever_stats_corpus` |
 | `rag/recuperador.py` | Recuperação híbrida densa+BM25 com fusão RRF + reranker | `RecuperadorHibrido`, `fundir_rrf`, `Reranker`, `tokenizar` |
@@ -118,7 +118,7 @@ src/rodoia/
 
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
-| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (24 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
+| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (27 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
 | `mlops/rastreio.py` | Consolida métricas das fases em runs MLflow (sqlite) | `coletar`, `registrar` |
 | `mlops/drift.py` | Drift por PSI (coorte de praças, 12m vs 12m) | `psi`, `drift_volume`, `classificar` |
 | `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval`, `reproduzir_previsao` |
@@ -137,6 +137,8 @@ src/rodoia/
 | `rag/avaliacao_cuad.py` | Recuperação BM25 dentro do contrato + métricas com IC; `consolidar` partilhado | `avaliar`, `consolidar`, `chunkar`, `gold_da_pergunta` |
 | `rag/avaliacao_cuad_denso.py` | Recuperação densa (e5) vs BM25 por categoria — forças complementares | `avaliar_denso`, `_ranquear_denso`, `_comparar_categorias` |
 | `rag/avaliacao_cuad_hibrido.py` | Fusão RRF (reusa `recuperador.fundir_rrf`); tabela de 3 vias com IC | `avaliar_hibrido`, `fundir`, `_tabela_tres_vias` |
+| `rag/avaliacao_cuad_rerank.py` | Pilha COMPLETA da Fase 1 (denso+BM25→RRF→cross-encoder) — único ganho com IC disjunto | `avaliar_rerank`, `rerankear`, `_delta_vs_hibrido` |
+| `rag/avaliacao_cuad_geracao.py` | **Alucinação vs cobertura** (LLM local, API=0) + ablação de prompt | `avaliar_geracao`, `consolidar_geracao`, `absteve`, `amostrar` |
 
 ## 🌐 API (`api/`)
 
@@ -160,7 +162,7 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 ## 🔬 Onde ver as evidências
 
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
-- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 24 portões) e o CI em `.github/workflows/ci.yml`.
+- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 27 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
 - **Testes:** `tests/test_*.py` (175 testes; 158 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/16`; decisões/trade-offs no [README](../README.md).

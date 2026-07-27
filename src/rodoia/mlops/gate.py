@@ -118,6 +118,18 @@ GATES: tuple[Meta, ...] = (
     # divergência de resultado invalidaria a comparação inteira. Teto 0, sem folga.
     Meta("F6 · motor DuckDB≡Spark (divergências)", "reports/fase6_escala/benchmark_motor.json",
          "divergencias", "<=", 0),
+    # A pilha COMPLETA da Fase 1 (denso+BM25+RRF+rerank) sobre gold de terceiros. É o melhor
+    # recuperador medido e o único cujo ganho tem IC disjunto do baseline (docs/17 §13.2) —
+    # piso com folga sob os 0,652.
+    Meta("F6 · CUAD recall@5 (rerank)", "reports/fase6_cuad/retrieval_rerank.json",
+         "metricas.recall_at_5.media", ">=", 0.62),
+    # Geração: as DUAS taxas são portão, de propósito. Só a não-alucinação premiaria um modelo
+    # que abstém de tudo (baseline trivial: 1,000 de não-alucinação, 0,000 de cobertura). O piso
+    # de cobertura é o que impede a métrica-manchete de virar maquiagem.
+    Meta("F6 · CUAD não-alucinação", "reports/fase6_cuad/geracao_ancorada.json",
+         "nao_alucinacao.taxa", ">=", 0.90),
+    Meta("F6 · CUAD cobertura (anti-maquiagem)", "reports/fase6_cuad/geracao_ancorada.json",
+         "cobertura.taxa", ">=", 0.20),
 )
 
 

@@ -2,7 +2,7 @@
 
 # 📅 O diário do RodoIA
 
-**A construção contada linha a linha** — os 88 passos reais do projeto, na ordem em que aconteceram, cada um em linguagem clara.
+**A construção contada linha a linha** — os 92 passos reais do projeto, na ordem em que aconteceram, cada um em linguagem clara.
 
 [← README](../README.md) · [📖 A história (por fase)](HISTORIA.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md)
 
@@ -14,7 +14,7 @@
 
 Se o [HISTORIA.md](HISTORIA.md) conta **o "porquê"** de cada fase, este diário conta **o "o quê", passo a passo**. Cada item abaixo é um passo real e datado da construção (um *commit* no histórico do código): o que fiz naquele momento e por que importava.
 
-São **88 passos**, feitos entre **9 e 24 de julho de 2026**. Lidos em sequência, mostram como o projeto saiu do zero e chegou a um sistema completo — e, principalmente, como o **rigor** corrigiu os próprios números várias vezes pelo caminho.
+São **92 passos**, feitos entre **9 e 24 de julho de 2026**. Lidos em sequência, mostram como o projeto saiu do zero e chegou a um sistema completo — e, principalmente, como o **rigor** corrigiu os próprios números várias vezes pelo caminho.
 
 **Legenda das fases:** 🧮 Fase 0 (fundamentos) · 🔎 Fase 1 (RAG) · 🎯 Fase 2 (fine-tuning) · 📊 Fase 3 (dados) · 🤖 Fase 4 (agente) · ⚙️ Fase 5 (MLOps) · 📈 Fase 6 (escala e benchmark externo) · 🔬 rigor/auditoria · 🚀 deploy · 🎨 apresentação
 
@@ -152,6 +152,10 @@ São **88 passos**, feitos entre **9 e 24 de julho de 2026**. Lidos em sequênci
 86. **🔬 O resultado que contrariou a expectativa.** A busca semântica **perde** da busca por palavra-chave no geral — **mas vence exatamente onde a outra falha**: nos campos em que o texto não repete os termos da pergunta. Não é "pior": são **forças complementares**.
 87. **🔬 O ganho que eu recusei a anunciar.** Combinando as duas buscas, o resultado é o melhor em toda métrica (**0,595**). Mas o intervalo de confiança **se sobrepõe** ao da busca simples: o ganho **não é estatisticamente distinguível**, e está reportado assim.
 88. **📈 Spark medido e rejeitado.** Em vez de colocar "Spark" no currículo, **medi**: DuckDB é **6,7× mais rápido** nos 17,2 milhões de linhas, com **resultado idêntico** nas duas ferramentas. O número também mostra *quando* o Spark venceria.
+89. **🔬 Testei minha própria previsão — e ela estava errada.** Eu tinha escrito que um modelo de busca semântica maior e específico para inglês "quase certamente" melhoraria o resultado. Rodei: **2,8× maior, 7,3× mais lento, e nenhuma diferença mensurável**. Ficou registrado como previsão errada.
+90. **📈 O estágio que faltava.** Um **reordenador** que lê pergunta e trecho *juntos* elevou o acerto de 0,595 para **0,652** — e este é o **único ganho da fase que sobrevive ao intervalo de confiança**. Ele ganha exatamente onde a fusão simples atrapalhava.
+91. **🔬 A métrica que sozinha seria mentira.** Medi se o sistema **inventa** quando o contrato não tem a cláusula: **98,7% de acerto**. Sozinho, pareceria um triunfo. Mas a segunda taxa que eu tinha exigido revelou que ele **recusava 3 de cada 4 perguntas que tinham resposta** — quase tão inútil quanto um programa que só sabe dizer "não sei".
+92. **🔬 Descobri que parte do problema era meu.** O texto de instrução que **eu** escrevi induzia a recusa. Testei uma versão equilibrada: **+10 pontos de cobertura, sem nenhum aumento de invenção**. O confundidor era do autor, não do modelo.
 
 ---
 

@@ -90,6 +90,56 @@ deve mostrar só `.env.example`), CI verde e README revisado.
 
 ---
 
+## Ambientes efêmeros de verificação (receitas)
+
+Três venvs **descartáveis** em `/tmp` sustentam verificações que **não podem** rodar no
+ambiente principal — instalá-las no `.venv` da GPU quebraria o stack CUDA validado da Fase 2
+(torch 2.11+cu130 / vLLM 0.24). Como vivem em `/tmp`, somem no reboot: as receitas ficam aqui
+para que apagá-las não custe conhecimento.
+
+**1. Reprodução do CI** — a rede que pegou a divergência `numpy 2.3.5 vs 2.5.1` e a ausência do
+`pyarrow` no lock. **Rodar antes de todo push**: passar no `.venv` local não prova nada sobre o CI.
+
+```bash
+python3.12 -m venv /tmp/ci_repro
+/tmp/ci_repro/bin/pip install --require-hashes -r requirements-ci.lock
+/tmp/ci_repro/bin/pip install -e . --no-deps
+/tmp/ci_repro/bin/ruff check . && /tmp/ci_repro/bin/mypy src \
+  && /tmp/ci_repro/bin/pytest -q && /tmp/ci_repro/bin/python -m rodoia.mlops.gate
+```
+
+**2. DVC** — `dvc[s3]` arrasta muita dependência; isolado para não tocar no ambiente de GPU.
+
+```bash
+python3.12 -m venv /tmp/dvc_venv && /tmp/dvc_venv/bin/pip install "dvc>=3.51"
+/tmp/dvc_venv/bin/dvc add data/raw/<novo> data/processed/<novo>
+```
+
+> ⚠️ **Quem insere a entrada no `data/*/.gitignore` é o `dvc add`.** Sem DVC instalado, dado novo
+> nasce **rastreável** pelo Git — foi assim que o zip de 1,4 GB do CFPB chegou a um `git add -A` de
+> entrar no repositório público.
+
+**3. Benchmark de motor (Spark)** — exige JVM, que briga com o stack CUDA.
+
+```bash
+sudo apt-get update && sudo apt-get install -y openjdk-17-jre-headless   # o update é OBRIGATÓRIO
+python3.12 -m venv /tmp/spark_venv
+/tmp/spark_venv/bin/pip install "pyspark>=3.5" duckdb pyarrow pydantic-settings numpy certifi
+/tmp/spark_venv/bin/pip install -e . --no-deps
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+/tmp/spark_venv/bin/python -m rodoia.mlops.benchmark_motor
+```
+
+> ⚠️ Duas armadilhas medidas: sem `apt-get update` o índice vem stale e o JRE dá **404**; e
+> `pip install -e . --no-deps` **não** puxa as dependências transitivas do `rodoia`
+> (`pydantic-settings`, `numpy`), então `config.py` estoura no import.
+
+**O `openjdk-17-jre-headless` (184 MB) fica instalado no sistema de propósito:** sem ele,
+`reports/fase6_escala/benchmark_motor.json` deixa de ser reproduzível — e um artefato versionado
+que não se pode regenerar é exatamente o que este projeto não aceita.
+
+---
+
 ## Mapa de comandos por objetivo
 
 | Quero… | Comando |
@@ -99,5 +149,10 @@ deve mostrar só `.env.example`), CI verde e README revisado.
 | Treinar/comparar modelos | `python -m rodoia.ml.classico` |
 | Diagnosticar o modelo | `python -m rodoia.ml.diagnostico` |
 | Rodar os testes | `pytest` |
+| **Reproduzir o CI antes do push** | ver *Ambientes efêmeros* §1 |
+| Ingerir o CFPB (17,2 M linhas) | `python -m rodoia.ingestao.baixar_cfpb && python -m rodoia.ingestao.ingestao_cfpb` |
+| Avaliar recuperação no CUAD | `python -m rodoia.rag.avaliacao_cuad` (BM25) · `..._denso` · `..._hibrido` · `..._rerank` |
+| Medir alucinação (LLM local) | `python -m rodoia.rag.avaliacao_cuad_geracao --amostra 150` |
+| Comparar motores de dados | ver *Ambientes efêmeros* §3 |
 | Ver o que cada fase prova | `README.md` (tabela de rastreabilidade) |
 | Entender uma decisão | `docs/00`–`docs/03` |
