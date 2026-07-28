@@ -13,6 +13,7 @@ from rodoia.rag.avaliacao_cuad_geracao import (
     Julgada,
     absteve,
     amostrar,
+    comparar_pareado,
     consolidar_geracao,
     montar_contexto,
 )
@@ -175,3 +176,49 @@ def test_avaliar_geracao_ponta_a_ponta() -> None:
     assert r["nao_alucinacao"]["taxa"] == 1.0
     assert r["cobertura"]["taxa"] == 0.0
     assert r["config"]["modelo"] == "fake"
+    # Toda pergunta julgada tem chave — o pareamento do McNemar depende disso.
+    assert len(r["julgamentos"]) == 2
+    assert len({j["chave"] for j in r["julgamentos"]}) == 2  # chaves únicas
+
+
+# --- comparação pareada (McNemar) ------------------------------------------
+
+
+def _rel(*pares: tuple[str, bool, bool]) -> dict:
+    """(chave, impossivel, correta) -> relatório mínimo com `julgamentos`."""
+    return {
+        "config": {"prompt": "x"},
+        "julgamentos": [
+            {"chave": k, "impossivel": imp, "correta": ok} for k, imp, ok in pares
+        ],
+    }
+
+
+def test_comparar_pareado_separa_os_dois_recortes() -> None:
+    """As duas taxas podem se mover em direções OPOSTAS — um prompt que abstém mais
+    ganha em não-alucinação e perde em cobertura. Um McNemar só do agregado
+    cancelaria os dois e reportaria 'sem diferença'."""
+    a = _rel(("k1", True, False), ("k2", False, True))
+    b = _rel(("k1", True, True), ("k2", False, False))
+    cmp = comparar_pareado(a, b)
+    assert cmp["n_pareadas"] == 2
+    assert cmp["nao_alucinacao"]["b01"] == 1   # só B acerta a impossível
+    assert cmp["cobertura"]["b10"] == 1        # só A acerta a respondível
+    # No agregado os dois se cancelam — exatamente o que os recortes evitam.
+    assert cmp["geral"]["b01"] == cmp["geral"]["b10"] == 1
+
+
+def test_comparar_pareado_casa_por_chave_nao_por_posicao() -> None:
+    """Se uma rodada pular uma pergunta, casar por posição alinharia perguntas
+    diferentes e o teste ficaria errado sem quebrar."""
+    a = _rel(("k1", True, True), ("k2", True, False), ("k3", True, True))
+    b = _rel(("k2", True, True), ("k3", True, True))   # k1 ausente
+    cmp = comparar_pareado(a, b)
+    assert cmp["n_pareadas"] == 2
+    assert cmp["n_descartadas_a"] == 1
+    assert cmp["geral"]["b01"] == 1 and cmp["geral"]["b10"] == 0
+
+
+def test_comparar_pareado_sem_interseccao() -> None:
+    cmp = comparar_pareado(_rel(("k1", True, True)), _rel(("k9", True, True)))
+    assert "erro" in cmp

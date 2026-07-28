@@ -32,18 +32,19 @@ import numpy as np
 from rodoia.config import settings
 from rodoia.proveniencia import carimbar
 from rodoia.rag.avaliacao_cuad import (
+    CHUNKERS,
     KS,
     MAX_CHARS,
     OVERLAP,
     Avaliada,
     _corpus_info,
     _indice_bm25,
-    _metricas_por_pergunta,
     _ranquear,
-    chunkar,
+    _registrar,
     consolidar,
     gold_da_pergunta,
     montar_query,
+    obter_chunker,
 )
 from rodoia.rag.avaliacao_cuad_denso import _ranquear_denso
 from rodoia.rag.cuad import Contrato, carregar
@@ -85,11 +86,13 @@ def avaliar_hibrido(
     embedder: Embedder,
     max_chars: int = MAX_CHARS,
     overlap: int = OVERLAP,
+    chunker: str = "janela",
 ) -> dict[str, Any]:
     """Avaliação híbrida: BM25 + denso por contrato, fusão RRF por pergunta."""
     # Encode grande de todos os chunks e queries — o caro, feito uma vez (mesma
     # estratégia do módulo denso).
-    chunks_por_contrato = [chunkar(c.texto, c.titulo, max_chars, overlap) for c in contratos]
+    fatiar = obter_chunker(chunker)
+    chunks_por_contrato = [fatiar(c.texto, c.titulo, max_chars, overlap) for c in contratos]
     todos_chunks = [ch for cs in chunks_por_contrato for ch in cs]
     queries = [montar_query(p) for c in contratos for p in c.perguntas]
 
@@ -121,14 +124,12 @@ def avaliar_hibrido(
             if not gold:
                 avaliadas.append(Avaliada(pergunta.categoria, False, top1, False, {}, 0.0))
                 continue
-            reg = _metricas_por_pergunta(gold, ranking, top1)
-            avaliadas.append(
-                Avaliada(pergunta.categoria, False, top1, True, reg.recall_por_k, reg.rr)
-            )
+            avaliadas.append(_registrar(gold, ranking, top1, pergunta.categoria))
 
     config = {
         "recuperador": "hibrido_rrf",
         "modelo": settings.embedding_model,
+        "chunker": chunker,
         "k_rrf": K_RRF,
         "max_chars": max_chars,
         "overlap": overlap,
@@ -137,11 +138,20 @@ def avaliar_hibrido(
     return consolidar(avaliadas, _corpus_info(contratos, len(todos_chunks)), config)
 
 
-def _tabela_tres_vias(destino: Path, hibrido: dict[str, Any]) -> dict[str, Any]:
+def _tabela_tres_vias(
+    destino: Path, hibrido: dict[str, Any], sufixo: str = ""
+) -> dict[str, Any]:
     """recall@5 por categoria nos três recuperadores + qual vence — se os
     relatórios BM25 e denso existirem. É o teste direto da hipótese: o híbrido
-    deve ficar >= max(bm25, denso) na maioria das categorias."""
-    b_path, d_path = destino / "retrieval_bm25.json", destino / "retrieval_denso.json"
+    deve ficar >= max(bm25, denso) na maioria das categorias.
+
+    `sufixo` amarra a comparação ao MESMO chunker: um híbrido por cláusula
+    comparado contra um BM25 por janela não testaria hipótese nenhuma, e o erro
+    seria invisível no JSON. Sem os pares corretos, devolve vazio em vez de
+    comparar o que não é comparável.
+    """
+    b_path = destino / f"retrieval_bm25{sufixo}.json"
+    d_path = destino / f"retrieval_denso{sufixo}.json"
     if not (b_path.exists() and d_path.exists()):
         return {}
     cb = json.loads(b_path.read_text(encoding="utf-8"))["recall_at_5_por_categoria"]
@@ -176,6 +186,7 @@ def main() -> None:
     parser.add_argument("--zip", type=Path, default=None, help="caminho do cuad.zip")
     parser.add_argument("--modelo", type=str, default=None, help="override do modelo de embeddings")
     parser.add_argument("--device", type=str, default=None, help="cuda|cpu (default: auto)")
+    parser.add_argument("--chunker", type=str, default="janela", choices=tuple(CHUNKERS))
     args = parser.parse_args()
 
     from rodoia.rag.embeddings import E5Embedder
@@ -186,12 +197,13 @@ def main() -> None:
     contratos = carregar(zip_path=args.zip)
     if args.limite:
         contratos = contratos[: args.limite]
-    relatorio = avaliar_hibrido(contratos, embedder)
+    relatorio = avaliar_hibrido(contratos, embedder, chunker=args.chunker)
 
     destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
     destino.mkdir(parents=True, exist_ok=True)
-    relatorio["tres_vias_por_categoria"] = _tabela_tres_vias(destino, relatorio)
-    caminho = destino / "retrieval_hibrido.json"
+    sufixo = "" if args.chunker == "janela" else f"_{args.chunker}"
+    relatorio["tres_vias_por_categoria"] = _tabela_tres_vias(destino, relatorio, sufixo)
+    caminho = destino / f"retrieval_hibrido{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(relatorio), ensure_ascii=False, indent=2))
 
     m = relatorio["metricas"]

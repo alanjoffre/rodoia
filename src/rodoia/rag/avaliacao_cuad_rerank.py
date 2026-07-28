@@ -39,6 +39,7 @@ import numpy as np
 from rodoia.config import settings
 from rodoia.proveniencia import carimbar
 from rodoia.rag.avaliacao_cuad import (
+    CHUNKERS,
     KS,
     MAX_CHARS,
     OVERLAP,
@@ -46,12 +47,12 @@ from rodoia.rag.avaliacao_cuad import (
     Chunk,
     _corpus_info,
     _indice_bm25,
-    _metricas_por_pergunta,
     _ranquear,
-    chunkar,
+    _registrar,
     consolidar,
     gold_da_pergunta,
     montar_query,
+    obter_chunker,
 )
 from rodoia.rag.avaliacao_cuad_denso import _ranquear_denso
 from rodoia.rag.avaliacao_cuad_hibrido import fundir
@@ -99,9 +100,18 @@ def avaliar_rerank(
     overlap: int = OVERLAP,
     candidatos: int = CANDIDATOS,
     nome_modelo: str | None = None,
+    chunker: str = "janela",
+    escores: dict[str, list[float]] | None = None,
 ) -> dict[str, Any]:
-    """Pilha completa: denso + BM25 → RRF → rerank cross-encoder."""
-    chunks_por_contrato = [chunkar(c.texto, c.titulo, max_chars, overlap) for c in contratos]
+    """Pilha completa: denso + BM25 → RRF → rerank cross-encoder.
+
+    `escores`, se passado, recebe os escores do top-1 separados por população
+    (`respondivel` / `impossivel`) — insumo de `calibracao_abstencao`. Sem isso o
+    relatório só guarda percentis agregados, dos quais não se reconstrói a curva
+    de limiar.
+    """
+    fatiar = obter_chunker(chunker)
+    chunks_por_contrato = [fatiar(c.texto, c.titulo, max_chars, overlap) for c in contratos]
     todos_chunks = [ch for cs in chunks_por_contrato for ch in cs]
     queries = [montar_query(p) for c in contratos for p in c.perguntas]
 
@@ -130,21 +140,23 @@ def avaliar_rerank(
             ranking, top1 = rerankear(reranker, query, base, cs, candidatos)
 
             if pergunta.impossivel:
+                if escores is not None:
+                    escores["impossivel"].append(top1)
                 avaliadas.append(Avaliada(pergunta.categoria, True, top1, False, {}, 0.0))
                 continue
             gold = gold_da_pergunta(pergunta, cs)
             if not gold:
                 avaliadas.append(Avaliada(pergunta.categoria, False, top1, False, {}, 0.0))
                 continue
-            reg = _metricas_por_pergunta(gold, ranking, top1)
-            avaliadas.append(
-                Avaliada(pergunta.categoria, False, top1, True, reg.recall_por_k, reg.rr)
-            )
+            if escores is not None:
+                escores["respondivel"].append(top1)
+            avaliadas.append(_registrar(gold, ranking, top1, pergunta.categoria))
 
     config = {
         "recuperador": "hibrido_rrf_rerank",
         "modelo_embedding": nome_modelo or settings.embedding_model,
         "modelo_rerank": MODELO_RERANK,
+        "chunker": chunker,
         "candidatos": candidatos,
         "max_chars": max_chars,
         "overlap": overlap,
@@ -153,10 +165,16 @@ def avaliar_rerank(
     return consolidar(avaliadas, _corpus_info(contratos, len(todos_chunks)), config)
 
 
-def _delta_vs_hibrido(destino: Path, rerank: dict[str, Any]) -> dict[str, Any]:
+def _delta_vs_hibrido(destino: Path, rerank: dict[str, Any], sufixo: str = "") -> dict[str, Any]:
     """Δ recall@5 por categoria contra o híbrido sem rerank — testa a hipótese de
-    que o cross-encoder ganha onde o RRF comprometia (rankers discordantes)."""
-    h_path = destino / "retrieval_hibrido.json"
+    que o cross-encoder ganha onde o RRF comprometia (rankers discordantes).
+
+    `sufixo` é o do CHUNKER (não o da família): o delta só isola o efeito do
+    cross-encoder se o híbrido de referência tiver sido fatiado do mesmo jeito.
+    Ausente o par correto, devolve vazio em vez de um delta que mistura dois
+    efeitos.
+    """
+    h_path = destino / f"retrieval_hibrido{sufixo}.json"
     if not h_path.exists():
         return {}
     ch = json.loads(h_path.read_text(encoding="utf-8"))["recall_at_5_por_categoria"]
@@ -174,6 +192,11 @@ def main() -> None:
     parser.add_argument("--rerank", type=str, default=MODELO_RERANK, help="modelo cross-encoder")
     parser.add_argument("--candidatos", type=int, default=CANDIDATOS)
     parser.add_argument("--device", type=str, default=None)
+    parser.add_argument("--chunker", type=str, default="janela", choices=tuple(CHUNKERS))
+    parser.add_argument(
+        "--dump-escores", action="store_true",
+        help="grava os escores do top-1 por população (insumo de calibracao_abstencao)",
+    )
     args = parser.parse_args()
 
     from rodoia.rag.embeddings import MODELO_PADRAO, construir_embedder
@@ -188,16 +211,27 @@ def main() -> None:
     contratos = carregar(zip_path=args.zip)
     if args.limite:
         contratos = contratos[: args.limite]
+    escores: dict[str, list[float]] | None = (
+        {"respondivel": [], "impossivel": []} if args.dump_escores else None
+    )
     relatorio = avaliar_rerank(
-        contratos, embedder, reranker, candidatos=args.candidatos, nome_modelo=modelo
+        contratos, embedder, reranker, candidatos=args.candidatos, nome_modelo=modelo,
+        chunker=args.chunker, escores=escores,
     )
 
     destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
     destino.mkdir(parents=True, exist_ok=True)
-    relatorio["delta_vs_hibrido_por_categoria"] = _delta_vs_hibrido(destino, relatorio)
-    sufixo = "" if args.familia == "e5" else f"_{args.familia}"
+    suf_chunker = "" if args.chunker == "janela" else f"_{args.chunker}"
+    relatorio["delta_vs_hibrido_por_categoria"] = _delta_vs_hibrido(
+        destino, relatorio, suf_chunker
+    )
+    sufixo = ("" if args.familia == "e5" else f"_{args.familia}") + suf_chunker
     caminho = destino / f"retrieval_rerank{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(relatorio), ensure_ascii=False, indent=2))
+    if escores is not None:
+        (destino / f"escores_rerank{sufixo}.json").write_text(
+            json.dumps(escores, ensure_ascii=False)
+        )
 
     m = relatorio["metricas"]
     print(f"embedder: {modelo} | rerank: {args.rerank} | candidatos: {args.candidatos}")

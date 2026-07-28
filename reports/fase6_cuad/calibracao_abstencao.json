@@ -1,0 +1,456 @@
+{
+  "n_respondiveis": 6702,
+  "n_impossiveis": 14208,
+  "auc_roc": 0.7507,
+  "interpretacao_auc": "0,5 = não separa (moeda); 1,0 = separação perfeita. É a probabilidade de um respondível sorteado ter escore maior que um impossível.",
+  "melhor_ponto_youden": {
+    "limiar": -4.6778,
+    "nao_alucinacao": 0.729,
+    "ic95_nao_alucinacao": [
+      0.722,
+      0.736
+    ],
+    "cobertura": 0.634,
+    "ic95_cobertura": [
+      0.622,
+      0.645
+    ],
+    "j_youden": 0.3629
+  },
+  "cascata": [
+    {
+      "alvo_nao_alucinacao": 0.5,
+      "limiar": -6.7259,
+      "nao_alucinacao": 0.5271,
+      "cobertura": 0.8059,
+      "chamadas_llm_evitadas": 0.4204,
+      "respondiveis_perdidas": 0.1941
+    },
+    {
+      "alvo_nao_alucinacao": 0.7,
+      "limiar": -4.9703,
+      "nao_alucinacao": 0.7036,
+      "cobertura": 0.6565,
+      "chamadas_llm_evitadas": 0.5882,
+      "respondiveis_perdidas": 0.3435
+    },
+    {
+      "alvo_nao_alucinacao": 0.8,
+      "limiar": -3.8,
+      "nao_alucinacao": 0.8042,
+      "cobertura": 0.557,
+      "chamadas_llm_evitadas": 0.6884,
+      "respondiveis_perdidas": 0.443
+    },
+    {
+      "alvo_nao_alucinacao": 0.9,
+      "limiar": -2.0445,
+      "nao_alucinacao": 0.9125,
+      "cobertura": 0.3805,
+      "chamadas_llm_evitadas": 0.8186,
+      "respondiveis_perdidas": 0.6195
+    },
+    {
+      "alvo_nao_alucinacao": 0.95,
+      "limiar": -0.8741,
+      "nao_alucinacao": 0.9534,
+      "cobertura": 0.256,
+      "chamadas_llm_evitadas": 0.8863,
+      "respondiveis_perdidas": 0.744
+    },
+    {
+      "alvo_nao_alucinacao": 0.99,
+      "limiar": 1.4666,
+      "nao_alucinacao": 0.9916,
+      "cobertura": 0.0712,
+      "chamadas_llm_evitadas": 0.9715,
+      "respondiveis_perdidas": 0.9288
+    }
+  ],
+  "curva": [
+    {
+      "limiar": -11.4073,
+      "nao_alucinacao": 0.0,
+      "cobertura": 1.0,
+      "j": 0.0
+    },
+    {
+      "limiar": -11.1147,
+      "nao_alucinacao": 0.0192,
+      "cobertura": 0.9999,
+      "j": 0.0191
+    },
+    {
+      "limiar": -10.8221,
+      "nao_alucinacao": 0.047,
+      "cobertura": 0.9981,
+      "j": 0.0451
+    },
+    {
+      "limiar": -10.5295,
+      "nao_alucinacao": 0.0726,
+      "cobertura": 0.9948,
+      "j": 0.0674
+    },
+    {
+      "limiar": -10.2369,
+      "nao_alucinacao": 0.1008,
+      "cobertura": 0.9876,
+      "j": 0.0884
+    },
+    {
+      "limiar": -9.9443,
+      "nao_alucinacao": 0.134,
+      "cobertura": 0.9797,
+      "j": 0.1137
+    },
+    {
+      "limiar": -9.6518,
+      "nao_alucinacao": 0.1674,
+      "cobertura": 0.9717,
+      "j": 0.1391
+    },
+    {
+      "limiar": -9.3592,
+      "nao_alucinacao": 0.2032,
+      "cobertura": 0.9594,
+      "j": 0.1626
+    },
+    {
+      "limiar": -9.0666,
+      "nao_alucinacao": 0.2367,
+      "cobertura": 0.946,
+      "j": 0.1827
+    },
+    {
+      "limiar": -8.774,
+      "nao_alucinacao": 0.2708,
+      "cobertura": 0.9329,
+      "j": 0.2036
+    },
+    {
+      "limiar": -8.4814,
+      "nao_alucinacao": 0.3101,
+      "cobertura": 0.9169,
+      "j": 0.227
+    },
+    {
+      "limiar": -8.1888,
+      "nao_alucinacao": 0.345,
+      "cobertura": 0.9006,
+      "j": 0.2456
+    },
+    {
+      "limiar": -7.8962,
+      "nao_alucinacao": 0.3837,
+      "cobertura": 0.886,
+      "j": 0.2697
+    },
+    {
+      "limiar": -7.6036,
+      "nao_alucinacao": 0.4169,
+      "cobertura": 0.8672,
+      "j": 0.2841
+    },
+    {
+      "limiar": -7.311,
+      "nao_alucinacao": 0.4539,
+      "cobertura": 0.8463,
+      "j": 0.3002
+    },
+    {
+      "limiar": -7.0185,
+      "nao_alucinacao": 0.4904,
+      "cobertura": 0.8299,
+      "j": 0.3203
+    },
+    {
+      "limiar": -6.7259,
+      "nao_alucinacao": 0.5271,
+      "cobertura": 0.8059,
+      "j": 0.333
+    },
+    {
+      "limiar": -6.4333,
+      "nao_alucinacao": 0.5578,
+      "cobertura": 0.7789,
+      "j": 0.3367
+    },
+    {
+      "limiar": -6.1407,
+      "nao_alucinacao": 0.589,
+      "cobertura": 0.7557,
+      "j": 0.3448
+    },
+    {
+      "limiar": -5.8481,
+      "nao_alucinacao": 0.6192,
+      "cobertura": 0.7296,
+      "j": 0.3488
+    },
+    {
+      "limiar": -5.5555,
+      "nao_alucinacao": 0.6467,
+      "cobertura": 0.7041,
+      "j": 0.3508
+    },
+    {
+      "limiar": -5.2629,
+      "nao_alucinacao": 0.6757,
+      "cobertura": 0.6796,
+      "j": 0.3554
+    },
+    {
+      "limiar": -4.9703,
+      "nao_alucinacao": 0.7036,
+      "cobertura": 0.6565,
+      "j": 0.3601
+    },
+    {
+      "limiar": -4.6778,
+      "nao_alucinacao": 0.729,
+      "cobertura": 0.634,
+      "j": 0.3629
+    },
+    {
+      "limiar": -4.3852,
+      "nao_alucinacao": 0.7544,
+      "cobertura": 0.6082,
+      "j": 0.3625
+    },
+    {
+      "limiar": -4.0926,
+      "nao_alucinacao": 0.7779,
+      "cobertura": 0.5834,
+      "j": 0.3613
+    },
+    {
+      "limiar": -3.8,
+      "nao_alucinacao": 0.8042,
+      "cobertura": 0.557,
+      "j": 0.3612
+    },
+    {
+      "limiar": -3.5074,
+      "nao_alucinacao": 0.8278,
+      "cobertura": 0.5342,
+      "j": 0.362
+    },
+    {
+      "limiar": -3.2148,
+      "nao_alucinacao": 0.8467,
+      "cobertura": 0.5028,
+      "j": 0.3495
+    },
+    {
+      "limiar": -2.9222,
+      "nao_alucinacao": 0.8644,
+      "cobertura": 0.4725,
+      "j": 0.3369
+    },
+    {
+      "limiar": -2.6296,
+      "nao_alucinacao": 0.8818,
+      "cobertura": 0.4402,
+      "j": 0.3219
+    },
+    {
+      "limiar": -2.337,
+      "nao_alucinacao": 0.8983,
+      "cobertura": 0.4121,
+      "j": 0.3104
+    },
+    {
+      "limiar": -2.0445,
+      "nao_alucinacao": 0.9125,
+      "cobertura": 0.3805,
+      "j": 0.293
+    },
+    {
+      "limiar": -1.7519,
+      "nao_alucinacao": 0.9255,
+      "cobertura": 0.3512,
+      "j": 0.2768
+    },
+    {
+      "limiar": -1.4593,
+      "nao_alucinacao": 0.9368,
+      "cobertura": 0.3183,
+      "j": 0.2551
+    },
+    {
+      "limiar": -1.1667,
+      "nao_alucinacao": 0.9455,
+      "cobertura": 0.2868,
+      "j": 0.2323
+    },
+    {
+      "limiar": -0.8741,
+      "nao_alucinacao": 0.9534,
+      "cobertura": 0.256,
+      "j": 0.2094
+    },
+    {
+      "limiar": -0.5815,
+      "nao_alucinacao": 0.9608,
+      "cobertura": 0.2281,
+      "j": 0.1889
+    },
+    {
+      "limiar": -0.2889,
+      "nao_alucinacao": 0.9677,
+      "cobertura": 0.199,
+      "j": 0.1667
+    },
+    {
+      "limiar": 0.0037,
+      "nao_alucinacao": 0.9737,
+      "cobertura": 0.1723,
+      "j": 0.1461
+    },
+    {
+      "limiar": 0.2962,
+      "nao_alucinacao": 0.9784,
+      "cobertura": 0.1477,
+      "j": 0.1261
+    },
+    {
+      "limiar": 0.5888,
+      "nao_alucinacao": 0.9821,
+      "cobertura": 0.1262,
+      "j": 0.1083
+    },
+    {
+      "limiar": 0.8814,
+      "nao_alucinacao": 0.9864,
+      "cobertura": 0.1067,
+      "j": 0.0931
+    },
+    {
+      "limiar": 1.174,
+      "nao_alucinacao": 0.9895,
+      "cobertura": 0.0879,
+      "j": 0.0774
+    },
+    {
+      "limiar": 1.4666,
+      "nao_alucinacao": 0.9916,
+      "cobertura": 0.0712,
+      "j": 0.0628
+    },
+    {
+      "limiar": 1.7592,
+      "nao_alucinacao": 0.9933,
+      "cobertura": 0.0558,
+      "j": 0.0491
+    },
+    {
+      "limiar": 2.0518,
+      "nao_alucinacao": 0.9951,
+      "cobertura": 0.0442,
+      "j": 0.0393
+    },
+    {
+      "limiar": 2.3444,
+      "nao_alucinacao": 0.9968,
+      "cobertura": 0.0339,
+      "j": 0.0306
+    },
+    {
+      "limiar": 2.637,
+      "nao_alucinacao": 0.9977,
+      "cobertura": 0.027,
+      "j": 0.0248
+    },
+    {
+      "limiar": 2.9295,
+      "nao_alucinacao": 0.9983,
+      "cobertura": 0.0195,
+      "j": 0.0179
+    },
+    {
+      "limiar": 3.2221,
+      "nao_alucinacao": 0.9989,
+      "cobertura": 0.0155,
+      "j": 0.0144
+    },
+    {
+      "limiar": 3.5147,
+      "nao_alucinacao": 0.9994,
+      "cobertura": 0.0112,
+      "j": 0.0106
+    },
+    {
+      "limiar": 3.8073,
+      "nao_alucinacao": 0.9995,
+      "cobertura": 0.0087,
+      "j": 0.0082
+    },
+    {
+      "limiar": 4.0999,
+      "nao_alucinacao": 0.9996,
+      "cobertura": 0.0055,
+      "j": 0.0051
+    },
+    {
+      "limiar": 4.3925,
+      "nao_alucinacao": 0.9998,
+      "cobertura": 0.0033,
+      "j": 0.0031
+    },
+    {
+      "limiar": 4.6851,
+      "nao_alucinacao": 0.9999,
+      "cobertura": 0.0024,
+      "j": 0.0023
+    },
+    {
+      "limiar": 4.9777,
+      "nao_alucinacao": 0.9999,
+      "cobertura": 0.0012,
+      "j": 0.0011
+    },
+    {
+      "limiar": 5.2703,
+      "nao_alucinacao": 1.0,
+      "cobertura": 0.0007,
+      "j": 0.0007
+    },
+    {
+      "limiar": 5.5628,
+      "nao_alucinacao": 1.0,
+      "cobertura": 0.0001,
+      "j": 0.0001
+    },
+    {
+      "limiar": 5.8554,
+      "nao_alucinacao": 1.0,
+      "cobertura": 0.0001,
+      "j": 0.0001
+    }
+  ],
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "7503a4c",
+    "git_dirty": true,
+    "git_diff_sha1": "0f18fefaff3a",
+    "timestamp_utc": "2026-07-28T13:56:04+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0",
+      "pyarrow": "24.0.0",
+      "duckdb": "1.5.4"
+    }
+  }
+}

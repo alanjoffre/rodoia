@@ -130,6 +130,23 @@ GATES: tuple[Meta, ...] = (
          "nao_alucinacao.taxa", ">=", 0.90),
     Meta("F6 · CUAD cobertura (anti-maquiagem)", "reports/fase6_cuad/geracao_ancorada.json",
          "cobertura.taxa", ">=", 0.20),
+    # Chunking por cláusula. O portão é sobre recall@5, NÃO recall@1: o teto do recall@1 muda
+    # com o chunker (0,717 janela vs 0,784 cláusula), então travar recall@1 congelaria um
+    # artefato de régua em vez de qualidade (docs/17 §13.6). No @5 o teto é praticamente o
+    # mesmo (0,989 vs 0,992) e a comparação é legítima. 0,666 medidos.
+    Meta("F6 · CUAD recall@5 (rerank+cláusula)",
+         "reports/fase6_cuad/retrieval_rerank_clausula.json",
+         "metricas.recall_at_5.media", ">=", 0.63),
+    # O detector de fronteira é o que sustenta a alegação da §13.6. Se uma mudança de regex
+    # derrubasse a cobertura, o fallback silencioso para janela faria o chunker "funcionar"
+    # enquanto não fatiava mais nada por cláusula — falha invisível na métrica.
+    Meta("F6 · CUAD cobertura do detector de cláusula",
+         "reports/fase6_cuad/fronteiras_clausula.json", "fracao_com_estrutura", ">=", 0.75),
+    # AUC do escore do cross-encoder como sinal de abstenção. Piso em 0,70 (0,751 medidos):
+    # abaixo disso o sinal deixaria de ser "real mas insuficiente" (§13.5) e viraria ruído,
+    # e a conclusão do documento mudaria.
+    Meta("F6 · CUAD AUC abstenção (rerank)", "reports/fase6_cuad/calibracao_abstencao.json",
+         "auc_roc", ">=", 0.70),
 )
 
 

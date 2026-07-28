@@ -95,3 +95,8 @@ data/processed/volume_pedagio.parquet
 /reports/fase2_ft/respostas_ft.json
 /reports/fase0_baseline/roc_pr_curvas.png
 /reports/fase3_dados/previsao.png
+# Dump bruto dos escores do cross-encoder (~420 KB, 20.910 floats): é o INSUMO da
+# calibração, não a evidência. O artefato que sustenta a §13.5 do docs/17 é o
+# `calibracao_abstencao.json`, que fica versionado. Regenera com
+# `avaliacao_cuad_rerank --dump-escores`.
+/reports/fase6_cuad/escores_rerank*.json

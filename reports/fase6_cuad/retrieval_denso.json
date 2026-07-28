@@ -2,6 +2,7 @@
   "config": {
     "recuperador": "denso",
     "modelo": "intfloat/multilingual-e5-small",
+    "chunker": "janela",
     "max_chars": 1500,
     "overlap": 200,
     "ks": [
@@ -19,13 +20,23 @@
   "n_respondiveis": 6702,
   "n_impossiveis": 14208,
   "n_sem_gold": 0,
+  "gold_medio_por_pergunta": 1.9082,
   "metricas": {
     "recall_at_1": {
       "media": 0.2246,
       "ic95_bootstrap": [
         0.216,
         0.233
-      ]
+      ],
+      "teto": 0.7171
+    },
+    "recall_norm_at_1": {
+      "media": 0.3524,
+      "ic95_bootstrap": [
+        0.341,
+        0.364
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
     },
     "hit_at_1": {
       "taxa": 0.3524,
@@ -39,7 +50,16 @@
       "ic95_bootstrap": [
         0.416,
         0.437
-      ]
+      ],
+      "teto": 0.9608
+    },
+    "recall_norm_at_3": {
+      "media": 0.4433,
+      "ic95_bootstrap": [
+        0.433,
+        0.454
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
     },
     "hit_at_3": {
       "taxa": 0.564,
@@ -53,7 +73,16 @@
       "ic95_bootstrap": [
         0.524,
         0.545
-      ]
+      ],
+      "teto": 0.9892
+    },
+    "recall_norm_at_5": {
+      "media": 0.5392,
+      "ic95_bootstrap": [
+        0.529,
+        0.55
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
     },
     "hit_at_5": {
       "taxa": 0.6638,
@@ -67,7 +96,16 @@
       "ic95_bootstrap": [
         0.69,
         0.709
-      ]
+      ],
+      "teto": 0.9991
+    },
+    "recall_norm_at_10": {
+      "media": 0.6997,
+      "ic95_bootstrap": [
+        0.69,
+        0.709
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
     },
     "hit_at_10": {
       "taxa": 0.8008,
@@ -186,8 +224,8 @@
     "seed": 42,
     "git_sha": "7503a4c",
     "git_dirty": true,
-    "git_diff_sha1": "ff6d415b545e",
-    "timestamp_utc": "2026-07-25T13:37:42+00:00",
+    "git_diff_sha1": "0f18fefaff3a",
+    "timestamp_utc": "2026-07-28T12:27:48+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

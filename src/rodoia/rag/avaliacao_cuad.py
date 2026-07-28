@@ -40,7 +40,9 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from dataclasses import dataclass
+from collections import Counter
+from collections.abc import Callable
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -98,6 +100,105 @@ def chunkar(
         if fim == len(texto):
             break
     return chunks
+
+
+# Fronteiras de cláusula em contrato comercial americano. Medido nos 510 do CUAD:
+# numeração `1.` / `2.3` domina (2.149 ocorrências), seguida de `(a)`/`(i)`, títulos em
+# CAIXA ALTA, `SECTION` e `ARTICLE`. Só ~63% dos contratos têm 3+ fronteiras — por isso
+# `chunkar_clausula` DEGRADA para janela quando não encontra estrutura (ver docstring).
+_RE_FRONTEIRA = re.compile(
+    r"(?m)^[ \t]{0,4}(?:"
+    r"\d{1,2}\.\d{0,2}[ \t]+(?=[A-Z])"          # 1.  /  2.3  seguido de maiúscula
+    r"|\((?:[a-z]{1,3}|[ivxlc]{1,4}|\d{1,2})\)[ \t]+(?=[A-Z])"  # (a) (iii) (12)
+    r"|(?:SECTION|Section)[ \t]+\d+"
+    r"|(?:ARTICLE|Article)[ \t]+[IVXLC0-9]+"
+    r"|[A-Z][A-Z \-']{6,60}[ \t]*$"             # TÍTULO EM CAIXA ALTA
+    r")"
+)
+
+# Abaixo disto, o texto não tem estrutura suficiente e a divisão por cláusula produziria
+# chunks arbitrários — pior que a janela honesta. Medido sobre os 510 contratos
+# (reports/fase6_cuad/fronteiras_clausula.json): 410 (80,4%) têm 3+ fronteiras, mediana 13;
+# os outros 100 caem no fallback de janela.
+_MIN_FRONTEIRAS = 3
+
+
+def _fronteiras(texto: str) -> list[int]:
+    """Posições de início de cláusula, sempre incluindo 0 (preâmbulo)."""
+    pos = [m.start() for m in _RE_FRONTEIRA.finditer(texto)]
+    return [0, *[p for p in pos if p > 0]]
+
+
+def chunkar_clausula(
+    texto: str, contrato: str, max_chars: int = MAX_CHARS, overlap: int = OVERLAP
+) -> list[Chunk]:
+    """Chunking consciente da estrutura de cláusula, **preservando offsets**.
+
+    Mesma filosofia do `rag/chunking.py` da Fase 1 (que divide por `Art. Nº` na
+    regulação brasileira): dividir na unidade semântica natural em vez de cortar
+    no meio de uma regra. Aqui a unidade é a **cláusula contratual**.
+
+    **Degrada para janela quando não há estrutura.** Medido: 410 dos 510 contratos
+    (80,4%) têm 3+ fronteiras detectáveis. Forçar divisão por cláusula nos outros
+    100 produziria chunks arbitrários — pior que a janela honesta. O fallback é
+    explícito e medido, não escondido.
+
+    Testa a hipótese (a) do docs/17 §13.1: *o gargalo do denso é o chunking, não o
+    embedder?*
+    """
+    if not texto:
+        return []
+    marcos = _fronteiras(texto)
+    if len(marcos) < _MIN_FRONTEIRAS:
+        return chunkar(texto, contrato, max_chars, overlap)
+
+    # Segmentos = intervalos entre fronteiras consecutivas.
+    limites = [*marcos, len(texto)]
+    segmentos = [(limites[i], limites[i + 1]) for i in range(len(limites) - 1)]
+
+    chunks: list[Chunk] = []
+    ini_atual: int | None = None
+    fim_atual = 0
+    for ini, fim in segmentos:
+        if fim - ini > max_chars:
+            # Cláusula grande demais: fecha o acumulado e fatia por janela, mantendo
+            # os offsets absolutos (é o que o mapeamento span->chunk consome).
+            if ini_atual is not None:
+                chunks.append(
+                    Chunk(contrato, len(chunks), ini_atual, fim_atual, texto[ini_atual:fim_atual])
+                )
+                ini_atual = None
+            passo = max(1, max_chars - overlap)
+            for off in range(ini, fim, passo):
+                f = min(off + max_chars, fim)
+                chunks.append(Chunk(contrato, len(chunks), off, f, texto[off:f]))
+                if f == fim:
+                    break
+            continue
+        if ini_atual is None:
+            ini_atual, fim_atual = ini, fim
+        elif fim - ini_atual <= max_chars:
+            fim_atual = fim
+        else:
+            chunks.append(
+                Chunk(contrato, len(chunks), ini_atual, fim_atual, texto[ini_atual:fim_atual])
+            )
+            ini_atual, fim_atual = ini, fim
+    if ini_atual is not None:
+        chunks.append(
+            Chunk(contrato, len(chunks), ini_atual, fim_atual, texto[ini_atual:fim_atual])
+        )
+    return chunks
+
+
+CHUNKERS = {"janela": chunkar, "clausula": chunkar_clausula}
+
+
+def obter_chunker(nome: str) -> Callable[..., list[Chunk]]:
+    """Seletor por nome — evita `if` espalhado nos 4 módulos de avaliação."""
+    if nome not in CHUNKERS:
+        raise ValueError(f"chunker inválido: {nome!r} (use {sorted(CHUNKERS)})")
+    return CHUNKERS[nome]
 
 
 def gold_da_pergunta(pergunta: Pergunta, chunks: list[Chunk]) -> set[str]:
@@ -165,6 +266,11 @@ class Avaliada:
     tem_gold: bool
     recall_por_k: dict[int, float]  # vazio p/ impossível e sem-gold
     rr: float  # reciprocal rank; 0 quando não há gold no ranking
+    # Tamanho do conjunto gold. Não é decoração: `recall@k = |gold ∩ top-k| / |gold|`
+    # tem TETO `min(k, |gold|) / |gold|`, e |gold| depende do CHUNKER. Comparar
+    # recall@1 entre dois chunkers sem olhar o teto compara réguas diferentes —
+    # foi o que quase aconteceu com o chunking por cláusula (docs/17 §13.6).
+    n_gold: int = 0
 
 
 def _media(v: list[float]) -> float:
@@ -188,12 +294,34 @@ def consolidar(
     # Recall@k é média de frações (não proporção binária), então o IC vem de
     # bootstrap. Wilson entra na taxa de acerto-em-algum-lugar do top-k, que É
     # binária — as duas medem coisas diferentes e ambas são reportadas.
+    # Teto do recall@k dado o gold DESTE chunking. Com |gold| > k o recall@k não
+    # pode chegar a 1 — e como |gold| depende do chunker, o teto se move junto.
+    # Reportá-lo ao lado do valor é o que torna a comparação entre chunkers
+    # legítima; sem ele, uma mudança de régua se lê como ganho de qualidade.
+    n_golds = [a.n_gold for a in respondiveis if a.n_gold > 0]
     metricas = {}
     for k in KS:
         acertou_algum = [1 if r > 0 else 0 for r in recalls[k]]
+        teto = _media([min(k, g) / g for g in n_golds]) if n_golds else 0.0
+        # Normalizado POR PERGUNTA: |gold ∩ top-k| / min(k, |gold|) — "do gold que
+        # cabia em k posições, quanto foi recuperado". Cada pergunta contribui numa
+        # escala 0–1 independente do seu |gold|, então a média (e o bootstrap) são
+        # comparáveis entre chunkings. Normalizar só a média (razão de médias) não
+        # daria IC.
+        normalizados = [
+            (a.recall_por_k[k] * a.n_gold) / min(k, a.n_gold)
+            for a in respondiveis
+            if a.n_gold > 0
+        ]
         metricas[f"recall_at_{k}"] = {
             "media": _media(recalls[k]),
             "ic95_bootstrap": bootstrap_ic(recalls[k]),
+            "teto": teto,
+        }
+        metricas[f"recall_norm_at_{k}"] = {
+            "media": _media(normalizados),
+            "ic95_bootstrap": bootstrap_ic(normalizados),
+            "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings",
         }
         metricas[f"hit_at_{k}"] = {
             "taxa": _media([float(x) for x in acertou_algum]),
@@ -206,6 +334,10 @@ def consolidar(
         "n_respondiveis": len(respondiveis),
         "n_impossiveis": sum(1 for a in avaliadas if a.impossivel),
         "n_sem_gold": sum(1 for a in avaliadas if not a.impossivel and not a.tem_gold),
+        # |gold| médio: a régua do recall. Muda com o chunker (janela com overlap
+        # duplica spans de fronteira; cláusula sem overlap não), então precisa
+        # aparecer em todo relatório para as comparações serem auditáveis.
+        "gold_medio_por_pergunta": round(sum(n_golds) / len(n_golds), 4) if n_golds else 0.0,
         "metricas": metricas,
         "mrr": {"media": _media(reciprocos), "ic95_bootstrap": bootstrap_ic(reciprocos)},
         # Diagnóstico de abstenção: se estas duas distribuições se sobrepõem,
@@ -230,6 +362,18 @@ def consolidar(
     }
 
 
+def _registrar(gold: set[str], ranking: list[str], top1: float, categoria: str) -> Avaliada:
+    """`_metricas_por_pergunta` + a categoria, num passo só.
+
+    Existe porque a versão anterior deixava cada um dos quatro módulos de avaliação
+    reconstruir o `Avaliada` campo a campo — e, quando `n_gold` foi acrescentado,
+    os quatro o descartaram em silêncio: os relatórios saíram com teto 0,0 e recall
+    normalizado 0,0, sem erro nenhum. `replace` copia o que existir, então um campo
+    novo passa a chegar sozinho.
+    """
+    return replace(_metricas_por_pergunta(gold, ranking, top1), categoria=categoria)
+
+
 def _metricas_por_pergunta(gold: set[str], ranking: list[str], top1: float) -> Avaliada:
     """Constrói o registro de uma pergunta respondível a partir do ranking —
     partilhado por qualquer recuperador (recebe o ranking já pronto)."""
@@ -242,6 +386,7 @@ def _metricas_por_pergunta(gold: set[str], ranking: list[str], top1: float) -> A
         tem_gold=True,
         recall_por_k=recall_por_k,
         rr=1.0 / posicao if posicao else 0.0,
+        n_gold=len(gold),
     )
 
 
@@ -256,13 +401,17 @@ def _corpus_info(contratos: list[Contrato], total_chunks: int) -> dict[str, Any]
 
 
 def avaliar(
-    contratos: list[Contrato], max_chars: int = MAX_CHARS, overlap: int = OVERLAP
+    contratos: list[Contrato],
+    max_chars: int = MAX_CHARS,
+    overlap: int = OVERLAP,
+    chunker: str = "janela",
 ) -> dict[str, Any]:
     """Avaliação BM25 completa: produz os registros e consolida."""
+    fatiar = obter_chunker(chunker)
     avaliadas: list[Avaliada] = []
     total_chunks = 0
     for contrato in contratos:
-        chunks = chunkar(contrato.texto, contrato.titulo, max_chars, overlap)
+        chunks = fatiar(contrato.texto, contrato.titulo, max_chars, overlap)
         total_chunks += len(chunks)
         if not chunks:
             continue
@@ -280,31 +429,94 @@ def avaliar(
                 # offset estiver fora do texto. Registrado (tem_gold=False), não escondido.
                 avaliadas.append(Avaliada(pergunta.categoria, False, top1, False, {}, 0.0))
                 continue
-            reg = _metricas_por_pergunta(gold, ranking, top1)
-            avaliadas.append(
-                Avaliada(pergunta.categoria, False, top1, True, reg.recall_por_k, reg.rr)
-            )
+            avaliadas.append(_registrar(gold, ranking, top1, pergunta.categoria))
 
-    config = {"recuperador": "bm25", "max_chars": max_chars, "overlap": overlap, "ks": list(KS)}
+    config = {
+        "recuperador": "bm25",
+        "chunker": chunker,
+        "max_chars": max_chars,
+        "overlap": overlap,
+        "ks": list(KS),
+    }
     return consolidar(avaliadas, _corpus_info(contratos, total_chunks), config)
+
+
+def diagnostico_chunker(contratos: list[Contrato]) -> dict[str, Any]:
+    """Quantos contratos o detector de cláusula realmente cobre — e quantos caem no
+    fallback de janela.
+
+    A escolha de `_MIN_FRONTEIRAS` só é defensável se a cobertura for medida. Sem
+    isto, "degrada para janela quando não há estrutura" é uma afirmação sobre um
+    número que ninguém conferiu — e o fallback poderia estar engolindo a maioria
+    do corpus sem aparecer em métrica nenhuma.
+    """
+    n_marcos = [len(_fronteiras(c.texto)) for c in contratos]
+    com_estrutura = sum(1 for n in n_marcos if n >= _MIN_FRONTEIRAS)
+    faixas = Counter(
+        "0-2" if n < 3 else "3-9" if n < 10 else "10-49" if n < 50 else "50+" for n in n_marcos
+    )
+    return {
+        "n_contratos": len(contratos),
+        "min_fronteiras_exigidas": _MIN_FRONTEIRAS,
+        "com_estrutura": com_estrutura,
+        "fracao_com_estrutura": round(com_estrutura / len(contratos), 4) if contratos else 0.0,
+        "fallback_para_janela": len(contratos) - com_estrutura,
+        "fronteiras_por_contrato": {
+            "mediana": sorted(n_marcos)[len(n_marcos) // 2] if n_marcos else 0,
+            "min": min(n_marcos, default=0),
+            "max": max(n_marcos, default=0),
+        },
+        "distribuicao": dict(sorted(faixas.items())),
+        "n_chunks_janela": sum(len(chunkar(c.texto, c.titulo)) for c in contratos),
+        "n_chunks_clausula": sum(len(chunkar_clausula(c.texto, c.titulo)) for c in contratos),
+    }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Avalia recuperação no CUAD (BM25, sem LLM).")
+    parser.add_argument(
+        "--diagnostico-chunker", action="store_true",
+        help="mede a cobertura do detector de cláusula e sai (não avalia recuperação)",
+    )
     parser.add_argument("--limite", type=int, default=None, help="usa só os N primeiros contratos")
     parser.add_argument("--zip", type=Path, default=None, help="caminho do cuad.zip")
     parser.add_argument("--max-chars", type=int, default=MAX_CHARS)
     parser.add_argument("--overlap", type=int, default=OVERLAP)
+    parser.add_argument(
+        "--chunker", type=str, default="janela", choices=tuple(CHUNKERS),
+        help="janela cega vs consciente de cláusula (hipótese (a) do docs/17 §13.1)",
+    )
     args = parser.parse_args()
 
     contratos = carregar(zip_path=args.zip)
     if args.limite:
         contratos = contratos[: args.limite]
-    relatorio = avaliar(contratos, max_chars=args.max_chars, overlap=args.overlap)
 
-    destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
+    destino_base = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
+    if args.diagnostico_chunker:
+        diag = diagnostico_chunker(contratos)
+        destino_base.mkdir(parents=True, exist_ok=True)
+        saida = destino_base / "fronteiras_clausula.json"
+        saida.write_text(json.dumps(carimbar(diag), ensure_ascii=False, indent=2))
+        print(
+            f"com estrutura: {diag['com_estrutura']}/{diag['n_contratos']} "
+            f"({diag['fracao_com_estrutura']:.1%}) | fallback: {diag['fallback_para_janela']}"
+        )
+        print(
+            f"chunks: janela {diag['n_chunks_janela']:,} → "
+            f"cláusula {diag['n_chunks_clausula']:,}"
+        )
+        print(f"report: {saida}")
+        return
+
+    relatorio = avaliar(
+        contratos, max_chars=args.max_chars, overlap=args.overlap, chunker=args.chunker
+    )
+
+    destino = destino_base
     destino.mkdir(parents=True, exist_ok=True)
-    caminho = destino / "retrieval_bm25.json"
+    sufixo = "" if args.chunker == "janela" else f"_{args.chunker}"
+    caminho = destino / f"retrieval_bm25{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(relatorio), ensure_ascii=False, indent=2))
 
     m = relatorio["metricas"]

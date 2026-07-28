@@ -46,7 +46,7 @@ from typing import Any
 import numpy as np
 
 from rodoia.config import settings
-from rodoia.estat import wilson
+from rodoia.estat import mcnemar, wilson
 from rodoia.proveniencia import carimbar
 from rodoia.rag.avaliacao_cuad import (
     MAX_CHARS,
@@ -126,6 +126,11 @@ class Julgada:
     impossivel: bool
     absteve: bool
     correta: bool  # absteve quando devia OU respondeu quando devia
+    # Identidade estável da pergunta DENTRO da amostra. O desenho da ablação é
+    # pareado (mesma seed, mesmas perguntas), e o McNemar só vale se o pareamento
+    # for por identidade — casar por posição na lista quebraria em silêncio se um
+    # contrato fosse pulado numa das rodadas e não na outra.
+    chave: str = ""
 
 
 def amostrar(
@@ -212,7 +217,7 @@ def avaliar_geracao(
         pos += len(cs)
 
     julgadas: list[Julgada] = []
-    for contrato, pergunta in amostra:
+    for i, (contrato, pergunta) in enumerate(amostra):
         cs = chunks_por[contrato.titulo]
         if not cs:
             continue
@@ -235,12 +240,16 @@ def avaliar_geracao(
                 absteve=a,
                 # correto = absteve na impossível, respondeu na respondível
                 correta=(a if pergunta.impossivel else not a),
+                chave=f"{i:05d}|{contrato.titulo}|{pergunta.categoria}",
             )
         )
 
     return consolidar_geracao(
         julgadas,
-        {"top_k": top_k, "seed": seed, "modelo": llm_nome(llm), "prompt": prompt},
+        {
+            "top_k": top_k, "seed": seed, "modelo": llm_nome(llm), "prompt": prompt,
+            "seed_llm": getattr(llm, "seed", None),
+        },
     )
 
 
@@ -282,11 +291,61 @@ def consolidar_geracao(julgadas: list[Julgada], config: dict[str, Any]) -> dict[
             )
             for cat in sorted({j.categoria for j in imp})
         },
+        # Resultado POR PERGUNTA — o insumo do McNemar. Sem isto, comparar duas
+        # variantes só é possível pelos ICs, que ignoram o pareamento e por isso
+        # são o teste conservador (docs/17 §13.4).
+        "julgamentos": [
+            {"chave": j.chave, "impossivel": j.impossivel, "correta": j.correta}
+            for j in julgadas
+        ],
     }
+
+
+def comparar_pareado(rel_a: dict[str, Any], rel_b: dict[str, Any]) -> dict[str, Any]:  # noqa: C901
+    """McNemar entre duas rodadas sobre as MESMAS perguntas (ablação de prompt/modelo).
+
+    Casa por `chave` e testa três recortes, porque as duas taxas podem se mover em
+    direções opostas: um prompt que abstém mais ganha em não-alucinação e perde em
+    cobertura. Um McNemar só do agregado esconderia justamente esse trade-off.
+    """
+    ja = {j["chave"]: j for j in rel_a.get("julgamentos", [])}
+    jb = {j["chave"]: j for j in rel_b.get("julgamentos", [])}
+    comuns = sorted(set(ja) & set(jb))
+    if not comuns:
+        return {"erro": "sem perguntas em comum — os relatórios não são pareáveis"}
+
+    def _recorte(filtro: Any) -> dict[str, float | int | str]:
+        chaves = [c for c in comuns if filtro(ja[c])]
+        return mcnemar([ja[c]["correta"] for c in chaves], [jb[c]["correta"] for c in chaves])
+
+    return {
+        "a": rel_a["config"], "b": rel_b["config"],
+        "n_pareadas": len(comuns),
+        "n_descartadas_a": len(ja) - len(comuns),
+        "n_descartadas_b": len(jb) - len(comuns),
+        "geral": _recorte(lambda j: True),
+        "nao_alucinacao": _recorte(lambda j: j["impossivel"]),
+        "cobertura": _recorte(lambda j: not j["impossivel"]),
+        "leitura": (
+            "b01 = só B acerta, b10 = só A acerta. p < 0,05 rejeita 'as duas variantes "
+            "erram igual'. `metodo` diz qual teste produziu o p: `binomial_exato` "
+            "abaixo de 25 discordantes (onde a aproximação χ² não vale), `qui2_yates` "
+            "acima."
+        ),
+    }
+
+
+def _sanitizar(modelo: str) -> str:
+    """`gemma2:9b` → `gemma2-9b` — nome de modelo vira sufixo de arquivo."""
+    return re.sub(r"[^a-z0-9]+", "-", modelo.lower()).strip("-")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Geração ancorada no CUAD (LLM local, sem API).")
+    parser.add_argument(
+        "--comparar", type=Path, nargs=2, default=None, metavar=("A", "B"),
+        help="McNemar pareado entre dois relatórios já gerados (não roda o LLM)",
+    )
     parser.add_argument("--amostra", type=int, default=150, help="perguntas por população")
     parser.add_argument("--zip", type=Path, default=None)
     parser.add_argument("--familia", type=str, default="e5", choices=("e5", "bge"))
@@ -299,12 +358,32 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
+    if args.comparar:
+        a, b = (json.loads(p.read_text(encoding="utf-8")) for p in args.comparar)
+        cmp = comparar_pareado(a, b)
+        destino.mkdir(parents=True, exist_ok=True)
+        saida = destino / "mcnemar_geracao.json"
+        saida.write_text(json.dumps(carimbar(cmp), ensure_ascii=False, indent=2))
+        print(f"pareadas: {cmp.get('n_pareadas')}")
+        for recorte in ("geral", "nao_alucinacao", "cobertura"):
+            r = cmp.get(recorte, {})
+            print(
+                f"  {recorte:16s} b10={r.get('b10')} b01={r.get('b01')} "
+                f"n_disc={r.get('n_discordantes')} p={r.get('p_valor')} "
+                f"({r.get('metodo')})"
+            )
+        print(f"report: {saida}")
+        return
+
     from rodoia.rag.embeddings import MODELO_PADRAO, construir_embedder
     from rodoia.rag.llm import OllamaLLM
 
     modelo_emb = MODELO_PADRAO["bge"] if args.familia == "bge" else settings.embedding_model
     embedder = construir_embedder(args.familia, modelo=modelo_emb, device=args.device)
-    llm = OllamaLLM(modelo=args.modelo_llm)
+    # Seed fixa no LLM: sem ela a ablação de prompt compararia duas rodadas que
+    # diferem por amostragem, e o McNemar contaria ruído como discordância.
+    llm = OllamaLLM(modelo=args.modelo_llm, seed=args.seed)
 
     contratos = carregar(zip_path=args.zip)
     rel = avaliar_geracao(
@@ -312,10 +391,13 @@ def main() -> None:
         n_por_populacao=args.amostra, seed=args.seed, prompt=args.prompt,
     )
 
-    destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
     destino.mkdir(parents=True, exist_ok=True)
     # Sufixo por variante: a ablação precisa dos DOIS relatórios lado a lado.
     sufixo = "" if args.prompt == "estrito" else f"_{args.prompt}"
+    # ...e por modelo, senão um gerador maior sobrescreveria o baseline e a
+    # comparação que motivou a rodada desapareceria.
+    if args.modelo_llm:
+        sufixo += f"_{_sanitizar(args.modelo_llm)}"
     caminho = destino / f"geracao_ancorada{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(rel), ensure_ascii=False, indent=2))
 

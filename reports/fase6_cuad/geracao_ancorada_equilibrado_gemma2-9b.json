@@ -2,47 +2,47 @@
   "config": {
     "top_k": 5,
     "seed": 42,
-    "modelo": "qwen2.5:7b",
-    "prompt": "estrito",
+    "modelo": "gemma2:9b",
+    "prompt": "equilibrado",
     "seed_llm": 42
   },
   "n_impossiveis": 150,
   "n_respondiveis": 150,
   "nao_alucinacao": {
-    "taxa": 0.9867,
+    "taxa": 0.9,
     "ic95_wilson": [
-      0.953,
-      0.996
+      0.842,
+      0.938
     ],
     "descricao": "abstenção correta nas perguntas is_impossible"
   },
   "cobertura": {
-    "taxa": 0.26,
+    "taxa": 0.62,
     "ic95_wilson": [
-      0.196,
-      0.336
+      0.54,
+      0.694
     ],
     "descricao": "resposta dada nas perguntas com gold (não recusou indevidamente)"
   },
-  "media_balanceada": 0.6233,
+  "media_balanceada": 0.76,
   "abstencao_por_categoria": {
     "Affiliate License-Licensee": 1.0,
-    "Affiliate License-Licensor": 0.75,
+    "Affiliate License-Licensor": 1.0,
     "Agreement Date": 1.0,
-    "Anti-Assignment": 1.0,
+    "Anti-Assignment": 0.75,
     "Audit Rights": 1.0,
     "Cap On Liability": 1.0,
     "Change Of Control": 1.0,
     "Competitive Restriction Exception": 1.0,
     "Covenant Not To Sue": 1.0,
-    "Effective Date": 0.75,
-    "Exclusivity": 1.0,
-    "Expiration Date": 1.0,
+    "Effective Date": 0.5,
+    "Exclusivity": 0.75,
+    "Expiration Date": 0.75,
     "Governing Law": 1.0,
     "Insurance": 1.0,
-    "Ip Ownership Assignment": 1.0,
+    "Ip Ownership Assignment": 0.75,
     "Irrevocable Or Perpetual License": 1.0,
-    "Joint Ip Ownership": 1.0,
+    "Joint Ip Ownership": 0.75,
     "License Grant": 1.0,
     "Liquidated Damages": 1.0,
     "Minimum Commitment": 1.0,
@@ -51,12 +51,12 @@
     "No-Solicit Of Employees": 1.0,
     "Non-Compete": 1.0,
     "Non-Disparagement": 1.0,
-    "Non-Transferable License": 1.0,
+    "Non-Transferable License": 0.0,
     "Notice Period To Terminate Renewal": 1.0,
     "Parties": 1.0,
-    "Post-Termination Services": 1.0,
-    "Price Restrictions": 1.0,
-    "Renewal Term": 1.0,
+    "Post-Termination Services": 0.5,
+    "Price Restrictions": 0.75,
+    "Renewal Term": 0.75,
     "Revenue/Profit Sharing": 1.0,
     "Rofr/Rofo/Rofn": 1.0,
     "Source Code Escrow": 1.0,
@@ -71,7 +71,7 @@
     {
       "chave": "00000|BizzingoInc_20120322_8-K_EX-10.17_7504499_EX-10.17_Endorsement Agreement|Affiliate License-Licensee",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00001|INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT|Affiliate License-Licensor",
@@ -86,7 +86,7 @@
     {
       "chave": "00003|ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT|Anti-Assignment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00004|BEYONDCOMCORP_08_03_2000-EX-10.2-CO-HOSTING AGREEMENT|Audit Rights",
@@ -101,12 +101,12 @@
     {
       "chave": "00006|DigitalCinemaDestinationsCorp_20111220_S-1_EX-10.10_7346719_EX-10.10_Affiliate Agreement|Change Of Control",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00007|CYBERIANOUTPOSTINC_07_09_1998-EX-10.13-PROMOTION AGREEMENT|Competitive Restriction Exception",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00008|NUVEEN - REMARKETING AGREEMENT|Covenant Not To Sue",
@@ -116,7 +116,7 @@
     {
       "chave": "00009|FEDERATEDGOVERNMENTINCOMESECURITIESINC_04_28_2020-EX-99.SERV AGREE-SERVICES AGREEMENT_POWEROF|Document Name",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00010|BANGIINC_05_25_2005-EX-10-Premium Managed Hosting Agreement|Effective Date",
@@ -141,7 +141,7 @@
     {
       "chave": "00014|IMMUNOMEDICSINC_08_07_2019-EX-10.1-PROMOTION AGREEMENT|Insurance",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00015|TUNIUCORP_03_06_2014-EX-10-COOPERATION AGREEMENT|Ip Ownership Assignment",
@@ -156,7 +156,7 @@
     {
       "chave": "00017|CERES,INC_01_25_2012-EX-10.20-Collaboration Agreement|Joint Ip Ownership",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00018|CybergyHoldingsInc_20140520_10-Q_EX-10.27_8605784_EX-10.27_Affiliate Agreement|License Grant",
@@ -181,12 +181,12 @@
     {
       "chave": "00022|PfHospitalityGroupInc_20150923_10-12G_EX-10.1_9266710_EX-10.1_Franchise Agreement3|No-Solicit Of Customers",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00023|ORBSATCORP_08_17_2007-EX-7.3-STRATEGIC ALLIANCE AGREEMENT|No-Solicit Of Employees",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00024|XpresspaGroupInc_20190401_10-K_EX-10.28_11599457_EX-10.28_Marketing Agreement|Non-Compete",
@@ -196,12 +196,12 @@
     {
       "chave": "00025|BerkshireHillsBancorpInc_20120809_10-Q_EX-10.16_7708169_EX-10.16_Endorsement Agreement|Non-Disparagement",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00026|GpaqAcquisitionHoldingsInc_20200123_S-4A_EX-10.6_11951677_EX-10.6_License Agreement|Non-Transferable License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00027|TubeMediaCorp_20060310_8-K_EX-10.1_513921_EX-10.1_Affiliate Agreement|Notice Period To Terminate Renewal",
@@ -216,7 +216,7 @@
     {
       "chave": "00029|MusclepharmCorp_20170208_10-KA_EX-10.38_9893581_EX-10.38_Co-Branding Agreement|Post-Termination Services",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00030|GpaqAcquisitionHoldingsInc_20200123_S-4A_EX-10.6_11951677_EX-10.6_License Agreement|Price Restrictions",
@@ -226,7 +226,7 @@
     {
       "chave": "00031|NETGEAR,INC_04_21_2003-EX-10.16-DISTRIBUTOR AGREEMENT|Renewal Term",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00032|ArtaraTherapeuticsInc_20200110_8-K_EX-10.5_11943350_EX-10.5_License Agreement|Revenue/Profit Sharing",
@@ -241,7 +241,7 @@
     {
       "chave": "00034|HEALTHGATEDATACORP_11_24_1999-EX-10.1-HOSTING AND MANAGEMENT AGREEMENT (1)|Source Code Escrow",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00035|PANDIONTHERAPEUTICSHOLDCOLLC_05_22_2020-EX-10.17-CONSULTING AGREEMENT|Termination For Convenience",
@@ -256,7 +256,7 @@
     {
       "chave": "00037|IOVANCEBIOTHERAPEUTICS,INC_08_03_2017-EX-10.1-STRATEGIC ALLIANCE AGREEMENT|Uncapped Liability",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00038|ASIANDRAGONGROUPINC_08_11_2005-EX-10.5-Reseller Agreement|Unlimited/All-You-Can-Eat-License",
@@ -276,7 +276,7 @@
     {
       "chave": "00041|ReynoldsConsumerProductsInc_20200121_S-1A_EX-10.22_11948918_EX-10.22_Service Agreement|Affiliate License-Licensee",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00042|ENERGOUSCORP_03_16_2017-EX-10.24-STRATEGIC ALLIANCE AGREEMENT|Affiliate License-Licensor",
@@ -291,7 +291,7 @@
     {
       "chave": "00044|SFGFINANCIALCORP_05_12_2009-EX-10.1-SOFTWARE LICENSE AND MAINTENANCE AGREEMENT|Anti-Assignment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00045|KitovPharmaLtd_20190326_20-F_EX-4.15_11584449_EX-4.15_Manufacturing Agreement|Audit Rights",
@@ -306,17 +306,17 @@
     {
       "chave": "00047|HALITRON,INC_03_01_2005-EX-10.15-SPONSORSHIP AND DEVELOPMENT AGREEMENT|Change Of Control",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00048|MusclepharmCorp_20170208_10-KA_EX-10.38_9893581_EX-10.38_Co-Branding Agreement|Competitive Restriction Exception",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00049|CORIOINC_07_20_2000-EX-10.5-LICENSE AND HOSTING AGREEMENT|Covenant Not To Sue",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00050|Freecook_20180605_S-1_EX-10.3_11233807_EX-10.3_Hosting Agreement|Document Name",
@@ -336,7 +336,7 @@
     {
       "chave": "00053|LejuHoldingsLtd_20140121_DRS (on F-1)_EX-10.26_8473102_EX-10.26_Content License Agreement1|Expiration Date",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00054|BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1|Governing Law",
@@ -351,7 +351,7 @@
     {
       "chave": "00056|PhoenixNewMediaLtd_20110421_F-1_EX-10.17_6958322_EX-10.17_Content License Agreement|Ip Ownership Assignment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00057|AlliedEsportsEntertainmentInc_20190815_8-K_EX-10.19_11788293_EX-10.19_Content License Agreement|Irrevocable Or Perpetual License",
@@ -371,7 +371,7 @@
     {
       "chave": "00060|BNLFINANCIALCORP_03_30_2007-EX-10.8-OUTSOURCING AGREEMENT|Liquidated Damages",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00061|ELECTRAMECCANICA VEHICLES CORP. - Manufacturing Agreement|Minimum Commitment",
@@ -386,12 +386,12 @@
     {
       "chave": "00063|DYNAMEXINC_06_06_1996-EX-10.4-TRANSPORTATION SERVICES AGREEMENT|No-Solicit Of Customers",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00064|SoupmanInc_20150814_8-K_EX-10.1_9230148_EX-10.1_Franchise Agreement1|No-Solicit Of Employees",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00065|LEJUHOLDINGSLTD_03_12_2014-EX-10.34-INTERNET CHANNEL COOPERATION AGREEMENT|Non-Compete",
@@ -401,17 +401,17 @@
     {
       "chave": "00066|XLITECHNOLOGIES,INC_12_11_2015-EX-10.1-Sponsorship Agreement|Non-Disparagement",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00067|EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT|Non-Transferable License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00068|RitterPharmaceuticalsInc_20200313_S-4A_EX-10.54_12055220_EX-10.54_Development Agreement|Notice Period To Terminate Renewal",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00069|MEDALISTDIVERSIFIEDREIT,INC_05_18_2020-EX-10.1-CONSULTING AGREEMENT|Parties",
@@ -426,12 +426,12 @@
     {
       "chave": "00071|VitalibisInc_20180316_8-K_EX-10.2_11100168_EX-10.2_Hosting Agreement|Price Restrictions",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00072|InmodeLtd_20190729_F-1A_EX-10.9_11743243_EX-10.9_Manufacturing Agreement|Renewal Term",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00073|RISEEDUCATIONCAYMANLTD_04_17_2020-EX-4.23-SERVICE AGREEMENT|Revenue/Profit Sharing",
@@ -451,12 +451,12 @@
     {
       "chave": "00076|KUBIENT,INC_07_02_2020-EX-10.14-MASTER SERVICES AGREEMENT_Part1|Termination For Convenience",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00077|MOELIS_CO_03_24_2014-EX-10.19-STRATEGIC ALLIANCE AGREEMENT|Third Party Beneficiary",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00078|WHITESMOKE,INC_11_08_2011-EX-10.26-PROMOTION AND DISTRIBUTION AGREEMENT|Uncapped Liability",
@@ -466,7 +466,7 @@
     {
       "chave": "00079|FulucaiProductionsLtd_20131223_10-Q_EX-10.9_8368347_EX-10.9_Content License Agreement|Unlimited/All-You-Can-Eat-License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00080|NakedBrandGroupInc_20150731_POS AM (on S-1)_EX-10.75_9196027_EX-10.75_Endorsement Agreement|Volume Restriction",
@@ -491,17 +491,17 @@
     {
       "chave": "00084|BIOPURECORP_06_30_1999-EX-10.13-AGENCY AGREEMENT|Agreement Date",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00085|ConformisInc_20191101_10-Q_EX-10.6_11861402_EX-10.6_Development Agreement|Anti-Assignment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00086|FIDELITYNATIONALINFORMATIONSERVICES,INC_08_05_2009-EX-10.3-INTELLECTUAL PROPERTY AGREEMENT|Audit Rights",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00087|MARTINMIDSTREAMPARTNERSLP_01_23_2004-EX-10.3-TRANSPORTATION SERVICES AGREEMENT|Cap On Liability",
@@ -511,7 +511,7 @@
     {
       "chave": "00088|MACROGENICSINC_08_02_2013-EX-10-COLLABORATION AGREEMENT|Change Of Control",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00089|XENCORINC_10_25_2013-EX-10.24-COLLABORATION AGREEMENT (3)|Competitive Restriction Exception",
@@ -521,12 +521,12 @@
     {
       "chave": "00090|GarrettMotionInc_20181001_8-K_EX-2.4_11364532_EX-2.4_Intellectual Property Agreement|Covenant Not To Sue",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00091|MOVADOGROUPINC_04_30_2003-EX-10.28-ENDORSEMENT AGREEMENT|Document Name",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00092|BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1|Effective Date",
@@ -536,7 +536,7 @@
     {
       "chave": "00093|TubeMediaCorp_20060310_8-K_EX-10.1_513921_EX-10.1_Affiliate Agreement|Exclusivity",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00094|FEDERATEDGOVERNMENTINCOMESECURITIESINC_04_28_2020-EX-99.SERV AGREE-SERVICES AGREEMENT|Expiration Date",
@@ -561,7 +561,7 @@
     {
       "chave": "00098|AtnInternationalInc_20191108_10-Q_EX-10.1_11878541_EX-10.1_Maintenance Agreement|Irrevocable Or Perpetual License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00099|InvendaCorp_20000828_S-1A_EX-10.2_2588206_EX-10.2_Co-Branding Agreement|Joint Ip Ownership",
@@ -581,7 +581,7 @@
     {
       "chave": "00102|VAXCYTE,INC_05_22_2020-EX-10.19-SUPPLY AGREEMENT|Minimum Commitment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00103|VERICELCORP_08_06_2019-EX-10.10-SUPPLY AGREEMENT|Most Favored Nation",
@@ -611,7 +611,7 @@
     {
       "chave": "00108|WEBHELPCOMINC_03_22_2000-EX-10.8-HOSTING AGREEMENT|Non-Transferable License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00109|EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement|Notice Period To Terminate Renewal",
@@ -656,7 +656,7 @@
     {
       "chave": "00117|ENTERPRISEPRODUCTSPARTNERSLP_07_08_1998-EX-10.3-TRANSPORTATION CONTRACT|Termination For Convenience",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00118|GOOSEHEADINSURANCE,INC_04_02_2018-EX-10.6-Franchise Agreement|Third Party Beneficiary",
@@ -671,7 +671,7 @@
     {
       "chave": "00120|SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT|Unlimited/All-You-Can-Eat-License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00121|BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)|Volume Restriction",
@@ -686,7 +686,7 @@
     {
       "chave": "00123|AimmuneTherapeuticsInc_20200205_8-K_EX-10.3_11967170_EX-10.3_Development Agreement|Affiliate License-Licensee",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00124|ZogenixInc_20190509_10-Q_EX-10.2_11663313_EX-10.2_Distributor Agreement|Affiliate License-Licensor",
@@ -696,7 +696,7 @@
     {
       "chave": "00125|SECURIANFUNDSTRUST_05_01_2012-EX-99.28.H.9-NET INVESTMENT INCOME MAINTENANCE AGREEMENT|Agreement Date",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00126|HPILHOLDING_01_07_2015-EX-99.1-COOPERATION AGREEMENT|Anti-Assignment",
@@ -706,7 +706,7 @@
     {
       "chave": "00127|RaeSystemsInc_20001114_10-Q_EX-10.57_2631790_EX-10.57_Co-Branding Agreement|Audit Rights",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00128|DRIVENDELIVERIES,INC_05_22_2020-EX-10.4-CONSULTING AGREEMENT|Cap On Liability",
@@ -716,17 +716,17 @@
     {
       "chave": "00129|AURASYSTEMSINC_06_16_2010-EX-10.25-STRATEGIC ALLIANCE AGREEMENT|Change Of Control",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00130|EhaveInc_20190515_20-F_EX-4.44_11678816_EX-4.44_License Agreement_ Reseller Agreement|Competitive Restriction Exception",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00131|HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement|Covenant Not To Sue",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00132|TUNIUCORP_03_06_2014-EX-10-COOPERATION AGREEMENT|Document Name",
@@ -741,7 +741,7 @@
     {
       "chave": "00134|SmartRxSystemsInc_20180914_1-A_EX1A-6 MAT CTRCT_11351705_EX1A-6 MAT CTRCT_Distributor Agreement|Exclusivity",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00135|SPARKLINGSPRINGWATERHOLDINGSLTD_07_03_2002-EX-10.13-SOFTWARE LICENSE AND MAINTENANCE AGREEMENT|Expiration Date",
@@ -761,7 +761,7 @@
     {
       "chave": "00138|InnerscopeHearingTechnologiesInc_20181109_8-K_EX-10.6_11419704_EX-10.6_Distributor Agreement|Ip Ownership Assignment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00139|VERTICALNETINC_04_01_2002-EX-10.19-MAINTENANCE AND SUPPORT AGREEMENT|Irrevocable Or Perpetual License",
@@ -786,7 +786,7 @@
     {
       "chave": "00143|LUCIDINC_04_15_2011-EX-10.9-DISTRIBUTOR AGREEMENT|Minimum Commitment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00144|GAINSCOINC_01_21_2010-EX-10.41-SPONSORSHIP AGREEMENT|Most Favored Nation",
@@ -836,7 +836,7 @@
     {
       "chave": "00153|CHINARECYCLINGENERGYCORP_11_14_2013-EX-10.6-Cooperation Agreement|Anti-Assignment",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00154|VNUE,INC_07_10_2015-EX-10.1-SPONSORSHIP AGREEMENT|Audit Rights",
@@ -866,7 +866,7 @@
     {
       "chave": "00159|KNOWLABS,INC_08_15_2005-EX-10-INTELLECTUAL PROPERTY AGREEMENT|Effective Date",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00160|LohaCompanyltd_20191209_F-1_EX-10.16_11917878_EX-10.16_Supply Agreement|Exclusivity",
@@ -876,7 +876,7 @@
     {
       "chave": "00161|INTELLIGENTHIGHWAYSOLUTIONS,INC_01_18_2018-EX-10.1-Strategic Alliance Agreement|Expiration Date",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00162|PcquoteComInc_19990721_S-1A_EX-10.11_6377149_EX-10.11_Co-Branding Agreement3|Governing Law",
@@ -946,7 +946,7 @@
     {
       "chave": "00175|CcRealEstateIncomeFundadv_20181205_POS 8C_EX-99.(H)(3)_11447739_EX-99.(H)(3)_Marketing Agreement|Non-Transferable License",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00176|ASPIRITYHOLDINGSLLC_05_07_2012-EX-10.6-OUTSOURCING AGREEMENT|Notice Period To Terminate Renewal",
@@ -961,12 +961,12 @@
     {
       "chave": "00178|HEALTHGATEDATACORP_11_24_1999-EX-10.1-HOSTING AND MANAGEMENT AGREEMENT - Escrow Agreement|Post-Termination Services",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00179|UsioInc_20040428_SB-2_EX-10.11_1723988_EX-10.11_Affiliate Agreement 2|Price Restrictions",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00180|Freecook_20180605_S-1_EX-10.3_11233807_EX-10.3_Hosting Agreement|Renewal Term",
@@ -1146,7 +1146,7 @@
     {
       "chave": "00215|ReynoldsConsumerProductsInc_20200121_S-1A_EX-10.22_11948918_EX-10.22_Service Agreement|Non-Transferable License",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00216|BerkshireHillsBancorpInc_20120809_10-Q_EX-10.16_7708169_EX-10.16_Endorsement Agreement|Notice Period To Terminate Renewal",
@@ -1156,7 +1156,7 @@
     {
       "chave": "00217|OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT|Post-Termination Services",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00218|PAXMEDICA,INC_07_02_2020-EX-10.12-Master Service Agreement|Price Restrictions",
@@ -1221,7 +1221,7 @@
     {
       "chave": "00230|LinkPlusCorp_20050802_8-K_EX-10_3240252_EX-10_Affiliate Agreement|Affiliate License-Licensor",
       "impossivel": true,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00231|FUSIONPHARMACEUTICALSINC_06_05_2020-EX-10.17-Supply Agreement - FUSION|Agreement Date",
@@ -1266,7 +1266,7 @@
     {
       "chave": "00239|ANIXABIOSCIENCESINC_06_09_2020-EX-10.1-COLLABORATION AGREEMENT|Exclusivity",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00240|VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT|Expiration Date",
@@ -1286,7 +1286,7 @@
     {
       "chave": "00243|ULTRAGENYXPHARMACEUTICALINC_12_23_2013-EX-10.9-SUPPLY AGREEMENT|Ip Ownership Assignment",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00244|OPERALTD_04_30_2020-EX-4.14-SERVICE AGREEMENT|Irrevocable Or Perpetual License",
@@ -1296,7 +1296,7 @@
     {
       "chave": "00245|HALITRON,INC_03_01_2005-EX-10.15-SPONSORSHIP AND DEVELOPMENT AGREEMENT|Joint Ip Ownership",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00246|NYLIACVARIABLEANNUITYSEPARATEACCOUNTIII_04_10_2020-EX-99.8.KK-SERVICE AGREEMENT|License Grant",
@@ -1341,7 +1341,7 @@
     {
       "chave": "00254|MEDIWOUNDLTD_01_15_2014-EX-10.6-SUPPLY AGREEMENT|Non-Transferable License",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00255|EmbarkComInc_19991008_S-1A_EX-10.10_6487661_EX-10.10_Co-Branding Agreement|Notice Period To Terminate Renewal",
@@ -1536,7 +1536,7 @@
     {
       "chave": "00293|AzulSa_20170303_F-1A_EX-10.3_9943903_EX-10.3_Maintenance Agreement2|Non-Transferable License",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00294|LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT|Notice Period To Terminate Renewal",
@@ -1556,7 +1556,7 @@
     {
       "chave": "00297|BIOCEPTINC_08_19_2013-EX-10-COLLABORATION AGREEMENT|Renewal Term",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00298|QuantumGroupIncFl_20090120_8-K_EX-99.2_3672910_EX-99.2_Hosting Agreement|Revenue/Profit Sharing",
@@ -1573,8 +1573,8 @@
     "seed": 42,
     "git_sha": "7503a4c",
     "git_dirty": true,
-    "git_diff_sha1": "2e7fedf63550",
-    "timestamp_utc": "2026-07-27T23:58:41+00:00",
+    "git_diff_sha1": "0f18fefaff3a",
+    "timestamp_utc": "2026-07-28T15:11:01+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

@@ -32,11 +32,17 @@ class OllamaLLM:
         base_url: str | None = None,
         temperatura: float = 0.1,
         timeout: int = 300,   # tolera inferência em CPU (brain fora da GPU) sem estourar
+        seed: int | None = None,
     ):
         self.modelo = modelo or settings.llm_model
         self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
         self.temperatura = temperatura
         self.timeout = timeout
+        # Temperatura 0,1 NÃO é determinismo: duas rodadas da mesma avaliação dão
+        # números diferentes. Numa ablação pareada isso vira ruído indistinguível
+        # do efeito medido. `seed` fixa a amostragem do Ollama; default None
+        # preserva o comportamento dos demais chamadores.
+        self.seed = seed
         self.ultima_metrica: dict[str, Any] = {}
 
     def gerar(self, prompt: str, sistema: str | None = None) -> str:
@@ -44,12 +50,15 @@ class OllamaLLM:
         if sistema:
             mensagens.append({"role": "system", "content": sistema})
         mensagens.append({"role": "user", "content": prompt})
+        opcoes: dict[str, Any] = {"temperature": self.temperatura}
+        if self.seed is not None:
+            opcoes["seed"] = self.seed
         corpo = json.dumps(
             {
                 "model": self.modelo,
                 "messages": mensagens,
                 "stream": False,
-                "options": {"temperature": self.temperatura},
+                "options": opcoes,
             }
         ).encode("utf-8")
         req = urllib.request.Request(

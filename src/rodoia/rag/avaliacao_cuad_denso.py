@@ -39,17 +39,18 @@ import numpy as np
 from rodoia.config import settings
 from rodoia.proveniencia import carimbar
 from rodoia.rag.avaliacao_cuad import (
+    CHUNKERS,
     KS,
     MAX_CHARS,
     OVERLAP,
     Avaliada,
     Chunk,
     _corpus_info,
-    _metricas_por_pergunta,
-    chunkar,
+    _registrar,
     consolidar,
     gold_da_pergunta,
     montar_query,
+    obter_chunker,
 )
 from rodoia.rag.cuad import Contrato, carregar
 from rodoia.rag.embeddings import Embedder
@@ -75,6 +76,7 @@ def avaliar_denso(
     max_chars: int = MAX_CHARS,
     overlap: int = OVERLAP,
     nome_modelo: str | None = None,
+    chunker: str = "janela",
 ) -> dict[str, Any]:
     """Avaliação densa completa: encoda em lote, ranqueia por cosseno, consolida.
 
@@ -83,10 +85,11 @@ def avaliar_denso(
     """
     # 1) Materializa chunks e queries de todos os contratos, guardando as
     # fronteiras para fatiar os vetores de volta por contrato.
+    fatiar = obter_chunker(chunker)
     chunks_por_contrato: list[list[Chunk]] = []
     todos_chunks: list[Chunk] = []
     for contrato in contratos:
-        cs = chunkar(contrato.texto, contrato.titulo, max_chars, overlap)
+        cs = fatiar(contrato.texto, contrato.titulo, max_chars, overlap)
         chunks_por_contrato.append(cs)
         todos_chunks.extend(cs)
 
@@ -122,14 +125,12 @@ def avaliar_denso(
             if not gold:
                 avaliadas.append(Avaliada(pergunta.categoria, False, top1, False, {}, 0.0))
                 continue
-            reg = _metricas_por_pergunta(gold, ranking, top1)
-            avaliadas.append(
-                Avaliada(pergunta.categoria, False, top1, True, reg.recall_por_k, reg.rr)
-            )
+            avaliadas.append(_registrar(gold, ranking, top1, pergunta.categoria))
 
     config = {
         "recuperador": "denso",
         "modelo": nome_modelo or settings.embedding_model,
+        "chunker": chunker,
         "max_chars": max_chars,
         "overlap": overlap,
         "ks": list(KS),
@@ -166,6 +167,7 @@ def main() -> None:
         "--familia", type=str, default="e5", choices=("e5", "bge"),
         help="família do embedder (define o PREFIXO — errar degrada em silêncio)",
     )
+    parser.add_argument("--chunker", type=str, default="janela", choices=tuple(CHUNKERS))
     args = parser.parse_args()
 
     from rodoia.rag.embeddings import MODELO_PADRAO, construir_embedder
@@ -178,7 +180,7 @@ def main() -> None:
     contratos = carregar(zip_path=args.zip)
     if args.limite:
         contratos = contratos[: args.limite]
-    relatorio = avaliar_denso(contratos, embedder, nome_modelo=modelo)
+    relatorio = avaliar_denso(contratos, embedder, nome_modelo=modelo, chunker=args.chunker)
 
     destino = settings.data_processed.parent.parent / "reports" / "fase6_cuad"
     destino.mkdir(parents=True, exist_ok=True)
@@ -188,6 +190,8 @@ def main() -> None:
     # Sufixo por família: o relatório do bge NÃO sobrescreve o do e5 — os dois são
     # evidência versionada e a comparação entre eles é o ponto (docs/17 §13).
     sufixo = "" if args.familia == "e5" else f"_{args.familia}"
+    if args.chunker != "janela":
+        sufixo += f"_{args.chunker}"
     caminho = destino / f"retrieval_denso{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(relatorio), ensure_ascii=False, indent=2))
 

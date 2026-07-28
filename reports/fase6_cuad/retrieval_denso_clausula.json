@@ -1,0 +1,247 @@
+{
+  "config": {
+    "recuperador": "denso",
+    "modelo": "intfloat/multilingual-e5-small",
+    "chunker": "clausula",
+    "max_chars": 1500,
+    "overlap": 200,
+    "ks": [
+      1,
+      3,
+      5,
+      10
+    ]
+  },
+  "corpus": {
+    "n_contratos": 510,
+    "n_chunks": 23464,
+    "chunks_por_contrato_mediana": 46.0
+  },
+  "n_respondiveis": 6702,
+  "n_impossiveis": 14208,
+  "n_sem_gold": 0,
+  "gold_medio_por_pergunta": 1.7014,
+  "metricas": {
+    "recall_at_1": {
+      "media": 0.2624,
+      "ic95_bootstrap": [
+        0.253,
+        0.272
+      ],
+      "teto": 0.7838
+    },
+    "recall_norm_at_1": {
+      "media": 0.3557,
+      "ic95_bootstrap": [
+        0.345,
+        0.367
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
+    },
+    "hit_at_1": {
+      "taxa": 0.3557,
+      "ic95_wilson": [
+        0.344,
+        0.367
+      ]
+    },
+    "recall_at_3": {
+      "media": 0.4424,
+      "ic95_bootstrap": [
+        0.432,
+        0.453
+      ],
+      "teto": 0.9692
+    },
+    "recall_norm_at_3": {
+      "media": 0.4551,
+      "ic95_bootstrap": [
+        0.445,
+        0.466
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
+    },
+    "hit_at_3": {
+      "taxa": 0.5497,
+      "ic95_wilson": [
+        0.538,
+        0.562
+      ]
+    },
+    "recall_at_5": {
+      "media": 0.545,
+      "ic95_bootstrap": [
+        0.534,
+        0.556
+      ],
+      "teto": 0.9916
+    },
+    "recall_norm_at_5": {
+      "media": 0.5484,
+      "ic95_bootstrap": [
+        0.538,
+        0.559
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
+    },
+    "hit_at_5": {
+      "taxa": 0.6444,
+      "ic95_wilson": [
+        0.633,
+        0.656
+      ]
+    },
+    "recall_at_10": {
+      "media": 0.6966,
+      "ic95_bootstrap": [
+        0.687,
+        0.707
+      ],
+      "teto": 0.9993
+    },
+    "recall_norm_at_10": {
+      "media": 0.6969,
+      "ic95_bootstrap": [
+        0.687,
+        0.707
+      ],
+      "descricao": "|gold ∩ top-k| / min(k,|gold|) — comparável entre chunkings"
+    },
+    "hit_at_10": {
+      "taxa": 0.7781,
+      "ic95_wilson": [
+        0.768,
+        0.788
+      ]
+    }
+  },
+  "mrr": {
+    "media": 0.4915,
+    "ic95_bootstrap": [
+      0.482,
+      0.501
+    ]
+  },
+  "diagnostico_abstencao": {
+    "escore_top1_respondivel": {
+      "mediana": 0.841,
+      "p10": 0.819,
+      "p90": 0.863
+    },
+    "escore_top1_impossivel": {
+      "mediana": 0.831,
+      "p10": 0.808,
+      "p90": 0.851
+    }
+  },
+  "recall_at_5_por_categoria": {
+    "Notice Period To Terminate Renewal": 0.9189,
+    "Renewal Term": 0.864,
+    "Governing Law": 0.823,
+    "Termination For Convenience": 0.8215,
+    "Uncapped Liability": 0.7995,
+    "No-Solicit Of Employees": 0.7994,
+    "Expiration Date": 0.7934,
+    "Third Party Beneficiary": 0.7427,
+    "Warranty Duration": 0.7175,
+    "Insurance": 0.7141,
+    "Source Code Escrow": 0.7126,
+    "Change Of Control": 0.6997,
+    "Cap On Liability": 0.6826,
+    "Audit Rights": 0.6629,
+    "Anti-Assignment": 0.6297,
+    "Affiliate License-Licensee": 0.6013,
+    "Post-Termination Services": 0.5538,
+    "Joint Ip Ownership": 0.5408,
+    "Liquidated Damages": 0.5077,
+    "Irrevocable Or Perpetual License": 0.4992,
+    "License Grant": 0.495,
+    "Non-Compete": 0.46,
+    "Minimum Commitment": 0.4541,
+    "No-Solicit Of Customers": 0.452,
+    "Most Favored Nation": 0.4494,
+    "Agreement Date": 0.4426,
+    "Affiliate License-Licensor": 0.4334,
+    "Unlimited/All-You-Can-Eat-License": 0.4314,
+    "Document Name": 0.4235,
+    "Non-Disparagement": 0.4009,
+    "Effective Date": 0.3844,
+    "Covenant Not To Sue": 0.3795,
+    "Ip Ownership Assignment": 0.3769,
+    "Rofr/Rofo/Rofn": 0.3728,
+    "Non-Transferable License": 0.3573,
+    "Price Restrictions": 0.3417,
+    "Exclusivity": 0.306,
+    "Revenue/Profit Sharing": 0.3049,
+    "Competitive Restriction Exception": 0.2917,
+    "Parties": 0.2682,
+    "Volume Restriction": 0.2122
+  },
+  "delta_vs_bm25_por_categoria": {
+    "Warranty Duration": 0.153,
+    "No-Solicit Of Employees": 0.1511,
+    "Non-Compete": 0.1167,
+    "Document Name": 0.1019,
+    "Affiliate License-Licensor": 0.0971,
+    "Most Favored Nation": 0.0833,
+    "Third Party Beneficiary": 0.0797,
+    "Notice Period To Terminate Renewal": 0.0675,
+    "Affiliate License-Licensee": 0.0594,
+    "Expiration Date": 0.0401,
+    "Volume Restriction": 0.039,
+    "Exclusivity": 0.0289,
+    "Cap On Liability": 0.0264,
+    "Joint Ip Ownership": 0.0176,
+    "Parties": 0.0137,
+    "Agreement Date": 0.0128,
+    "Uncapped Liability": -0.0068,
+    "No-Solicit Of Customers": -0.0228,
+    "Change Of Control": -0.0313,
+    "Revenue/Profit Sharing": -0.0342,
+    "Non-Disparagement": -0.0421,
+    "Post-Termination Services": -0.0423,
+    "Source Code Escrow": -0.0425,
+    "Renewal Term": -0.058,
+    "Ip Ownership Assignment": -0.0624,
+    "Termination For Convenience": -0.0633,
+    "Governing Law": -0.0696,
+    "Audit Rights": -0.0808,
+    "Insurance": -0.1132,
+    "Liquidated Damages": -0.1134,
+    "License Grant": -0.115,
+    "Anti-Assignment": -0.116,
+    "Price Restrictions": -0.1161,
+    "Minimum Commitment": -0.1186,
+    "Competitive Restriction Exception": -0.1239,
+    "Covenant Not To Sue": -0.1513,
+    "Rofr/Rofo/Rofn": -0.1795,
+    "Unlimited/All-You-Can-Eat-License": -0.2392,
+    "Irrevocable Or Perpetual License": -0.2754,
+    "Non-Transferable License": -0.2882,
+    "Effective Date": -0.3045
+  },
+  "_proveniencia": {
+    "seed": 42,
+    "git_sha": "7503a4c",
+    "git_dirty": true,
+    "git_diff_sha1": "0f18fefaff3a",
+    "timestamp_utc": "2026-07-28T12:30:59+00:00",
+    "versoes": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.9.0",
+      "torch": "2.11.0",
+      "pandas": "2.3.3",
+      "transformers": "5.13.0",
+      "peft": "0.19.1",
+      "trl": "1.8.0",
+      "bitsandbytes": "0.49.2",
+      "accelerate": "1.14.0",
+      "datasets": "5.0.0",
+      "vllm": "0.24.0",
+      "sentence-transformers": "5.6.0",
+      "qdrant-client": "1.18.0",
+      "pyarrow": "24.0.0",
+      "duckdb": "1.5.4"
+    }
+  }
+}
