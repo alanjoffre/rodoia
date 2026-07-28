@@ -6,6 +6,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
+from rodoia.config import settings
+from rodoia.observabilidade import registrar_metrica
 from rodoia.rag.gerar import responder_seguro
 from rodoia.rag.seguranca import detectar_injection, mascarar_pii, registrar_auditoria
 
@@ -82,6 +86,42 @@ def test_auditoria_anexa_jsonl(tmp_path: Path) -> None:
     linhas = caminho.read_text(encoding="utf-8").strip().splitlines()
     assert len(linhas) == 2
     assert json.loads(linhas[1])["bloqueado"] is True
+
+
+def test_auditoria_marca_o_fluxo(tmp_path: Path) -> None:
+    """Em stdout as duas trilhas caem no MESMO lugar; sem `_fluxo`, separar
+    auditoria de métrica no destino seria adivinhação."""
+    caminho = tmp_path / "auditoria.jsonl"
+    registrar_auditoria({"consulta": "a"}, caminho)
+    assert json.loads(caminho.read_text(encoding="utf-8").strip())["_fluxo"] == "auditoria"
+
+
+def test_auditoria_em_stdout_nao_toca_o_disco(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """O ponto do sink: com `log_destino="stdout"` o processo **não cria arquivo**.
+
+    Escrever em disco num contêiner efêmero perde a trilha sem erro nenhum — e a
+    auditoria é controle de conformidade, não conveniência (docs/16 §7.1).
+    """
+    monkeypatch.setattr(settings, "log_destino", "stdout")
+    caminho = tmp_path / "auditoria.jsonl"
+    registrar_auditoria({"consulta": "a", "bloqueado": True}, caminho)
+
+    assert not caminho.exists()
+    evento = json.loads(capsys.readouterr().out.strip())
+    assert evento["bloqueado"] is True
+    assert evento["_fluxo"] == "auditoria"
+
+
+def test_metrica_e_auditoria_se_distinguem_em_stdout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(settings, "log_destino", "stdout")
+    registrar_auditoria({"x": 1}, tmp_path / "a.jsonl")
+    registrar_metrica({"x": 2}, tmp_path / "m.jsonl")
+    fluxos = [json.loads(x)["_fluxo"] for x in capsys.readouterr().out.strip().splitlines()]
+    assert fluxos == ["auditoria", "metrica"]
 
 
 # --- integração: responder_seguro ---

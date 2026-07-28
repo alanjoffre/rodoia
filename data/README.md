@@ -70,11 +70,33 @@ da proteção autoral (Lei 9.610/98, art. 8º, IV). Datasets = **CC-BY** (Decret
 | Volume de Tráfego de Pedágio | SQL analítico + previsão de demanda (série temporal) | 3 | CSV (latin-1, `;`, decimal `,`) | CC-BY (confirmar por dataset) | ~142k linhas/ano; dados.antt.gov.br |
 | Praça de Pedágio / Receita | dimensão + SQL | 3 | CSV + KMZ | CC-BY | JOINs geográficos/financeiros |
 | LeNER-Br (NER jurídico PT-BR) | fine-tuning c/ rótulo objetivo | 2 | CoNLL | **MIT** (citar PROPOR 2018) | 7.827/1.176/1.389 sentenças; `rodoia.ner.lener` baixa |
+| **CFPB Consumer Complaint Database** | ingestão em escala (17,2 M linhas) | **6** | ZIP64 → CSV → Parquet Hive | **Domínio público** (U.S. Government Works) | agência federal dos EUA; sem exigência de atribuição; `rodoia.ingestao.baixar_cfpb` |
+| **CUAD v1** (Atticus Project) | benchmark de recuperação de TERCEIROS | **6** | JSON (SQuAD 2.0) | **CC BY 4.0 → exige atribuição** (citar Hendrycks et al., NeurIPS 2021) | 510 contratos, 13.823 spans de advogados; `rodoia.rag.baixar_cuad` |
 
 > **Ler CSV da ANTT:** `pandas.read_csv(sep=';', encoding='latin-1', decimal=',')`.
 
+### Fontes da Fase 6 — validado em 28/07/2026
+
+O eixo de **benchmark externo** só faz sentido com dado que não é do autor, e isso traz duas
+fontes americanas para dentro do repositório. As duas foram conferidas:
+
+- **CFPB** — publicado pelo Consumer Financial Protection Bureau sob *U.S. Government Works*
+  (domínio público). Nada a atribuir; registrado no `NOTICE` por proveniência, não por obrigação.
+- **CUAD** — **CC BY 4.0**, que **exige atribuição**. A atribuição completa (obra, autoria,
+  licença, citação do paper) está no `NOTICE`. A licença cobre **a anotação**; os contratos
+  subjacentes vêm do EDGAR (SEC) e o Atticus Project não declara garantia sobre o status deles.
+
+> ⚠️ **Este bloco corrige um erro.** Até 28/07/2026 o `docs/17` afirmava que o CUAD era
+> *"Apache 2.0"* — declarado de memória, nunca conferido — e nenhuma das duas fontes constava
+> deste arquivo, do `NOTICE` ou do `DATASET_CARD`. A regra do projeto é que a licença de cada
+> fonte seja **confirmada**, e ela falhou exatamente na fase que trouxe dado de terceiros.
+
 ## Fronteira de dados (inviolável)
 
-Somente domínio público da ANTT e datasets públicos consagrados. **Zero** dado,
-esquema, nomenclatura ou regra de negócio de qualquer empregador/cliente. Ver
-`NOTICE` e a seção 3.1 do `PROMPT_MESTRE.md`.
+Somente dado público: domínio público da ANTT (Fases 0–4) e datasets públicos
+consagrados de terceiros (LeNER-Br na Fase 2; CFPB e CUAD na Fase 6), cada um com
+a licença confirmada na tabela acima e atribuído no `NOTICE` quando exigido.
+
+A cláusula que não se move: **zero** dado, esquema, nomenclatura ou regra de
+negócio de qualquer empregador/cliente. Ver `NOTICE` e a seção 3.1 do
+`PROMPT_MESTRE.md`.

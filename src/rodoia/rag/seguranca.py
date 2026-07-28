@@ -14,7 +14,6 @@ não bala de prata) — por isso o prompt do sistema também ancora o modelo.
 
 from __future__ import annotations
 
-import json
 import re
 import unicodedata
 from pathlib import Path
@@ -102,7 +101,13 @@ def mascarar_pii(texto: str) -> str:
 
 # --- 3. Auditoria ----------------------------------------------------------
 def registrar_auditoria(evento: dict[str, Any], caminho: Path) -> None:
-    """Anexa um evento (dict) à trilha de auditoria em JSONL."""
-    caminho.parent.mkdir(parents=True, exist_ok=True)
-    with caminho.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(evento, ensure_ascii=False) + "\n")
+    """Anexa um evento (dict) à trilha de auditoria.
+
+    Delega ao sink de `observabilidade.emitir_evento`: com `log_destino="stdout"` a
+    trilha vai para a saída do processo e a plataforma coleta. Escrever em arquivo
+    local num contêiner efêmero **perde a auditoria sem erro nenhum** — e auditoria
+    é o único destes dois fluxos que é controle de conformidade, não conveniência.
+    """
+    from rodoia.observabilidade import emitir_evento
+
+    emitir_evento(evento, caminho, fluxo="auditoria")

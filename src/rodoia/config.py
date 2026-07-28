@@ -7,6 +7,7 @@ de ambiente), nunca espalhados no código. Seeds fixas para reprodutibilidade.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -34,6 +35,14 @@ class Settings(BaseSettings):
 
     # Reprodutibilidade científica.
     seed: int = 42
+
+    # Destino da trilha de auditoria e das métricas por requisição.
+    # `arquivo` (default) mantém o comportamento local: JSONL em `logs/`.
+    # `stdout` emite uma linha JSON por evento e deixa a PLATAFORMA coletar — é o
+    # que torna a API deployável em contêiner efêmero. Com disco efêmero e mais de
+    # uma instância, o append em arquivo perde a trilha SEM ERRO NENHUM: cada
+    # instância escreve a sua e o reciclo apaga (docs/16 §7.1).
+    log_destino: Literal["arquivo", "stdout"] = "arquivo"
 
 
 settings = Settings()

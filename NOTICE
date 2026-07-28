@@ -16,6 +16,28 @@ DADOS
 - LeNER-Br — dataset de NER jurídico brasileiro (Luz de Araujo et al., PROPOR 2018),
   sob licença MIT. Usado na Fase 2 (tarefa de rótulo objetivo); citação do artigo
   requerida pelos autores.
+- Consumer Complaint Database — Consumer Financial Protection Bureau (CFPB), agência
+  do governo dos EUA. DOMÍNIO PÚBLICO ("U.S. Government Works"). Usado na Fase 6
+  (ingestão em escala: 17.226.584 linhas). Sem exigência de atribuição; registrado
+  aqui por transparência de proveniência.
+- CUAD v1 (Contract Understanding Atticus Dataset) — The Atticus Project, 510 contratos
+  comerciais com 13.823 spans anotados por advogados. Licenciado sob CREATIVE COMMONS
+  ATTRIBUTION 4.0 (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+  Usado na Fase 6 como benchmark de recuperação de TERCEIROS.
+
+  *** ATRIBUIÇÃO EXIGIDA PELA CC BY 4.0 ***
+  Obra: Contract Understanding Atticus Dataset (CUAD) v1
+  Autoria: The Atticus Project — https://www.atticusprojectai.org/cuad
+  Licença: CC BY 4.0 — o RodoIA não modifica o dataset; consome-o para avaliação.
+  Citação requerida pelos autores:
+    @article{hendrycks2021cuad,
+      title={CUAD: An Expert-Annotated NLP Dataset for Legal Contract Review},
+      author={Dan Hendrycks and Collin Burns and Anya Chen and Spencer Ball},
+      journal={NeurIPS}, year={2021}}
+
+  Ressalva do próprio Atticus Project, repassada aqui: eles não fazem declaração nem
+  garantia sobre o status de licença dos CONTRATOS subjacentes, que são públicos e
+  obtidos do EDGAR (SEC/EUA). A licença CC BY 4.0 cobre a ANOTAÇÃO, não os contratos.
 
 --------------------------------------------------------------------------------
 MODELOS E BIBLIOTECAS
@@ -31,6 +53,15 @@ MODELOS E BIBLIOTECAS
 --------------------------------------------------------------------------------
 FRONTEIRA DE DADOS
 --------------------------------------------------------------------------------
-Este repositório contém EXCLUSIVAMENTE domínio público da ANTT. Nenhum dado,
-esquema, nomenclatura ou regra de negócio de qualquer empregador ou cliente do
-autor está presente ou é derivável deste código.
+Este repositório usa EXCLUSIVAMENTE dados públicos: domínio público da ANTT
+(Fases 0-4) e, a partir da Fase 6, dois datasets públicos de terceiros (CFPB em
+domínio público; CUAD sob CC BY 4.0, atribuído acima).
+
+A cláusula que não se move: NENHUM dado, esquema, nomenclatura ou regra de negócio
+de qualquer empregador ou cliente do autor está presente ou é derivável deste
+código.
+
+Nota de precisão: até a Fase 5 este texto dizia "exclusivamente domínio público da
+ANTT". A Fase 6 introduziu as duas fontes americanas — o benchmark de terceiros era
+justamente o ponto — e a frase deixou de ser verdadeira antes de ser corrigida.
+Fica registrado em vez de reescrito em silêncio.
