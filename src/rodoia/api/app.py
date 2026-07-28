@@ -13,13 +13,14 @@ chamada roda num threadpool (`asyncio.to_thread`). Os componentes pesados
 from __future__ import annotations
 
 import asyncio
+import json
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
 from rodoia.config import REPO_ROOT
@@ -91,6 +92,60 @@ async def perguntar(p: Pergunta) -> Resposta:
         "bloqueado": r["bloqueado"], "n_fontes": len(r["fontes"]),
     }, _METRICAS)
     return Resposta(resposta=r["resposta"], fontes=r["fontes"], bloqueado=r["bloqueado"])
+
+
+@app.post("/perguntar/stream")
+async def perguntar_stream(p: Pergunta) -> StreamingResponse:
+    """Mesma resposta, em **Server-Sent Events** — um evento JSON por linha `data:`.
+
+    **Por que existe.** O p95 da geração é ~30 s (docs/16 §6): sem streaming, isso é
+    latência percebida inteira e a espera parece travamento. Com SSE o cliente recebe
+    as **fontes antes do primeiro token** e o texto conforme sai — o
+    time-to-first-token é o que o usuário sente. Também é o que remove o p95 da
+    conta de timeout de qualquer plataforma (docs/16 §7.1).
+
+    **Não passa pelo cache** de propósito: `CacheLRU` guarda a resposta pronta, e a
+    razão de ser deste endpoint é justamente não esperar por ela. Quem quer a
+    resposta cacheada usa `/perguntar`.
+    """
+    from rodoia.rag.gerar import responder_seguro_stream
+
+    _carregar()
+    t0 = time.perf_counter()
+
+    def _fluxo() -> Iterator[str]:
+        n_fontes, bloqueado = 0, False
+        for evento in responder_seguro_stream(
+            p.consulta, _estado["rec"], _estado["llm"], p.k, _AUDITORIA
+        ):
+            if evento["tipo"] == "fontes":
+                n_fontes = len(evento["fontes"])
+            elif evento["tipo"] == "bloqueio":
+                bloqueado = True
+            yield f"data: {json.dumps(evento, ensure_ascii=False)}\n\n"
+        registrar_metrica({
+            "endpoint": "perguntar_stream", "latencia_s": round(time.perf_counter() - t0, 3),
+            "cache_hit": False, "taxa_hit_cache": _CACHE.taxa_hit,
+            "bloqueado": bloqueado, "n_fontes": n_fontes,
+        }, _METRICAS)
+
+    async def _agregar() -> AsyncIterator[str]:
+        # O RAG é síncrono e pesado; iterar direto travaria o event loop. Cada `next`
+        # vai para o threadpool — o mesmo motivo pelo qual `/perguntar` usa `to_thread`.
+        it = _fluxo()
+        while True:
+            pedaco = await asyncio.to_thread(next, it, None)
+            if pedaco is None:
+                return
+            yield pedaco
+
+    return StreamingResponse(
+        _agregar(),
+        media_type="text/event-stream",
+        # `no-transform`/`X-Accel-Buffering`: proxies que bufferizam anulam o streaming
+        # inteiro — a resposta chegaria de uma vez só, com a mesma latência de antes.
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
+    )
 
 
 class RespostaAgente(BaseModel):

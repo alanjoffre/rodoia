@@ -9,7 +9,7 @@
 [![CI](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml/badge.svg)](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Tests](https://img.shields.io/badge/testes-264%20passando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/testes-276%20passando-brightgreen.svg)
 ![Tipos](https://img.shields.io/badge/mypy-strict%20no%20núcleo-brightgreen.svg)
 ![Gate](https://img.shields.io/badge/gate%20de%20avaliação-30%2F30-brightgreen.svg)
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
@@ -89,7 +89,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 
 | Requisito | Onde é provado | Evidência |
 |---|---|---|
-| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 264 testes (247 no CI) · `async` nos endpoints |
+| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 276 testes (259 no CI) · `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
 | SQL avançado e modelagem | Fase 3 | Esquema **estrela** (DuckDB, 741k linhas), window functions (LAG/RANK), camada de acesso testada + **previsão de demanda** (MAPE) |

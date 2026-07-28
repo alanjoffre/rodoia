@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import time
 import urllib.request
+from collections.abc import Iterator
 from typing import Any, Protocol, cast
 
 from rodoia.config import settings
@@ -20,6 +21,17 @@ class LLM(Protocol):
 
     # métricas da última chamada (observabilidade): tokens_prompt, tokens_resposta, latencia_s
     ultima_metrica: dict[str, Any]
+
+
+class LLMStream(Protocol):
+    """LLM que também sabe emitir a resposta em pedaços.
+
+    Protocol SEPARADO de propósito: streaming é opcional. Exigi-lo em `LLM` obrigaria
+    todo backend e todo fake de teste a implementá-lo, e o caminho não-streaming
+    continua sendo o que o `responder_seguro` usa.
+    """
+
+    def gerar_stream(self, prompt: str, sistema: str | None = None) -> Iterator[str]: ...
 
 
 class OllamaLLM:
@@ -76,6 +88,51 @@ class OllamaLLM:
             "latencia_s": round(time.perf_counter() - t0, 3),
         }
         return cast(str, dados["message"]["content"]).strip()
+
+    def _corpo(self, prompt: str, sistema: str | None, stream: bool) -> bytes:
+        mensagens = []
+        if sistema:
+            mensagens.append({"role": "system", "content": sistema})
+        mensagens.append({"role": "user", "content": prompt})
+        opcoes: dict[str, Any] = {"temperature": self.temperatura}
+        if self.seed is not None:
+            opcoes["seed"] = self.seed
+        return json.dumps(
+            {"model": self.modelo, "messages": mensagens, "stream": stream, "options": opcoes}
+        ).encode("utf-8")
+
+    def gerar_stream(self, prompt: str, sistema: str | None = None) -> Iterator[str]:
+        """Emite a resposta em pedaços, conforme o Ollama produz (NDJSON).
+
+        **Por que existe.** O p95 de geração medido é ~30 s (docs/16 §6). Sem
+        streaming, esses 30 s são latência percebida inteira; com, o
+        time-to-first-token cai para a casa de 1–2 s. É desenho de produto, não
+        otimização de infra — e é o que tira o p95 da conta de qualquer plataforma
+        (docs/16 §7.1).
+
+        A métrica final chega no último objeto do fluxo (`done: true`), então
+        `ultima_metrica` só fica completa ao fim da iteração.
+        """
+        req = urllib.request.Request(
+            f"{self.base_url}/api/chat",
+            data=self._corpo(prompt, sistema, stream=True),
+            headers={"Content-Type": "application/json"},
+        )
+        t0 = time.perf_counter()
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            for linha in resp:
+                if not linha.strip():
+                    continue
+                dados: dict[str, Any] = json.loads(linha.decode("utf-8"))
+                pedaco = dados.get("message", {}).get("content", "")
+                if pedaco:
+                    yield cast(str, pedaco)
+                if dados.get("done"):
+                    self.ultima_metrica = {
+                        "tokens_prompt": dados.get("prompt_eval_count"),
+                        "tokens_resposta": dados.get("eval_count"),
+                        "latencia_s": round(time.perf_counter() - t0, 3),
+                    }
 
 
 class OpenAICompatLLM:

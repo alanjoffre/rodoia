@@ -10,13 +10,19 @@ from __future__ import annotations
 
 import re
 import time
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from rodoia.rag.llm import LLM
 from rodoia.rag.recuperador import RecuperadorHibrido
-from rodoia.rag.seguranca import detectar_injection, mascarar_pii, registrar_auditoria
+from rodoia.rag.seguranca import (
+    detectar_injection,
+    mascarar_pii,
+    mascarar_pii_stream,
+    registrar_auditoria,
+)
 
 PROMPT_SISTEMA = (
     "Você é um assistente jurídico especializado na regulação da ANTT (transporte "
@@ -124,14 +130,77 @@ def responder_seguro(
         }
 
     if auditoria is not None:
-        registrar_auditoria(
-            {
-                "ts": datetime.now(UTC).isoformat(),
-                "consulta": mascarar_pii(consulta),
-                "bloqueado": resultado["bloqueado"],
-                "motivo": resultado["motivo"],
-                "fontes": resultado["fontes"],
-            },
-            auditoria,
-        )
+        _auditar(consulta, resultado, auditoria)
     return resultado
+
+
+def _auditar(consulta: str, resultado: dict[str, Any], auditoria: Path) -> None:
+    registrar_auditoria(
+        {
+            "ts": datetime.now(UTC).isoformat(),
+            "consulta": mascarar_pii(consulta),
+            "bloqueado": resultado["bloqueado"],
+            "motivo": resultado["motivo"],
+            "fontes": resultado["fontes"],
+        },
+        auditoria,
+    )
+
+
+def responder_seguro_stream(
+    consulta: str,
+    recuperador: RecuperadorHibrido,
+    llm: Any,
+    k: int = 5,
+    auditoria: Path | None = None,
+    apenas_vigentes: bool = True,
+) -> Iterator[dict[str, Any]]:
+    """Versão em FLUXO do `responder_seguro`, com o guardrail preservado.
+
+    Emite eventos `{"tipo": ...}`: `bloqueio`, `fontes` (as citações, ANTES do
+    texto, porque o cliente já pode exibi-las), `texto` (n vezes) e `fim`.
+
+    **O que muda no guardrail, e o que não muda.**
+    - *Anti-injection*: idêntico — roda ANTES de gerar, e o bloqueio é um evento só.
+    - *PII*: não dá para mascarar a resposta completa (ela não existe ainda). Passa
+      por `mascarar_pii_stream`, que segura uma retaguarda de caracteres e só emite
+      o que já não pode fazer parte de um casamento incompleto. O limite está
+      declarado lá.
+    - *Citações*: as fontes vêm da RECUPERAÇÃO, não da geração — então já são
+      conhecidas antes do primeiro token e saem no primeiro evento.
+
+    O gerador só é consumido se o chamador iterar: a auditoria é registrada no
+    `fim`, e uma conexão abortada no meio **não** gera registro de resposta completa.
+    """
+    injecao, motivo = detectar_injection(consulta)
+    if injecao:
+        resultado = {
+            "resposta": "Sua solicitação foi bloqueada por conter um padrão suspeito de "
+            "manipulação de instruções. Reformule a pergunta sobre a regulação da ANTT.",
+            "fontes": [],
+            "bloqueado": True,
+            "motivo": motivo,
+        }
+        yield {"tipo": "bloqueio", "resposta": resultado["resposta"], "motivo": motivo}
+        if auditoria is not None:
+            _auditar(consulta, resultado, auditoria)
+        return
+
+    chunks = recuperador.buscar(
+        consulta, k=k, modo="hibrido", rerank=recuperador.reranker is not None
+    )
+    if apenas_vigentes:
+        chunks = [c for c in chunks if c.get("vigente")] or chunks
+    fontes = list(dict.fromkeys(c["numero"] for c in chunks))
+    yield {"tipo": "fontes", "fontes": fontes}
+
+    if not chunks:
+        yield {"tipo": "texto", "texto": "Não encontrei base nas normas disponíveis."}
+    else:
+        pedacos = llm.gerar_stream(montar_prompt(consulta, chunks), sistema=PROMPT_SISTEMA)
+        for trecho in mascarar_pii_stream(pedacos):
+            yield {"tipo": "texto", "texto": trecho}
+
+    if auditoria is not None:
+        _auditar(consulta, {"bloqueado": False, "motivo": None, "fontes": fontes}, auditoria)
+    yield {"tipo": "fim", "fontes": fontes}

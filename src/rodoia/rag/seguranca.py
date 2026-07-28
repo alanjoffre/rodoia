@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -97,6 +98,45 @@ def mascarar_pii(texto: str) -> str:
     for padrao, rotulo in _MASCARAS_PII:
         texto = padrao.sub(rotulo, texto)
     return texto
+
+
+# Retaguarda do mascaramento em fluxo: nenhum caractere é emitido antes de haver
+# este tanto de texto depois dele. Dimensionado sobre o MAIOR padrão de PII acima —
+# o CNPJ formatado tem 18 caracteres; 96 dá folga de 5x para e-mails longos.
+_RETAGUARDA_PII = 96
+
+
+def mascarar_pii_stream(pedacos: Iterator[str]) -> Iterator[str]:
+    """Mascara PII sobre um FLUXO de texto, sem esperar a resposta terminar.
+
+    **O problema que resolve.** `mascarar_pii` opera na resposta completa. Em
+    streaming isso não existe: um CPF já enviado ao cliente não se mascara mais.
+    Emitir token a token sem tratamento entregaria PII crua — o guardrail deixaria
+    de existir exatamente no modo de operação mais visível.
+
+    **Como.** Os padrões de PII têm comprimento LIMITADO (o maior, CNPJ formatado,
+    tem 18 caracteres). Então basta nunca emitir os últimos `_RETAGUARDA_PII`
+    caracteres do buffer: qualquer casamento inteiramente dentro da região emitida
+    já está completo e é mascarado antes de sair. O corte ainda respeita fronteira
+    de espaço, para não partir um token no meio e criar um casamento falso.
+
+    **Limite honesto.** Um token de PII maior que a retaguarda (um e-mail de 96+
+    caracteres) poderia atravessar a fronteira e escapar. É improvável e está
+    declarado em vez de escondido; a checagem final da resposta completa continua
+    valendo no caminho não-streaming (`responder_seguro`).
+    """
+    buffer = ""
+    for pedaco in pedacos:
+        buffer += pedaco
+        if len(buffer) <= _RETAGUARDA_PII:
+            continue
+        corte = buffer.rfind(" ", 0, len(buffer) - _RETAGUARDA_PII)
+        if corte <= 0:
+            continue
+        yield mascarar_pii(buffer[:corte])
+        buffer = buffer[corte:]
+    if buffer:
+        yield mascarar_pii(buffer)
 
 
 # --- 3. Auditoria ----------------------------------------------------------

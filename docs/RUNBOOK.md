@@ -172,6 +172,52 @@ qualquer comparação nova precisa fazer o mesmo.
 
 ---
 
+## DVC com remote — passo a passo, **não executado**
+
+**Estado real, para não haver ilusão:** o DVC rastreia os dados (`data/**/*.dvc` versionados,
+conteúdo fora do Git), mas **não há remote configurado**. Na prática isso significa que os
+`.dvc` guardam o *hash* do conteúdo — servem para **detectar** que um arquivo mudou — mas
+**não há de onde baixá-lo**. `dvc pull` num clone novo falha. O dado vive numa única máquina.
+
+Isso é backup ausente, não inconveniência: os artefatos regeneram pelos scripts de download
+(fontes 100% públicas), então nada é irrecuperável — mas reconstruir o CFPB são **17,2 M linhas**
+reingeridas do zero.
+
+**Não executado por decisão de escopo** (o bucket custa e não é necessário para o portfólio
+provar o que se propõe). O caminho, para quando for:
+
+```bash
+# 1) Bucket dedicado, versionamento ligado (protege contra push de dado corrompido)
+aws s3 mb s3://rodoia-dvc --region sa-east-1
+aws s3api put-bucket-versioning --bucket rodoia-dvc \
+  --versioning-configuration Status=Enabled --region sa-east-1
+
+# 2) Ciclo de vida: o DVC nunca apaga sozinho, e cache antigo acumula em silêncio
+aws s3api put-bucket-lifecycle-configuration --bucket rodoia-dvc \
+  --lifecycle-configuration file://lifecycle.json   # ex.: expirar versões antigas em 90 dias
+
+# 3) Remote no repositório
+pip install "dvc[s3]>=3.51"
+dvc remote add -d origem s3://rodoia-dvc/cache
+dvc remote modify origem region sa-east-1
+git add .dvc/config && git commit -m "chore(dvc): remote S3"
+
+# 4) Subir o que já está rastreado, e conferir num clone limpo
+dvc push
+dvc status -c        # deve dizer "Cache and remote are in sync"
+```
+
+> ⚠️ **Três armadilhas específicas deste repositório.**
+> 1. **Credencial nunca no `.dvc/config`** — ele é versionado. Autenticação por perfil da AWS CLI
+>    ou role; o `detect-secrets` do pre-commit barra chave, mas não confie nisso como controle.
+> 2. **O CFPB tem 1,1 GB de Parquet.** O primeiro `dvc push` sobe tudo; em `sa-east-1` o
+>    armazenamento é barato e a **transferência de saída** não. Vale medir antes de repetir.
+> 3. **`dvc add` é quem escreve a entrada no `.gitignore`.** Sem o DVC instalado, dado novo nasce
+>    **rastreável pelo Git** — foi assim que o zip de 1,43 GB do CFPB quase entrou no repositório
+>    (docs/17 §5). Instalar o DVC não é opcional em quem for mexer nos dados.
+
+---
+
 ## Mapa de comandos por objetivo
 
 | Quero… | Comando |

@@ -376,14 +376,30 @@ requisição.
 > uma vez no `lifespan`; e o p95 é quase todo **espera de I/O** pelo LLM, que o Lambda cobra como
 > execução e o App Runner dilui com concorrência > 1.
 
-**O p95 de 30 s é um problema de desenho, não de plataforma.** `OllamaLLM.gerar` envia
-`"stream": False` e `/perguntar` devolve a resposta inteira de uma vez. Com **SSE**, o
-*time-to-first-token* cai para ~1–2 s e os 30 s deixam de ser latência percebida em qualquer
-provedor. Está registrado como **próximo passo, não feito**, e com o custo declarado: streaming
-**colide com o guardrail atual** — `responder_seguro` mascara PII e extrai citações **sobre a
-resposta completa**, e não se mascara um CPF já enviado ao cliente. Fazer streaming exige mascarar
-numa janela em buffer ou aceitar que a verificação final chegue depois do primeiro token. É uma
-decisão de segurança, não um refactor mecânico, e por isso não entrou junto com esta seção.
+**O p95 de 30 s era um problema de desenho, não de plataforma — e foi resolvido.** `OllamaLLM.gerar`
+enviava `"stream": False` e `/perguntar` devolvia tudo de uma vez, então os 30 s eram latência
+percebida inteira. O endpoint **`POST /perguntar/stream`** (SSE) derruba isso para o
+*time-to-first-token*, e tira o p95 da conta de timeout de qualquer plataforma.
+
+**A objeção que segurava isso era real, e a solução é o interessante.** Streaming colide com o
+guardrail: `responder_seguro` mascara PII **sobre a resposta completa**, e um CPF já enviado ao
+cliente não se mascara mais. As três defesas foram tratadas separadamente:
+
+- **Anti-injection:** inalterado. Roda **antes** de gerar; o bloqueio é um evento único e nenhum
+  token do modelo chega ao cliente.
+- **PII:** `mascarar_pii_stream` explora o fato de que os padrões têm **comprimento limitado** (o
+  maior, CNPJ formatado, tem 18 caracteres). Ele segura uma **retaguarda de 96 caracteres** e só
+  emite o que já não pode fazer parte de um casamento incompleto, cortando em fronteira de espaço.
+  *Limite declarado:* um token de PII maior que a retaguarda poderia atravessar — improvável, e
+  está escrito no docstring em vez de escondido.
+- **Citações:** vêm da **recuperação**, não da geração — já são conhecidas antes do primeiro token
+  e saem no **primeiro evento**, antes do texto.
+
+Duas decisões que só aparecem ao implementar: o endpoint **não passa pelo cache** (o `CacheLRU`
+guarda a resposta pronta, e a razão de ser do streaming é não esperar por ela), e a **auditoria é
+registrada no evento final** — cliente que fecha a aba no meio não gera registro de uma entrega
+que não houve. Doze testes cobrem o caminho, incluindo o CPF partido em quatro tokens: mascarar
+token a token não veria o padrão nenhuma vez.
 
 **Passo a passo.**
 

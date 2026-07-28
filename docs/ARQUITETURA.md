@@ -62,9 +62,9 @@ src/rodoia/
 | `rag/indice.py` | Índice vetorial Qdrant (modo local, sem servidor) | `criar_cliente`, `indexar`, `buscar` |
 | `rag/construir_indice.py` | Constrói o índice + emite a composição do corpus versionada | `construir`, `carregar_chunks`, `escrever_stats_corpus` |
 | `rag/recuperador.py` | Recuperação híbrida densa+BM25 com fusão RRF + reranker | `RecuperadorHibrido`, `fundir_rrf`, `Reranker`, `tokenizar` |
-| `rag/llm.py` | Interface `LLM` (Protocol) + backends Ollama e OpenAI-compat (vLLM) | `LLM`, `OllamaLLM`, `OpenAICompatLLM` |
-| `rag/gerar.py` | Monta prompt ancorado, gera resposta com fontes, versão segura | `responder`, `responder_seguro`, `montar_prompt`, `montar_contexto` |
-| `rag/seguranca.py` | Guardrails: anti-injection, PII masking, auditoria | `detectar_injection`, `mascarar_pii`, `registrar_auditoria` |
+| `rag/llm.py` | Interface `LLM` (Protocol) + `LLMStream` (streaming, opcional) + backends Ollama e OpenAI-compat (vLLM) | `LLM`, `LLMStream`, `OllamaLLM.gerar_stream`, `OpenAICompatLLM` |
+| `rag/gerar.py` | Monta prompt ancorado, gera resposta com fontes, versão segura e **versão em fluxo (SSE) com o guardrail preservado** | `responder`, `responder_seguro`, `responder_seguro_stream`, `montar_prompt` |
+| `rag/seguranca.py` | Guardrails: anti-injection, PII masking (inclusive **sobre fluxo**, com retaguarda para o padrão não escapar partido em tokens), auditoria | `detectar_injection`, `mascarar_pii`, `mascarar_pii_stream`, `registrar_auditoria` |
 | `rag/avaliacao_retrieval.py` | Compara modos (denso/BM25/híbrido/rerank): hit@5 + MRR com IC · **hit@5 auditado pós-κ** | `comparar`, `avaliar_modo`, `avaliar_auditado`, `carregar_recuperador` |
 | `rag/avaliacao_geracao.py` | LLM-as-judge (estilo RAGAS): faithfulness/relevancy/citação **com IC bootstrap** | `avaliar_geracao`, `ics_geracao`, `julgar`, `citacoes` |
 | `rag/painel_juizes.py` | Banca de 3 juízes diversos (≠ gerador) + κ de Fleiss (independência mensurável) | `avaliar_painel`, `julgar` |
@@ -165,5 +165,5 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
 - **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 30 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
-- **Testes:** `tests/test_*.py` (264 testes; 247 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
+- **Testes:** `tests/test_*.py` (276 testes; 259 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/17`; decisões/trade-offs no [README](../README.md).
