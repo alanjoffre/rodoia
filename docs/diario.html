@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>O diário do RodoIA — 98 passos</title>
-<meta name="description" content="A construção do RodoIA contada linha a linha — os 98 passos, com as métricas em cada passo.">
+<title>O diário do RodoIA — 100 passos</title>
+<meta name="description" content="A construção do RodoIA contada linha a linha — os 100 passos, com as métricas em cada passo.">
 </head>
 <body>
 
@@ -13,12 +13,12 @@
 <main>
 
   <header class="hero">
-    <p class="eyebrow">Registro de construção · 98 passos · 9–28 jul 2026</p>
+    <p class="eyebrow">Registro de construção · 100 passos · 9–28 jul 2026</p>
     <h1>O diário do RodoIA</h1>
     <p class="lede">A construção de um portfólio de Engenharia de IA sobre os dados abertos da ANTT — contada <strong>linha a linha</strong>, na ordem real em que aconteceu. Cada passo abaixo é um commit: o que eu fiz e por que importava.</p>
 
     <ul class="stats" aria-label="Resumo">
-      <li><span class="stat-n">98</span><span class="stat-l">passos</span></li>
+      <li><span class="stat-n">100</span><span class="stat-l">passos</span></li>
       <li><span class="stat-n">9</span><span class="stat-l">dias de trabalho</span></li>
       <li><span class="stat-n">7</span><span class="stat-l">fases</span></li>
       <li><span class="stat-n">½</span><span class="stat-l">é rigor</span></li>
@@ -344,7 +344,9 @@
         {n:95,k:"rigor",t:"Fase 6",e:"🔬",h:"Quatro intervalos disjuntos que eram a régua se mexendo.",b:"Fatiar o contrato por cláusula elevou o acerto na 1ª posição em quatro buscadores, com intervalos disjuntos — a evidência que se aceita sem conferir. Só que outra métrica caiu nos mesmos quatro. Era o denominador: fatiar diferente muda quantos trechos contam como resposta certa, e o teto subiu sozinho mais que o \"ganho\" inteiro. Normalizei, reexecutei as oito avaliações: efeito nenhum.",m:["teto +0,067","efeito real: nenhum"]},
         {n:96,k:"rigor",t:"Fase 6",e:"🔬",h:"O campo que sumia sem erro nenhum.",b:"A correção acima adicionou um campo ao registro de cada pergunta — e os quatro módulos de avaliação o descartavam em silêncio, porque cada um reconstruía o registro à mão. Relatórios saíram zerados passando por lint, checagem de tipos e 53 testes. Unifiquei numa função só, e o teste que guarda isso compara todos os campos: travar o sintoma não impediria a próxima vez."},
         {n:97,k:"rigor",t:"Fase 6",e:"🔬",h:"A licença que eu tinha declarado de memória.",b:"Uma varredura de ponta a ponta achou o benchmark de terceiros documentado como Apache 2.0 quando é CC BY 4.0 — a diferença é que a segunda exige atribuição — e as duas fontes novas ausentes dos três documentos de governança. Na mesma varredura, a trilha de auditoria: escrevia num arquivo local, que num contêiner efêmero desaparece sem erro nenhum — um controle de LGPD que evaporaria em produção."},
-        {n:98,k:"rigor",t:"Fase 6",e:"🔬",h:"O gerador maior ganhou na média e perdeu no que importa.",b:"Rodei o gemma2:9b contra o qwen2.5:7b — mesmas perguntas, mesmas sementes. Pela média ele vence. Mas o teste pareado, feito recorte a recorte, mostrou as duas taxas indo em direções opostas: responde muito mais (+23 pontos) e inventa 8× mais — de 1,3% para 10%. Não é melhor, é outro ponto de operação; num sistema jurídico, uma resposta ficcional a cada dez reprova. Se o teste fosse só do agregado, o veredito sairia invertido.",m:["cobertura +23,3 pp · p=2,3e-8","alucinação 1,3% → 10,0%","não entra"]}
+        {n:98,k:"rigor",t:"Fase 6",e:"🔬",h:"O gerador maior ganhou na média e perdeu no que importa.",b:"Rodei o gemma2:9b contra o qwen2.5:7b — mesmas perguntas, mesmas sementes. Pela média ele vence. Mas o teste pareado, feito recorte a recorte, mostrou as duas taxas indo em direções opostas: responde muito mais (+23 pontos) e inventa 8× mais — de 1,3% para 10%. Não é melhor, é outro ponto de operação; num sistema jurídico, uma resposta ficcional a cada dez reprova. Se o teste fosse só do agregado, o veredito sairia invertido.",m:["cobertura +23,3 pp · p=2,3e-8","alucinação 1,3% → 10,0%","não entra"]},
+        {n:99,k:"build",t:"Fase 1",e:"🔎",h:"A resposta passou a sair enquanto é escrita.",b:"O sistema demorava ~30 s e só então mostrava tudo — a espera parecia travamento. O que segurava a mudança era segurança, não engenharia: a proteção de dados pessoais funcionava sobre a resposta INTEIRA, e um CPF já enviado não se apaga. A solução usa o fato de esses padrões terem tamanho limitado: segura os últimos 96 caracteres e só entrega o que já não pode ser um dado pessoal pela metade. O teste manda um CPF partido em quatro pedaços — verificando token a token, o padrão não apareceria nenhuma vez.",m:["p95 30 s → tempo até o 1º token"]},
+        {n:100,k:"rigor",t:"Fase 6",e:"🔬",h:"Testei as duas explicações para o número fraco — e as duas caíram.",b:"A cobertura de 39% (o sistema recusa 6 de cada 10 perguntas que tinham resposta) é o pior resultado do projeto. (1) \"O contexto é ruim\": a avaliação parava no buscador intermediário, ignorando o melhor. Liguei o melhor, o teto subiu 5,6 pontos, e a geração não aproveitou nada (pareado, p = 0,36). (2) \"O detector de recusa erra\": erra mesmo — achei uma resposta que começa com \"YES\" e cita a cláusula, contada como recusa. Mas mesmo supondo que TODOS os suspeitos fossem erro, a cobertura iria só a 45%. O número ruim é real.",m:["p = 0,361 · sem efeito","teto otimista: 0,39 → 0,45","hipóteses eliminadas por experimento"]}
       ]}
   ];
 

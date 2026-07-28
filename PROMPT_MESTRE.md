@@ -168,7 +168,9 @@ Repo público desde o primeiro commit; histórico Git imutável (vazamento é pe
 
 **Conclusão:** ingestão em escala reproduzível ✓ (17.226.584 linhas, evidência carimbada) · motor escolhido por benchmark com cross-check de correção ✓ (DuckDB 6,7× Spark, 0 divergências) · arco de recuperação re-derivado sobre gold de terceiros com IC ✓ (BM25 0,588 → rerank **0,652**, único ganho com IC disjunto) · alucinação medida com **as duas taxas** ✓ (98,7% / 38,7%) · ablação de prompt com **teste pareado** ✓ (McNemar, p = 6,6 × 10⁻⁵) · política de abstenção **calibrada e reprovada com número** ✓ (AUC 0,751, insuficiente) · portões no gate ✓ (**30/30**) · `NOTICE`/`DATASET_CARD`/`data/README` com as fontes novas atribuídas ✓
 
-**Resultados negativos que ficam registrados como entrega:** a premissa original (RAG sobre a ouvidoria da ANTT) morreu na validação de dados · o `bge-large-en` refutou uma previsão escrita minha · o chunking por cláusula não entrega ganho · o limiar de abstenção não substitui o gate do LLM.
+**Resultados negativos que ficam registrados como entrega:** a premissa original (RAG sobre a ouvidoria da ANTT) morreu na validação de dados · o `bge-large-en` refutou uma previsão escrita minha · o chunking por cláusula não entrega ganho (e os ICs disjuntos que sugeriam o contrário eram a régua se movendo) · o limiar de abstenção não substitui o gate do LLM · o gerador maior vence na média e reprova na alucinação · ligar o rerank na geração não move a cobertura.
+
+**O que fica declarado EM ABERTO, e não como concluído:** a **cobertura de ~0,39** — o sistema recusa 6 de cada 10 perguntas que tinham resposta. As duas explicações mais plausíveis foram testadas e caíram (contexto pobre; detector de abstenção errado), o teto otimista do segundo é 0,45, e o lever restante (few-shot) **não foi medido**. Um plano que declara "concluído" o que ainda é problema aberto não serve para nada.
 
 ---
 

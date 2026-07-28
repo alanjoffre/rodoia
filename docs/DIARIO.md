@@ -2,7 +2,7 @@
 
 # 📅 O diário do RodoIA
 
-**A construção contada linha a linha** — os 98 passos reais do projeto, na ordem em que aconteceram, cada um em linguagem clara.
+**A construção contada linha a linha** — os 100 passos reais do projeto, na ordem em que aconteceram, cada um em linguagem clara.
 
 [← README](../README.md) · [📖 A história (por fase)](HISTORIA.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md)
 
@@ -14,7 +14,7 @@
 
 Se o [HISTORIA.md](HISTORIA.md) conta **o "porquê"** de cada fase, este diário conta **o "o quê", passo a passo**. Cada item abaixo é um passo real e datado da construção (um *commit* no histórico do código): o que fiz naquele momento e por que importava.
 
-São **98 passos**, feitos entre **9 e 28 de julho de 2026**. Lidos em sequência, mostram como o projeto saiu do zero e chegou a um sistema completo — e, principalmente, como o **rigor** corrigiu os próprios números várias vezes pelo caminho.
+São **100 passos**, feitos entre **9 e 28 de julho de 2026**. Lidos em sequência, mostram como o projeto saiu do zero e chegou a um sistema completo — e, principalmente, como o **rigor** corrigiu os próprios números várias vezes pelo caminho.
 
 **Legenda das fases:** 🧮 Fase 0 (fundamentos) · 🔎 Fase 1 (RAG) · 🎯 Fase 2 (fine-tuning) · 📊 Fase 3 (dados) · 🤖 Fase 4 (agente) · ⚙️ Fase 5 (MLOps) · 📈 Fase 6 (escala e benchmark externo) · 🔬 rigor/auditoria · 🚀 deploy · 🎨 apresentação
 
@@ -176,6 +176,8 @@ São **98 passos**, feitos entre **9 e 28 de julho de 2026**. Lidos em sequênci
 96. **🔬 O campo que sumia sem erro nenhum.** A correção acima adicionou um campo ao registro de cada pergunta — e os quatro módulos de avaliação o **descartavam em silêncio**, porque cada um reconstruía o registro à mão. Relatórios saíram com o teto zerado passando por lint, checagem de tipos e 53 testes: o campo *existia*, só chegava vazio. Unifiquei numa função só que copia o registro inteiro, e o teste que guarda isso compara **todos** os campos — travar o sintoma não impediria a próxima vez.
 97. **🔬 A licença que eu tinha declarado de memória.** Uma varredura de ponta a ponta achou o benchmark de terceiros documentado como **Apache 2.0** quando é **CC BY 4.0** — a diferença é que a segunda **exige atribuição** — e as duas fontes novas ausentes dos três documentos de governança do projeto. A regra "licença confirmada antes do uso" existia desde o dia 1 e falhou justamente na fase que trouxe dado de fora. Na mesma varredura, a trilha de auditoria: ela escrevia num **arquivo local**, que num contêiner efêmero **desaparece sem erro nenhum** — um controle de LGPD que o README dava como provado e que evaporaria em produção.
 98. **🔬 O gerador maior ganhou na média e perdeu no que importa.** O último item da lista era "testar um modelo maior". Rodei o `gemma2:9b` contra o `qwen2.5:7b` — mesmas perguntas, mesmas sementes. Pela média ele **vence**. Mas o teste pareado, feito **recorte a recorte**, mostrou as duas taxas indo em **direções opostas**: ele responde muito mais (+23 pontos) **e inventa 8× mais** — de 1,3% para 10% de invenção. Não é melhor, é outro ponto de operação; num sistema jurídico, uma resposta ficcional a cada dez reprova. **O modelo maior não entra.** Se o teste fosse só do agregado, os dois efeitos se cancelariam e o veredito sairia invertido.
+99. **🔎 A resposta passou a sair enquanto é escrita.** O sistema demorava ~30 s para responder e só então mostrava tudo — a espera parecia travamento. Agora o texto aparece conforme o modelo escreve. O que segurava isso era segurança, não engenharia: a proteção de dados pessoais funcionava sobre a **resposta inteira**, e um CPF já enviado não se apaga. A solução usa o fato de que esses padrões têm **tamanho limitado**: o sistema segura os últimos 96 caracteres e só entrega o que já não pode fazer parte de um dado pessoal pela metade. O teste que garante isso manda um CPF **partido em quatro pedaços** — verificando token a token, o padrão não apareceria nenhuma vez.
+100. **🔬 Testei as duas explicações para o número fraco — e as duas caíram.** A cobertura de 39% (o sistema recusa 6 de cada 10 perguntas que *tinham* resposta) é o pior resultado do projeto. Explicação (1): *"o contexto entregue ao modelo é ruim"* — e de fato a avaliação parava no buscador intermediário, ignorando o melhor. Liguei o melhor, o teto subiu 5,6 pontos, e a geração **não aproveitou nada** (teste pareado, p = 0,36). Explicação (2): *"o detector de recusa erra"* — erra mesmo: achei uma resposta que começa com **"YES"** e cita a cláusula, contada como recusa. Mas mesmo supondo que **todos** os casos suspeitos fossem erro, a cobertura iria só a 45%. **O número ruim é real**, e agora com as duas hipóteses eliminadas por experimento em vez de por opinião.
 
 ---
 

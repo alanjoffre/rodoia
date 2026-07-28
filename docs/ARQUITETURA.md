@@ -138,14 +138,14 @@ src/rodoia/
 | `rag/avaliacao_cuad_denso.py` | Recuperação densa (e5) vs BM25 por categoria — forças complementares | `avaliar_denso`, `_ranquear_denso`, `_comparar_categorias` |
 | `rag/avaliacao_cuad_hibrido.py` | Fusão RRF (reusa `recuperador.fundir_rrf`); tabela de 3 vias com IC | `avaliar_hibrido`, `fundir`, `_tabela_tres_vias` |
 | `rag/avaliacao_cuad_rerank.py` | Pilha COMPLETA da Fase 1 (denso+BM25→RRF→cross-encoder) — único ganho com IC disjunto | `avaliar_rerank`, `rerankear`, `_delta_vs_hibrido` |
-| `rag/avaliacao_cuad_geracao.py` | **Alucinação vs cobertura** (LLM local, API=0) + ablação de prompt + **comparação pareada** (McNemar) entre duas rodadas | `avaliar_geracao`, `consolidar_geracao`, `comparar_pareado`, `absteve`, `amostrar` |
+| `rag/avaliacao_cuad_geracao.py` | **Alucinação vs cobertura** (LLM local, API=0) · ablação de prompt · **comparação pareada** (McNemar) · rerank opcional no contexto · **auditoria do próprio detector de abstenção** (limite superior de falso positivo + backlog humano) | `avaliar_geracao`, `consolidar_geracao`, `comparar_pareado`, `auditar_deteccao`, `absteve`, `amostrar` |
 | `rag/calibracao_abstencao.py` | Varre o limiar sobre o escore do cross-encoder e publica a **curva inteira**: AUC-ROC, melhor ponto (J de Youden) e a **economia de cascata** (chamadas de LLM evitadas × respondíveis perdidas) | `analisar`, `varrer_limiar`, `auc_roc`, `melhor_ponto`, `economia_cascata` |
 
 ## 🌐 API (`api/`)
 
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
-| `api/app.py` | FastAPI async: `/perguntar` (RAG), `/agente` (orquestrado), `/health`, UI | `perguntar`, `agente`, `_carregar`, `_carregar_agente` |
+| `api/app.py` | FastAPI async: `/perguntar` (RAG), **`/perguntar/stream` (SSE, guardrail preservado)**, `/agente` (orquestrado), `/health`, UI | `perguntar`, `perguntar_stream`, `agente`, `_carregar` |
 
 ## 🔗 Como as peças se conectam (fluxo do agente, Fase 4)
 

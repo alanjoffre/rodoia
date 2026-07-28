@@ -14,7 +14,7 @@
 ![Gate](https://img.shields.io/badge/gate%20de%20avaliação-30%2F30-brightgreen.svg)
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
-[![Diário visual](https://img.shields.io/badge/📅_diário_visual-timeline_dos_98_passos-e0a326.svg)](https://alanjoffre.github.io/rodoia/diario.html)
+[![Diário visual](https://img.shields.io/badge/📅_diário_visual-timeline_dos_100_passos-e0a326.svg)](https://alanjoffre.github.io/rodoia/diario.html)
 
 [**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
 
@@ -167,7 +167,7 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 |---|---|
 | [**PROMPT_MESTRE.md**](PROMPT_MESTRE.md) | Plano completo, critérios de conclusão e regras de condução |
 | [**docs/HISTORIA.md**](docs/HISTORIA.md) | Narrativa *problema → como resolvi → resultado* de cada fase |
-| [**docs/DIARIO.md**](docs/DIARIO.md) · [**🔗 timeline visual**](https://alanjoffre.github.io/rodoia/diario.html) | A construção contada **linha a linha** — os 98 passos reais, em ordem cronológica, com as métricas em cada passo. Também numa timeline visual navegável ([página](https://alanjoffre.github.io/rodoia/diario.html) · arquivo [docs/diario.html](docs/diario.html)) |
+| [**docs/DIARIO.md**](docs/DIARIO.md) · [**🔗 timeline visual**](https://alanjoffre.github.io/rodoia/diario.html) | A construção contada **linha a linha** — os 100 passos reais, em ordem cronológica, com as métricas em cada passo. Também numa timeline visual navegável ([página](https://alanjoffre.github.io/rodoia/diario.html) · arquivo [docs/diario.html](docs/diario.html)) |
 | [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md) | Mapa módulo a módulo de `src/rodoia/**` |
 | [**docs/GUIA_ENGENHARIA_IA.md**](docs/GUIA_ENGENHARIA_IA.md) | Não é da área? Cada termo e o fluxo mental de um Eng. de IA em linguagem acessível |
 | [**docs/RUNBOOK.md**](docs/RUNBOOK.md) | Setup do zero, ambiente GPU (WSL2) |
