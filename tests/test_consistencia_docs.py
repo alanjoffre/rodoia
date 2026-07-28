@@ -22,6 +22,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -138,74 +139,101 @@ def test_reports_citados_existem() -> None:
     assert not faltando, "reports citados e ausentes:\n" + "\n".join(faltando)
 
 
-def _svg_social() -> str:
-    return (RAIZ / "assets/social-preview.svg").read_text(encoding="utf-8")
+# TODAS as artes do repositório, não uma. A 1ª versão destes testes olhava só o
+# `social-preview.svg` e deixou o `banner.svg` — que é o que o README EXIBE no topo —
+# com `gate 12/12`, `hit@5 0,62` e seis fases. Verificar uma peça e esquecer a irmã é
+# o mesmo defeito que os testes existem para impedir, um nível acima.
+ARTES = sorted(RAIZ.glob("assets/*.svg"))
 
 
 def _relatorio(rel: str) -> dict:
     return json.loads((RAIZ / rel).read_text(encoding="utf-8"))
 
 
-def test_imagem_social_bate_com_o_gate() -> None:
-    """A imagem social anunciou `gate 12/12` enquanto o gate tinha 30 portões — e
-    ficou assim porque ela vive fora do Markdown, onde os outros testes olham. É a
-    peça de MAIOR alcance do projeto (é o que o GitHub e o LinkedIn exibem) e era a
-    única sem verificação."""
-    m = re.search(r"gate (\d+)/(\d+)", _svg_social())
-    assert m, "chip do gate não encontrado no SVG"
+@pytest.mark.parametrize("arte", ARTES, ids=lambda p: p.name)
+def test_arte_bate_com_o_gate(arte: Path) -> None:
+    """As artes anunciaram `gate 12/12` com 30 portões no código — e ficaram assim
+    porque vivem fora do Markdown, onde os outros testes olham. São as peças de MAIOR
+    alcance do projeto (README, GitHub, LinkedIn) e eram as únicas sem verificação."""
+    svg = arte.read_text(encoding="utf-8")
+    m = re.search(r"gate (\d+)/(\d+)", svg)
+    if not m:
+        pytest.skip(f"{arte.name} não exibe o chip do gate")
     metas = (RAIZ / "src/rodoia/mlops/gate.py").read_text(encoding="utf-8").count("    Meta(")
     assert int(m.group(1)) == int(m.group(2)) == metas
 
 
-def test_imagem_social_bate_com_a_contagem_de_testes() -> None:
-    svg_n = re.search(r"(\d+) testes", _svg_social())
+@pytest.mark.parametrize("arte", ARTES, ids=lambda p: p.name)
+def test_arte_bate_com_a_contagem_de_testes(arte: Path) -> None:
+    svg_n = re.search(r"(\d+) testes", arte.read_text(encoding="utf-8"))
+    if not svg_n:
+        pytest.skip(f"{arte.name} não exibe a contagem de testes")
     readme_n = re.search(r"testes-(\d+)%20passando", README)
-    assert svg_n and readme_n, "contagem de testes ausente no SVG ou no README"
+    assert readme_n, "badge de testes ausente no README"
     assert svg_n.group(1) == readme_n.group(1), (
-        f"SVG diz {svg_n.group(1)} testes, README diz {readme_n.group(1)}"
+        f"{arte.name} diz {svg_n.group(1)} testes, README diz {readme_n.group(1)}"
     )
 
 
-def test_imagem_social_bate_com_as_metricas_medidas() -> None:
-    """Os números de manchete da imagem vêm de relatórios versionados. Se um for
-    regerado com valor diferente, a imagem passa a mentir em público."""
-    svg = _svg_social()
-    esperado = {
-        "recall@5 BM25": (
-            _relatorio("reports/fase6_cuad/retrieval_bm25.json")["metricas"]["recall_at_5"]["media"],
-            r"recall@5 (\d,\d{3})",
-        ),
-        "recall@5 rerank": (
-            _relatorio("reports/fase6_cuad/retrieval_rerank.json")["metricas"]["recall_at_5"][
-                "media"
-            ],
-            r"recall@5 \d,\d{3}&#8594;(\d,\d{3})",
-        ),
-        "F1 NER base": (
-            _relatorio("reports/fase2_ner/comparacao.json")["modelos"]["base_zero_shot"]["f1_micro"],
-            r"F1 (\d,\d{2})",
-        ),
-        "F1 NER fine-tunado": (
-            _relatorio("reports/fase2_ner/comparacao.json")["modelos"]["ft_qlora"]["f1_micro"],
-            r"F1 \d,\d{2}&#8594;(\d,\d{2})",
-        ),
-    }
-    for rotulo, (medido, padrao) in esperado.items():
+# (rótulo, valor medido, regex que captura o número exibido na arte)
+_METRICAS_ARTE = [
+    (
+        "recall@5 BM25",
+        "reports/fase6_cuad/retrieval_bm25.json",
+        ("metricas", "recall_at_5", "media"),
+        r"recall@5 (\d,\d{3})",
+    ),
+    (
+        "recall@5 rerank",
+        "reports/fase6_cuad/retrieval_rerank.json",
+        ("metricas", "recall_at_5", "media"),
+        r"recall@5 \d,\d{3} ?&#8594; ?(\d,\d{3})",
+    ),
+    (
+        "F1 NER base",
+        "reports/fase2_ner/comparacao.json",
+        ("modelos", "base_zero_shot", "f1_micro"),
+        r"F1 (\d,\d{2})",
+    ),
+    (
+        "F1 NER fine-tunado",
+        "reports/fase2_ner/comparacao.json",
+        ("modelos", "ft_qlora", "f1_micro"),
+        r"F1 \d,\d{2} ?&#8594; ?(\d,\d{2})",
+    ),
+]
+
+
+@pytest.mark.parametrize("arte", ARTES, ids=lambda p: p.name)
+def test_arte_bate_com_as_metricas_medidas(arte: Path) -> None:
+    """Os números de manchete das artes vêm de relatórios versionados. Se um for
+    regerado com valor diferente, a arte passa a mentir em público."""
+    svg = arte.read_text(encoding="utf-8")
+    conferidos = 0
+    for rotulo, rel, caminho, padrao in _METRICAS_ARTE:
         m = re.search(padrao, svg)
-        assert m, f"{rotulo}: padrão {padrao!r} não encontrado no SVG"
-        na_imagem = float(m.group(1).replace(",", "."))
+        if not m:                      # nem toda arte exibe toda métrica
+            continue
+        medido: Any = _relatorio(rel)
+        for chave in caminho:
+            medido = medido[chave]
+        na_arte = float(m.group(1).replace(",", "."))
         casas = len(m.group(1).split(",")[1])
-        assert na_imagem == round(medido, casas), (
-            f"{rotulo}: imagem diz {na_imagem}, relatório mede {round(medido, casas)}"
+        assert na_arte == round(float(medido), casas), (
+            f"{arte.name} · {rotulo}: arte diz {na_arte}, "
+            f"relatório mede {round(float(medido), casas)}"
         )
+        conferidos += 1
+    assert conferidos, f"{arte.name}: nenhuma métrica reconhecida — o regex saiu do ar?"
 
 
-def test_imagem_social_nao_reivindica_deploy_em_producao() -> None:
-    """O deploy em nuvem NÃO foi executado (docs/16 §7.1). A imagem dizia
+@pytest.mark.parametrize("arte", ARTES, ids=lambda p: p.name)
+def test_arte_nao_reivindica_deploy_em_producao(arte: Path) -> None:
+    """O deploy em nuvem NÃO foi executado (docs/16 §7.1). As duas artes diziam
     "ao serving em produção" — afirmação que o repositório contradiz na mesma frase
     em que documenta o runbook."""
-    assert "em produ" not in _svg_social(), (
-        "a imagem social reivindica produção; o deploy em nuvem não foi executado"
+    assert "em produ" not in arte.read_text(encoding="utf-8"), (
+        f"{arte.name} reivindica produção; o deploy em nuvem não foi executado"
     )
 
 

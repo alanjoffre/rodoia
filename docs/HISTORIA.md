@@ -146,7 +146,7 @@ O diferencial não é ter números altos — é o **rigor ter corrigido os próp
 
 ## 🏁 Estado final — o que está provado e o que continua aberto
 
-O projeto está **encerrado** em 28 de julho de 2026, com as sete fases entregues, **293 testes**,
+O projeto está **encerrado** em 28 de julho de 2026, com as sete fases entregues, **297 testes**,
 **gate 30/30** no CI e cada número acima ligado a um relatório versionado e carimbado com
 proveniência.
 
