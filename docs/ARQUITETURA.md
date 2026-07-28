@@ -165,5 +165,5 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
 - **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 30 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
-- **Testes:** `tests/test_*.py` (289 testes; 272 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
+- **Testes:** `tests/test_*.py` (293 testes; 276 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/17`; decisões/trade-offs no [README](../README.md).

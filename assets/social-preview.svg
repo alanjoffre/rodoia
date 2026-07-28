@@ -67,7 +67,7 @@
   </g>
 
   <!-- linha de rigor -->
-  <text x="640" y="486" text-anchor="middle" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="500" fill="#8b8d86">7 fases &#183; 289 testes &#183; IC em toda m&#233;trica &#183; 5 de 7 hip&#243;teses refutadas e publicadas</text>
+  <text x="640" y="486" text-anchor="middle" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="500" fill="#8b8d86">7 fases &#183; 293 testes &#183; IC em toda m&#233;trica &#183; 5 de 7 hip&#243;teses refutadas e publicadas</text>
 
   <!-- divisor -->
   <line x1="470" y1="510" x2="810" y2="510" stroke="url(#ink)" stroke-width="2" opacity="0.5" stroke-linecap="round"/>

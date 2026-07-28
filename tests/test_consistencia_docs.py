@@ -17,6 +17,7 @@ quando quebra, transforma o README numa afirmação falsa.
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -135,6 +136,77 @@ def test_reports_citados_existem() -> None:
             if not (RAIZ / rel).exists():
                 faltando.append(f"{doc.name}: {rel}")
     assert not faltando, "reports citados e ausentes:\n" + "\n".join(faltando)
+
+
+def _svg_social() -> str:
+    return (RAIZ / "assets/social-preview.svg").read_text(encoding="utf-8")
+
+
+def _relatorio(rel: str) -> dict:
+    return json.loads((RAIZ / rel).read_text(encoding="utf-8"))
+
+
+def test_imagem_social_bate_com_o_gate() -> None:
+    """A imagem social anunciou `gate 12/12` enquanto o gate tinha 30 portões — e
+    ficou assim porque ela vive fora do Markdown, onde os outros testes olham. É a
+    peça de MAIOR alcance do projeto (é o que o GitHub e o LinkedIn exibem) e era a
+    única sem verificação."""
+    m = re.search(r"gate (\d+)/(\d+)", _svg_social())
+    assert m, "chip do gate não encontrado no SVG"
+    metas = (RAIZ / "src/rodoia/mlops/gate.py").read_text(encoding="utf-8").count("    Meta(")
+    assert int(m.group(1)) == int(m.group(2)) == metas
+
+
+def test_imagem_social_bate_com_a_contagem_de_testes() -> None:
+    svg_n = re.search(r"(\d+) testes", _svg_social())
+    readme_n = re.search(r"testes-(\d+)%20passando", README)
+    assert svg_n and readme_n, "contagem de testes ausente no SVG ou no README"
+    assert svg_n.group(1) == readme_n.group(1), (
+        f"SVG diz {svg_n.group(1)} testes, README diz {readme_n.group(1)}"
+    )
+
+
+def test_imagem_social_bate_com_as_metricas_medidas() -> None:
+    """Os números de manchete da imagem vêm de relatórios versionados. Se um for
+    regerado com valor diferente, a imagem passa a mentir em público."""
+    svg = _svg_social()
+    esperado = {
+        "recall@5 BM25": (
+            _relatorio("reports/fase6_cuad/retrieval_bm25.json")["metricas"]["recall_at_5"]["media"],
+            r"recall@5 (\d,\d{3})",
+        ),
+        "recall@5 rerank": (
+            _relatorio("reports/fase6_cuad/retrieval_rerank.json")["metricas"]["recall_at_5"][
+                "media"
+            ],
+            r"recall@5 \d,\d{3}&#8594;(\d,\d{3})",
+        ),
+        "F1 NER base": (
+            _relatorio("reports/fase2_ner/comparacao.json")["modelos"]["base_zero_shot"]["f1_micro"],
+            r"F1 (\d,\d{2})",
+        ),
+        "F1 NER fine-tunado": (
+            _relatorio("reports/fase2_ner/comparacao.json")["modelos"]["ft_qlora"]["f1_micro"],
+            r"F1 \d,\d{2}&#8594;(\d,\d{2})",
+        ),
+    }
+    for rotulo, (medido, padrao) in esperado.items():
+        m = re.search(padrao, svg)
+        assert m, f"{rotulo}: padrão {padrao!r} não encontrado no SVG"
+        na_imagem = float(m.group(1).replace(",", "."))
+        casas = len(m.group(1).split(",")[1])
+        assert na_imagem == round(medido, casas), (
+            f"{rotulo}: imagem diz {na_imagem}, relatório mede {round(medido, casas)}"
+        )
+
+
+def test_imagem_social_nao_reivindica_deploy_em_producao() -> None:
+    """O deploy em nuvem NÃO foi executado (docs/16 §7.1). A imagem dizia
+    "ao serving em produção" — afirmação que o repositório contradiz na mesma frase
+    em que documenta o runbook."""
+    assert "em produ" not in _svg_social(), (
+        "a imagem social reivindica produção; o deploy em nuvem não foi executado"
+    )
 
 
 def test_contagem_de_momentos_de_rigor() -> None:

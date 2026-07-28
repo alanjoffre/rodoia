@@ -237,9 +237,14 @@ divergirem, e é o PNG que o GitHub e o LinkedIn exibem.
 > *Settings → General → Social preview → Upload an image*. Os dois já divergiram: o arquivo dizia
 > `gate 12/12` quando o gate tinha 30 portões, e a imagem publicada continuou a antiga.
 >
-> **Os números da imagem não são cobertos pelo portão de consistência** (`tests/test_consistencia_docs.py`)
-> — texto dentro de SVG não é verificado. Ao mexer no gate, na contagem de testes ou nas métricas
-> de manchete, regere a imagem **manualmente**.
+> Este é o **único passo que nenhum teste cobre** — é ação na interface do GitHub, fora do
+> repositório.
+>
+> ✅ **Os números do SVG SÃO verificados** por `tests/test_consistencia_docs.py`: o chip do gate
+> contra o `gate.py`, a contagem de testes contra o badge do README, e `recall@5` e `F1` contra os
+> relatórios que os produziram. Um teste também barra a volta da afirmação "serving **em
+> produção**" — o deploy em nuvem não foi executado (§7.1 do docs/16). Se algum divergir, o CI
+> reprova; resta regerar o PNG com o comando acima e reenviá-lo no GitHub.
 
 ---
 
