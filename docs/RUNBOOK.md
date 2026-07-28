@@ -218,6 +218,31 @@ dvc status -c        # deve dizer "Cache and remote are in sync"
 
 ---
 
+## Regerar a imagem social (`assets/social-preview.png`)
+
+A fonte é o **SVG** (`assets/social-preview.svg`); o PNG é derivado. Editar o PNG à mão faz os dois
+divergirem, e é o PNG que o GitHub e o LinkedIn exibem.
+
+```powershell
+& "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" `
+  --headless=new --disable-gpu --hide-scrollbars `
+  --screenshot="assets\social-preview.png" --window-size=1280,640 `
+  "file:///D:/Dev/rodoia/assets/social-preview.svg"
+```
+
+1280×640 é o tamanho exato do *social preview* do GitHub. Qualquer navegador Chromium serve
+(`chrome.exe` idem); não há dependência de build no projeto por causa disso.
+
+> ⚠️ **Trocar o PNG no repositório NÃO troca o preview do GitHub.** Ele é carregado à parte, em
+> *Settings → General → Social preview → Upload an image*. Os dois já divergiram: o arquivo dizia
+> `gate 12/12` quando o gate tinha 30 portões, e a imagem publicada continuou a antiga.
+>
+> **Os números da imagem não são cobertos pelo portão de consistência** (`tests/test_consistencia_docs.py`)
+> — texto dentro de SVG não é verificado. Ao mexer no gate, na contagem de testes ou nas métricas
+> de manchete, regere a imagem **manualmente**.
+
+---
+
 ## Mapa de comandos por objetivo
 
 | Quero… | Comando |
