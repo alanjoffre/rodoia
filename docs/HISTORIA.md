@@ -98,7 +98,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Como resolvi.** Um **gate de avaliação** que lê os relatórios versionados e **reprova o CI** se qualquer métrica-chave cair; **GitHub Actions** (lint + testes + gate); MLflow + DVC; **drift por PSI**; e um **modelo de custo R$/1k** derivado da vazão medida.
 
-**Resultado.** **CI verde** com o gate barrando regressão (**15 portões na época, 24 hoje**, 2 deles de segurança: detecção do red-team e vazamento de PII); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
+**Resultado.** **CI verde** com o gate barrando regressão (**15 portões na época, 30 hoje**, 2 deles de segurança: detecção do red-team e vazamento de PII); drift **0,005 (estável)**. O deploy em cloud fica como runbook (decisão de custo); a demo gratuita, **no ar** no HuggingFace Spaces.
 
 > ⚖️ **O rigor corrigiu o drift.** O PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
 
@@ -141,3 +141,29 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 O diferencial não é ter números altos — é o **rigor ter corrigido os próprios números** em toda fase (os callouts ⚖️ acima marcam cada correção). O apanhado completo — com o antes/depois de cada uma — vive numa fonte só: **[README § Decisões e trade-offs](../README.md#-decisões-e-trade-offs-o-arco-do-projeto)**.
 
 **Isso** é engenharia de IA a sério: deixar a evidência mandar, **mesmo quando ela contraria a narrativa que seria mais bonita**.
+
+---
+
+## 🏁 Estado final — o que está provado e o que continua aberto
+
+O projeto está **encerrado** em 28 de julho de 2026, com as sete fases entregues, **289 testes**,
+**gate 30/30** no CI e cada número acima ligado a um relatório versionado e carimbado com
+proveniência.
+
+**O que está provado.** O ciclo completo, do *backpropagation* escrito à mão ao *serving* com
+avaliação como portão de CI, sobre dados públicos — e, na Fase 6, sobre **gold que não é meu**.
+
+**O que continua aberto, e fica dito aqui em vez de escondido:**
+
+- **A cobertura da geração é 0,387.** O sistema recusa 6 de cada 10 perguntas que *tinham*
+  resposta. As duas explicações mais plausíveis foram **testadas e caíram** (o contexto não é o
+  gargalo; o detector de abstenção erra pouco demais para explicar). Sobra o *few-shot*, não medido.
+- **Deploy em nuvem não executado** — runbook completo, incluindo a trilha concreta na AWS
+  `sa-east-1`, por decisão de orçamento.
+- **DVC sem remote** — os apontadores detectam mudança, mas não há de onde baixar num clone novo.
+- **Alguns *n* pequenos** — hit@5 com n=50, juiz de geração com n=12. Os ICs expõem isso, e onde
+  o desenho é pareado o McNemar entrou no lugar da comparação de ICs.
+
+Um portfólio que só lista o que deu certo está escondendo a metade que ensina. Das sete hipóteses
+que a Fase 6 testou, **cinco foram refutadas** — e duas delas já estavam escritas como ganho antes
+de alguém conferir.

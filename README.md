@@ -9,7 +9,7 @@
 [![CI](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml/badge.svg)](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Tests](https://img.shields.io/badge/testes-280%20passando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/testes-289%20passando-brightgreen.svg)
 ![Tipos](https://img.shields.io/badge/mypy-strict%20no%20núcleo-brightgreen.svg)
 ![Gate](https://img.shields.io/badge/gate%20de%20avaliação-30%2F30-brightgreen.svg)
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
@@ -32,7 +32,7 @@ Projeto de portfólio **público e open-source**. Objetivo: provar, **com códig
 
 ## 📊 Resultados por fase
 
-**Status: todas as 7 fases (0–6) concluídas ✅** — cada uma é um marco publicável, testado e documentado antes de a próxima começar.
+**Status: projeto encerrado ✅ · 7 fases (0–6) entregues · 289 testes · gate 30/30 no CI** — cada fase é um marco publicável, testado e documentado antes de a próxima começar, e cada número abaixo aponta para um relatório versionado com carimbo de proveniência.
 
 | Fase | Entrega | Métrica-chave (com evidência versionada) | Docs |
 |:---:|---|---|:---:|
@@ -45,6 +45,8 @@ Projeto de portfólio **público e open-source**. Objetivo: provar, **com códig
 | **6 · Escala + benchmark externo** | ingestão de 1,43 GB → Parquet particionado (17,2 M linhas) · **avaliação sobre gold de TERCEIROS (CUAD)** · motor escolhido por benchmark · abstenção calibrada | CUAD recall@5 **0,588 BM25 → 0,595 híbrido** (não-signif.) **→ 0,652 +rerank (IC disjunto)** · geração: **98,7% não-alucinação / 38,7% cobertura**, ablação de prompt com **McNemar p=6,6e-5** · **DuckDB 6,7× Spark** | [17](docs/17_fase6_escala.md) |
 
 > **O diferencial não são os números altos — é o rigor ter corrigido os próprios números.** Uma auditoria κ inter-anotador **encontrou 16% dos rótulos-gold do hit@5 errados** e eu reportei o impacto em vez de esconder. Ver a seção **Decisões e trade-offs** abaixo.
+
+> ⚠️ **O que continua em aberto, dito aqui e não no rodapé.** A **cobertura da geração é 0,387**: o sistema recusa 6 de cada 10 perguntas que *tinham* resposta. É o pior número do projeto. As duas explicações mais plausíveis foram **testadas e caíram** — o contexto não é o gargalo (ligar o rerank subiu o teto 5,6 pp e a cobertura não se moveu, p = 0,361) e o detector de abstenção erra pouco demais para explicar (teto otimista: 0,45). Sobra o *few-shot*, **não medido**. Da mesma forma: **deploy em nuvem não executado** (runbook pronto, incluindo a trilha AWS) e **DVC sem remote**. Detalhe em [docs/17 §13.8](docs/17_fase6_escala.md).
 
 ## 🧭 Os cinco eixos
 
@@ -89,7 +91,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 
 | Requisito | Onde é provado | Evidência |
 |---|---|---|
-| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 280 testes (263 no CI) · `async` nos endpoints |
+| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 289 testes (272 no CI) · `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
 | SQL avançado e modelagem | Fase 3 | Esquema **estrela** (DuckDB, 741k linhas), window functions (LAG/RANK), camada de acesso testada + **previsão de demanda** (MAPE) |
@@ -180,12 +182,20 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 
 ## 📄 Licença
 
-[MIT](LICENSE). Dados e modelos de terceiros seguem suas próprias licenças (ver [`NOTICE`](NOTICE)).
+[MIT](LICENSE) para o código. Dados e modelos de terceiros seguem as suas próprias licenças, atribuídas em [`NOTICE`](NOTICE) — inclusive o **CUAD**, sob **CC BY 4.0**, que exige atribuição ao [The Atticus Project](https://www.atticusprojectai.org/cuad) e a citação de Hendrycks et al. (NeurIPS 2021).
+
+## 🏁 Encerramento
+
+O projeto está **fechado** em 28 de julho de 2026. Sete fases entregues, **100 passos** registrados no [diário](docs/DIARIO.md), **289 testes** e **gate 30/30** bloqueando o CI.
+
+O que fica não é a lista de números altos — é o **rastro das dezesseis vezes em que a evidência contrariou a narrativa e a narrativa cedeu**. Na Fase 6, das **sete hipóteses testadas, cinco foram refutadas** — e duas delas já estavam escritas como ganho antes de alguém conferir. Uma métrica secundária discordando da manchete foi o que pegou o erro; nenhum teste teria pego.
+
+Os itens em aberto estão no topo desta página e em [docs/HISTORIA.md § Estado final](docs/HISTORIA.md), não escondidos aqui embaixo.
 
 ---
 
 <div align="center">
 
-<sub>Última atualização: 28 de julho de 2026 · todas as 7 fases (0–6) concluídas.</sub>
+<sub>Encerrado em 28 de julho de 2026 · 7 fases · 100 passos · 289 testes · gate 30/30 · custo de API R$0.</sub>
 
 </div>

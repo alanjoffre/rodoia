@@ -814,11 +814,33 @@ O arco de recuperação, medido de ponta a ponta:
 Isso **re-deriva a arquitetura da Fase 1** (denso + BM25 + RRF + rerank) peça por peça, num dataset
 que não é nosso — e mostra que o rerank não é enfeite: é o único estágio cujo ganho sobrevive ao IC.
 
-**As três "extensões" da §12 renderam mais que o previsto:** uma **refutou minha própria previsão**
-(o embedder forte não ajudou), uma **confirmou a hipótese com evidência** (rerank), e a terceira
-expôs que **o gargalo migrou da busca para o gerador** — com uma ablação mostrando que parte do
-problema era o prompt de quem media.
+### O placar das hipóteses — sete testadas, duas confirmadas
 
-O que fica genuinamente aberto, e agora com número para priorizar: política de abstenção calibrada
-sobre o escore do cross-encoder (§13.3), chunking consciente de cláusula (a hipótese (a) da §13.1),
-e um gerador maior. Nenhum deles muda os achados **estruturais** já estabelecidos.
+Esta seção listava três itens como "genuinamente aberto". **Os três foram medidos**, mais outros
+quatro. O placar, que é o resultado mais honesto da fase:
+
+| hipótese | veredito |
+|---|---|
+| Rerank cross-encoder ajuda (§13.2) | ✅ **confirmada** — 0,595 → 0,652, IC disjunto |
+| Prompt menos enfático recupera cobertura (§13.4) | ✅ **confirmada** — +12,7 pp, p = 6,6 × 10⁻⁵, sem custo de alucinação |
+| Um embedder inglês forte levanta o denso (§13.1) | ❌ **refutada** — 7,3× mais lento, ICs sobrepostos |
+| O escore do rerank serve de limiar de abstenção (§13.5) | ❌ **refutada** — AUC 0,751; para igualar o LLM barraria 92,9% das respondíveis |
+| Chunking por cláusula melhora a recuperação (§13.6) | ❌ **refutada** — os ICs disjuntos eram a régua se movendo |
+| Um gerador maior é melhor (§13.7) | ❌ **refutada** — vence na média, **8× mais alucinação** |
+| Ligar o rerank na geração eleva a cobertura (§13.8) | ❌ **refutada** — teto +5,6 pp, cobertura p = 0,361 |
+
+**Duas de sete.** Isso é o que uma fase de extensão honesta produz — e o valor das cinco refutadas
+não é retórico: cada uma responde *"não gaste tempo aqui"* com número, e duas delas
+(§13.6 e §13.7) teriam entrado no README como ganho se ninguém tivesse conferido.
+
+### O que fica EM ABERTO
+
+**A cobertura de ~0,39.** O sistema recusa 6 de cada 10 perguntas que *tinham* resposta — o pior
+número do projeto. As duas explicações mais plausíveis foram testadas e caíram: o contexto não é o
+gargalo (§13.8a) e o detector de abstenção erra pouco demais para explicar (§13.8b, teto otimista
+0,45). Sobra o **few-shot**, não medido.
+
+Isso não é ressalva de rodapé: é o **problema em aberto** com que a fase encerra, declarado como
+tal em vez de dissolvido em "trabalho futuro". Os achados **estruturais** — o arco de recuperação,
+o rerank como único ganho significativo, as duas taxas da abstenção, a régua do recall — não
+dependem dele.

@@ -185,6 +185,8 @@ São **100 passos**, feitos entre **9 e 28 de julho de 2026**. Lidos em sequênc
 
 Lido de ponta a ponta, o padrão fica claro: **construí rápido, mas voltei sem dó para endurecer cada número** — os passos de 🔬 rigor são metade do diário. O apanhado dessas correções (o antes/depois de cada uma) vive numa fonte só: **[README § Decisões e trade-offs](../README.md#-decisões-e-trade-offs-o-arco-do-projeto)**.
 
+E o diário termina como começou: **medindo em vez de afirmar**. Os últimos cinco passos não acrescentaram uma funcionalidade — derrubaram quatro resultados que eu já tinha escrito como ganho, incluindo um em que quatro intervalos de confiança concordavam entre si e **todos os quatro estavam medindo a régua, não o sistema**. O projeto encerra com um problema declarado em aberto (a cobertura de 39%) e duas explicações dele eliminadas por experimento.
+
 <div align="center">
 
 [← README](../README.md) · [📖 A história (por fase)](HISTORIA.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md)

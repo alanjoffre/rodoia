@@ -35,7 +35,7 @@ src/rodoia/
 | `config.py` | Config central (pydantic-settings); caminhos, modelos, `seed`, override por env | `Settings` |
 | `estat.py` | ICs compartilhados (n pequeno) + concordância inter-anotador + **teste pareado** (χ² de Yates acima de 25 discordantes, **binomial exato** abaixo — o método usado sai no relatório) | `wilson`, `bootstrap_ic`, `cohen_kappa`, `cohen_kappa_ic95`, `fleiss_kappa`, `mcnemar` |
 | `proveniencia.py` | Carimbo de reprodutibilidade em todo report (seed/git_sha/**git_dirty**/versões/timestamp) | `carimbar`, `proveniencia`, `_git_sha`, `_git_dirty`, `_versoes` |
-| `observabilidade.py` | Cache LRU (corta p95) + métrica estruturada por requisição (serving) | `CacheLRU`, `registrar_metrica` |
+| `observabilidade.py` | Cache LRU (corta p95) + **sink único** das trilhas estruturadas: arquivo em dev, **stdout em contêiner** (disco efêmero perde auditoria sem erro) | `CacheLRU`, `emitir_evento`, `registrar_metrica` |
 | `anotacao.py` | Kit de anotação HUMANA (κ inter-anotador): relevância de trecho **e** rótulo-gold de fonte do hit@5 | `gerar_kit`, `computar_kappa`, `gerar_kit_gold`, `_ler` |
 
 ## 🧮 Fase 0 — Fundamentos, ML clássico e dados de acidentes
@@ -165,5 +165,5 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
 - **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 30 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
-- **Testes:** `tests/test_*.py` (280 testes; 263 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
+- **Testes:** `tests/test_*.py` (289 testes; 272 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/17`; decisões/trade-offs no [README](../README.md).
