@@ -170,7 +170,7 @@ Repo público desde o primeiro commit; histórico Git imutável (vazamento é pe
 
 **Resultados negativos que ficam registrados como entrega:** a premissa original (RAG sobre a ouvidoria da ANTT) morreu na validação de dados · o `bge-large-en` refutou uma previsão escrita minha · o chunking por cláusula não entrega ganho (e os ICs disjuntos que sugeriam o contrário eram a régua se movendo) · o limiar de abstenção não substitui o gate do LLM · o gerador maior vence na média e reprova na alucinação · ligar o rerank na geração não move a cobertura.
 
-**O que fica declarado EM ABERTO, e não como concluído:** a **cobertura de ~0,39** — o sistema recusa 6 de cada 10 perguntas que tinham resposta. As duas explicações mais plausíveis foram testadas e caíram (contexto pobre; detector de abstenção errado), o teto otimista do segundo é 0,45, e o lever restante (few-shot) **não foi medido**. Um plano que declara "concluído" o que ainda é problema aberto não serve para nada.
+**O que fica declarado EM ABERTO, e não como concluído:** **elevar a cobertura sem pagar em alucinação**. O sistema opera a **1,3% de invenção com 0,387 de cobertura** — o extremo conservador de uma curva medida; **0,620 está disponível e foi recusada**, porque custa levar a alucinação a 10%. O aberto é a direção sem preço medido. As duas explicações que a dariam de graça foram testadas e caíram (contexto pobre; detector de abstenção errado — teto otimista 0,45), e o lever restante (few-shot) **não foi medido**. Um plano que declara "concluído" o que ainda é problema aberto não serve para nada.
 
 ---
 

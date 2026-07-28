@@ -721,9 +721,27 @@ listados como "próximos passos" na §13.4 com a mesma plausibilidade; medir sep
 
 ### 13.8 Duas hipóteses sobre a cobertura baixa — testadas, e as duas caem
 
-A cobertura de **0,387** é o número genuinamente fraco da fase: o sistema recusa 6 de cada 10
-perguntas que *tinham* resposta. Duas hipóteses explicavam isso, e a §13.4 escolheu uma sem testar
-a outra. As duas foram medidas.
+A cobertura de **0,387** é o número em aberto da fase: o sistema recusa 6 de cada 10 perguntas que
+*tinham* resposta.
+
+**Antes de tratar como falha, o que os pontos medidos dizem.** A cobertura **sobe quando se aceita
+inventar mais** — quatro configurações, mesma amostra e mesmas seeds:
+
+| configuração | inventa | cobertura |
+|---|---:|---:|
+| qwen2.5:7b · prompt estrito | 1,3% | 0,260 |
+| **qwen2.5:7b · equilibrado ← o escolhido** | **1,3%** | **0,387** |
+| qwen2.5:7b · equilibrado + rerank | 3,3% | 0,427 |
+| gemma2:9b · equilibrado | **10,0%** | **0,620** |
+
+**0,387 não é o teto da tarefa: é o ponto de operação no extremo conservador da curva**, com a
+alucinação presa em 1,3%. Cobertura de 0,620 estava disponível e foi **recusada** — num sistema que
+lê contrato, uma cláusula inventada a cada dez respostas é passivo jurídico, não inconveniência
+(§13.7). O problema real, então, não é "a cobertura é baixa": é **elevá-la sem pagar em
+alucinação**.
+
+Duas hipóteses explicavam por que ela não sobe de graça, e a §13.4 escolheu uma sem testar a
+outra. As duas foram medidas.
 
 #### (a) "O contexto está pobre" — o rerank não estava na geração
 
@@ -790,10 +808,11 @@ sistema.** A hipótese valia ser testada, e caiu.
 > da Fase 1. Depois da régua do recall (§13.6), medir com uma máquina e chamar de verdade medida
 > é precisamente o erro que esta fase aprendeu a não cometer.
 
-**O que fica em aberto, honestamente.** A cobertura de ~0,39–0,43 é o número fraco do projeto, as
-duas explicações mais plausíveis foram testadas e caíram, e o lever restante — few-shot — não foi
-medido. Não é "falta polir": é um problema em aberto, com duas hipóteses eliminadas por
-experimento e o custo de cada uma registrado.
+**O que fica em aberto, honestamente.** Não é "a cobertura é baixa" — é **elevá-la sem pagar em
+alucinação**. A troca está medida (0,620 de cobertura custa 10% de invenção, §13.7) e foi recusada;
+as duas explicações que a driblariam de graça foram testadas e caíram; e o lever restante —
+few-shot — não foi medido. Não é "falta polir": é um problema em aberto, com duas hipóteses
+eliminadas por experimento e o preço de cada alternativa registrado.
 
 ## Fase 6 — encerrada
 
@@ -835,8 +854,11 @@ não é retórico: cada uma responde *"não gaste tempo aqui"* com número, e du
 
 ### O que fica EM ABERTO
 
-**A cobertura de ~0,39.** O sistema recusa 6 de cada 10 perguntas que *tinham* resposta — o pior
-número do projeto. As duas explicações mais plausíveis foram testadas e caíram: o contexto não é o
+**Elevar a cobertura sem pagar em alucinação.** O sistema opera a **1,3% de invenção com 0,387 de
+cobertura** — o extremo conservador de uma curva medida. **0,620 de cobertura está disponível e foi
+recusada**: custa levar a alucinação a 10% (§13.7), o que num sistema que lê contrato é passivo
+jurídico. O problema em aberto é a **direção que não tem preço medido**: mais cobertura sem mais
+invenção. As duas explicações que a dariam de graça foram testadas e caíram — o contexto não é o
 gargalo (§13.8a) e o detector de abstenção erra pouco demais para explicar (§13.8b, teto otimista
 0,45). Sobra o **few-shot**, não medido.
 

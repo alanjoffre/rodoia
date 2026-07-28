@@ -130,7 +130,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 > ⚖️ **O rigor achou uma falha de governança, não de métrica.** Uma varredura de ponta a ponta encontrou o benchmark de terceiros documentado como *"Apache 2.0"* quando é **CC BY 4.0** — e a diferença importa, porque a segunda **exige atribuição**. As duas fontes da Fase 6 não constavam do `NOTICE`, do `DATASET_CARD` nem do `data/README`. A regra *"licença confirmada antes do uso"* existia desde o commit 1 e falhou exatamente na fase que trouxe dado de fora. Corrigido com atribuição completa — e a falha registrada, porque governança que só anota acerto não é governança.
 
-> ⚖️ **O rigor testou as duas explicações do número fraco — e as duas caíram.** A cobertura de 38,7% é o pior resultado do projeto: o sistema recusa 6 de cada 10 perguntas que *tinham* resposta. Duas hipóteses explicavam isso. **(1)** *"O contexto está pobre"* — e de fato a avaliação de geração parava no **híbrido**, ignorando o rerank; pior, ela concluía *"não é falha de recuperação"* comparando com um teto (0,713) que a própria fase já superara (0,769). Liguei o rerank e refiz **pareado**: cobertura 0,387 → 0,427, **p = 0,361 — nada significativo**. Elevar o teto em 5,6 pp não moveu a geração, o que transforma *"o gargalo é o gerador"* de afirmação em **experimento**. **(2)** *"O detector de abstenção erra"* — erra mesmo: uma resposta que começa com **"YES"** e cita a cláusula estava contada como recusa. Mas no cenário mais generoso possível a cobertura só chega a 0,453. **O número fraco é real, não artefato de medição.** Fica em aberto com as duas explicações eliminadas por experimento — não com "falta polir".
+> ⚖️ **O rigor testou as duas explicações da cobertura baixa — e as duas caíram.** A cobertura de 38,7% parece o pior resultado do projeto, mas os pontos medidos dizem outra coisa: **0,620 estava disponível** e foi **recusada**, porque custaria levar a alucinação de 1,3% para **10%** — numa leitura de contrato, uma cláusula inventada a cada dez respostas é passivo jurídico. **0,387 é um ponto de operação, não um fracasso.** O que fica aberto é elevá-la *sem* pagar em invenção, e duas hipóteses explicavam por que ela não sobe de graça. **(1)** *"O contexto está pobre"* — e de fato a avaliação de geração parava no **híbrido**, ignorando o rerank; pior, ela concluía *"não é falha de recuperação"* comparando com um teto (0,713) que a própria fase já superara (0,769). Liguei o rerank e refiz **pareado**: cobertura 0,387 → 0,427, **p = 0,361 — nada significativo**. Elevar o teto em 5,6 pp não moveu a geração, o que transforma *"o gargalo é o gerador"* de afirmação em **experimento**. **(2)** *"O detector de abstenção erra"* — erra mesmo: uma resposta que começa com **"YES"** e cita a cláusula estava contada como recusa. Mas no cenário mais generoso possível a cobertura só chega a 0,453. **O número fraco é real, não artefato de medição.** Fica em aberto com as duas explicações eliminadas por experimento — não com "falta polir".
 
 **O fecho do arco:** partindo do zero sobre um benchmark que não é meu, com IC em cada passo, a sequência BM25 → denso → híbrido → **rerank** **re-derivou a arquitetura da Fase 1** peça por peça — e mostrou por que o rerank é o estágio que faltava: RRF é **consenso, não seletor**, e compromete justamente onde os dois recuperadores discordam forte. Onde o RRF entregava *menos* que o BM25 sozinho (`Effective Date`, 0,689 → 0,567), o cross-encoder recupera e **supera** (0,776).
 
@@ -155,9 +155,11 @@ avaliação como portão de CI, sobre dados públicos — e, na Fase 6, sobre **
 
 **O que continua aberto, e fica dito aqui em vez de escondido:**
 
-- **A cobertura da geração é 0,387.** O sistema recusa 6 de cada 10 perguntas que *tinham*
-  resposta. As duas explicações mais plausíveis foram **testadas e caíram** (o contexto não é o
-  gargalo; o detector de abstenção erra pouco demais para explicar). Sobra o *few-shot*, não medido.
+- **Elevar a cobertura sem pagar em alucinação.** O sistema opera a **1,3% de invenção com 0,387
+  de cobertura** — o extremo conservador de uma curva medida. **0,620 está disponível e foi
+  recusada** (custa 10% de alucinação). O aberto é a direção sem preço medido: mais cobertura sem
+  mais invenção. As duas explicações que a dariam de graça foram **testadas e caíram**. Sobra o
+  *few-shot*, não medido.
 - **Deploy em nuvem não executado** — runbook completo, incluindo a trilha concreta na AWS
   `sa-east-1`, por decisão de orçamento.
 - **DVC sem remote** — os apontadores detectam mudança, mas não há de onde baixar num clone novo.
