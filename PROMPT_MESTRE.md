@@ -29,6 +29,8 @@ Você é um par de engenharia atuando na construção de uma **plataforma de IA 
 
 Construir uma plataforma de IA que responde, raciocina e opera sobre a regulação e os dados abertos do transporte rodoviário brasileiro (ANTT), demonstrando o ciclo completo de engenharia de IA — do fundamento matemático ao serving em produção. Cinco eixos: Fundamentos ML/DL · RAG avaliado · Fine-tuning & serving próprio · Agente orquestrado · MLOps & Cloud. Construção faseada; cada fase é um marco publicável.
 
+> **O plano cresceu uma fase.** Este documento foi escrito para as Fases 0–5. A **Fase 6** (escala + benchmark externo) foi acrescentada depois, quando ficou claro que duas objeções continuavam de pé: o corpus da ANTT não exerce escala, e toda a avaliação rodava contra gold do próprio autor. Ela está especificada abaixo, no mesmo formato das outras — um plano que só descreve o que já deu certo não é plano.
+
 ---
 
 ## 2. Rastreabilidade requisito → fase
@@ -141,7 +143,32 @@ Repo público desde o primeiro commit; histórico Git imutável (vazamento é pe
 
 **Escopo:** containerização (Docker/compose; k8s opcional) · CI/CD (lint, testes, build, suíte de avaliação como gate — regressão de métrica falha o pipeline) · MLflow (experimentos/prompt/config) integrado ao DVC · deploy em cloud real com serviço gerenciado justificado · observabilidade (custo/latência/tokens/qualidade) · monitoramento de drift.
 
-**Conclusão:** sobe inteira via container ✓ · CI/CD com avaliação como gate ✓ · MLflow + DVC ✓ · deploy em cloud com serviço gerenciado ✓ · observabilidade ✓ · drift ✓ · README final com desenho completo e rastreabilidade preenchida ✓
+**Conclusão:** sobe inteira via container ✓ · CI/CD com avaliação como gate ✓ · MLflow + DVC ✓ · deploy em cloud com serviço gerenciado ✓ (**runbook**, não executado — decisão de orçamento) · observabilidade ✓ · drift ✓ · README final com desenho completo e rastreabilidade preenchida ✓
+
+---
+
+## FASE 6 — Escala e benchmark externo
+
+**Origem:** esta fase **não estava no plano original** (que ia da 0 à 5). Nasceu de duas objeções que as fases anteriores não conseguiam responder, e está registrada aqui em vez de aparecer só no README como fato consumado.
+
+1. **Escala.** O corpus da ANTT tem **3.647 chunks** — não exerce particionamento, poda de partição nem comparação de motor. Nada do que se chama "dado em escala" foi provado até a Fase 5.
+2. **O gold é do autor.** Toda a avaliação das Fases 1 e 5 roda contra rótulos que eu mesmo fiz. A auditoria κ (docs/16) tratou isso por dentro, mas *"ele rotulou o próprio teste"* só morre com **benchmark de terceiros**.
+
+**Objetivo:** fechar as duas com dado público de fora, sem violar a fronteira do §3.1 (segue valendo: zero dado de empregador/cliente; só fonte pública com licença confirmada e atribuída).
+
+**Escopo.** Dois eixos independentes:
+- **Escala:** ingestão com **memória limitada** de um bulk grande (CFPB, 1,43 GB de zip → 17,2 M linhas) em Parquet particionado, sem materializar o CSV intermediário · escolha do motor de dados por **benchmark medido**, não por opinião · portões novos no gate.
+- **Benchmark externo:** re-derivar o arco de recuperação da Fase 1 (BM25 → denso → híbrido → rerank) sobre **gold de terceiros** (CUAD, 13.823 spans de advogados), com IC em cada passo · medir **alucinação vs cobertura** na geração ancorada · **custo de API zero** (LLM local).
+
+**Regras específicas desta fase** (as que a execução mostrou necessárias):
+- **Aferir o gold antes de medir qualquer coisa.** Offset desalinhado produz métrica plausível e falsa, que nenhum teste pega.
+- **Duas taxas ou nenhuma** na abstenção. Só a não-alucinação premiaria um modelo que recusa tudo.
+- **Comparação entre configurações exige régua fixa.** Se a mudança altera o denominador da métrica (ex.: o chunker altera `|gold|`), o número bruto não é comparável — reportar o teto e a versão normalizada.
+- **Licença de fonte de terceiros confirmada na origem**, não de memória, e atribuída no `NOTICE` quando exigido.
+
+**Conclusão:** ingestão em escala reproduzível ✓ (17.226.584 linhas, evidência carimbada) · motor escolhido por benchmark com cross-check de correção ✓ (DuckDB 6,7× Spark, 0 divergências) · arco de recuperação re-derivado sobre gold de terceiros com IC ✓ (BM25 0,588 → rerank **0,652**, único ganho com IC disjunto) · alucinação medida com **as duas taxas** ✓ (98,7% / 38,7%) · ablação de prompt com **teste pareado** ✓ (McNemar, p = 6,6 × 10⁻⁵) · política de abstenção **calibrada e reprovada com número** ✓ (AUC 0,751, insuficiente) · portões no gate ✓ (**30/30**) · `NOTICE`/`DATASET_CARD`/`data/README` com as fontes novas atribuídas ✓
+
+**Resultados negativos que ficam registrados como entrega:** a premissa original (RAG sobre a ouvidoria da ANTT) morreu na validação de dados · o `bge-large-en` refutou uma previsão escrita minha · o chunking por cláusula não entrega ganho · o limiar de abstenção não substitui o gate do LLM.
 
 ---
 

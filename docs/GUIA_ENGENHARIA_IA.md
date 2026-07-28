@@ -32,8 +32,11 @@ Pense num médico que primeiro entende o paciente, depois escolhe o exame, depoi
 | **3** · 📊 Lidar com números (dados) | "Como trabalho com tabelas, não só texto?" | Prever o volume de tráfego nas praças |
 | **4** · 🤖 Juntar tudo (agente) | "Como faço o sistema decidir e combinar ferramentas?" | Um agente que escolhe qual ferramenta usar |
 | **5** · ⚙️ Colocar em produção (MLOps) | "Como garanto que não quebra e não piora?" | Testes automáticos que barram regressão |
+| **6** · 📈 Provar em escala e com teste alheio | "E se o volume for grande — e se o teste **não for meu**?" | 17 milhões de linhas ingeridas, e a busca medida contra um gabarito feito por advogados |
 
 > **A ideia-chave:** cada etapa é um marco que vale por si, e nenhuma começa antes da anterior estar testada. É assim que um profissional constrói — **em camadas verificáveis**, não tudo de uma vez.
+
+> **Por que existe uma Fase 6.** As cinco primeiras deixavam duas perguntas incômodas no ar. A primeira: o texto da ANTT é pequeno — o sistema aguentaria volume de verdade? A segunda, mais séria: **quem fez o gabarito das provas fui eu**. Um aluno que corrige a própria prova pode estar certo, mas ninguém é obrigado a acreditar. A Fase 6 foi buscar dado grande de fora e um gabarito feito por outras pessoas.
 
 ---
 
@@ -99,7 +102,19 @@ Pense num médico que primeiro entende o paciente, depois escolhe o exame, depoi
 - **MLflow / DVC** — MLflow guarda o histórico de experimentos/métricas; DVC versiona dados e modelos (que são grandes demais pro Git). *Por quê:* reprodutibilidade e rastreio.
 - **Drift / PSI** — drift = o mundo mudou e o modelo ficou desatualizado; PSI = a métrica que mede esse desvio. *Analogia:* a bússola que avisa quando o terreno mudou e é hora de recalibrar.
 - **Custo por 1k requisições** — quanto custa servir mil respostas, calculado da **vazão medida** (não chutado). *Por quê:* um engenheiro sênior não diz "escala" sem a cifra.
-- **Proveniência / seed** — proveniência = carimbar cada resultado com versão/data/código que o gerou; seed = fixar a aleatoriedade para o experimento ser **repetível**. *Por quê:* ciência de verdade é reproduzível.
+- **Proveniência / seed** — proveniência = carimbar cada resultado com versão/data/código que o gerou; seed = fixar a aleatoriedade para o experimento ser **repetível**. *Por quê:* ciência de verdade é reproduzível. *Pegadinha real:* o LLM local rodava com "temperatura baixa", que **não é** o mesmo que determinismo — duas execuções idênticas davam respostas diferentes, e isso contaminava uma comparação (Fase 6).
+
+### 📈 Fase 6 — escala e teste de terceiros
+
+- **Benchmark externo** — medir o sistema contra um **gabarito feito por outras pessoas**. *Analogia:* em vez de corrigir a própria prova, prestar um vestibular. *Por quê:* é a única forma de matar a objeção "ele escolheu as perguntas que sabia responder".
+- **Alucinação vs cobertura (as duas taxas)** — alucinação = inventar resposta quando o documento não tem; cobertura = responder quando o documento **tem**. *Por quê:* medir só a primeira é maquiagem — um sistema que responde "não consta" a **tudo** teria 100% de não-alucinação e seria inútil. As duas só valem juntas.
+- **Abstenção** — o sistema **se calar** em vez de arriscar. *Analogia:* o médico que diz "esse exame não mostra" em vez de chutar um diagnóstico. *Por quê:* em contrato e regulação, inventar custa mais que não responder.
+- **AUC-ROC** — um número de 0,5 a 1,0 que resume *"esse sinal consegue separar dois grupos?"*, **sem depender de onde você põe o corte**. 0,5 = moeda; 1,0 = separação perfeita. *Por quê:* responde "esse sinal presta?" antes de você gastar tempo escolhendo o limiar.
+- **Limiar / trade-off** — o ponto de corte de uma decisão automática. Apertá-lo erra menos de um jeito e mais do outro; **não existe ponto sem custo**. *Por quê:* reportar a **curva inteira** é honesto; escolher um ponto e mostrar só ele é vender.
+- **Teste pareado (McNemar)** — quando duas versões respondem **às mesmas perguntas**, comparar só as médias joga informação fora. O teste pareado olha exatamente onde elas **discordam**. *Analogia:* comparar dois óculos na mesma pessoa em vez de em duas pessoas diferentes. *Por quê:* é bem mais sensível — na Fase 6 ele achou diferença real onde os intervalos de confiança diziam "empate".
+- **Teto de uma métrica (a régua)** — o valor máximo que a métrica **poderia** atingir dado como o problema foi montado. *Por quê:* se uma mudança move o teto, o número bruto vira incomparável. *Caso real:* uma mudança na forma de recortar o texto elevou o teto sozinha e fez quatro resultados **parecerem** ganho — não eram. *Analogia:* trocar de régua no meio da medição e comemorar que a mesa "cresceu".
+- **Particionamento (dado em escala)** — guardar o dado em pastas por chave (ex.: `ano=2025`) para a consulta ler **só o pedaço que interessa**. *Analogia:* arquivo com gavetas por ano, em vez de uma pilha única. *Por quê:* é a diferença entre varrer 17 milhões de linhas e varrer 2 milhões.
+- **Streaming (memória limitada)** — processar um arquivo gigante **aos pedaços**, sem carregar tudo na memória nem gravar o intermediário. *Analogia:* esvaziar a piscina com uma mangueira em vez de procurar um balde do tamanho dela.
 
 ---
 
@@ -111,6 +126,7 @@ Pense num médico que primeiro entende o paciente, depois escolhe o exame, depoi
 4. **Dados** → modelamos as tabelas e prevemos a demanda, batendo o baseline de forma honesta.
 5. **Agente** → um orquestrador decide entre as 3 ferramentas acima e combina as respostas.
 6. **MLOps** → tudo isso roda com testes e um gate no CI que barra regressão.
+7. **Escala e teste alheio** → ingerimos 17 milhões de linhas sem estourar a memória, e refizemos a busca inteira contra um gabarito de advogados — **sem escolher as perguntas**.
 
 > **O diferencial não são só os números altos — é o rigor ter corrigido os próprios números** ao longo do caminho (ver a seção "Decisões e trade-offs" no [README](../README.md), e os callouts ⚖️ na [história](HISTORIA.md)).
 

@@ -33,7 +33,7 @@ src/rodoia/
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
 | `config.py` | Config central (pydantic-settings); caminhos, modelos, `seed`, override por env | `Settings` |
-| `estat.py` | ICs compartilhados (n pequeno) + concordância inter-anotador | `wilson`, `bootstrap_ic`, `cohen_kappa`, `cohen_kappa_ic95`, `fleiss_kappa` |
+| `estat.py` | ICs compartilhados (n pequeno) + concordância inter-anotador + **teste pareado** (χ² de Yates acima de 25 discordantes, **binomial exato** abaixo — o método usado sai no relatório) | `wilson`, `bootstrap_ic`, `cohen_kappa`, `cohen_kappa_ic95`, `fleiss_kappa`, `mcnemar` |
 | `proveniencia.py` | Carimbo de reprodutibilidade em todo report (seed/git_sha/**git_dirty**/versões/timestamp) | `carimbar`, `proveniencia`, `_git_sha`, `_git_dirty`, `_versoes` |
 | `observabilidade.py` | Cache LRU (corta p95) + métrica estruturada por requisição (serving) | `CacheLRU`, `registrar_metrica` |
 | `anotacao.py` | Kit de anotação HUMANA (κ inter-anotador): relevância de trecho **e** rótulo-gold de fonte do hit@5 | `gerar_kit`, `computar_kappa`, `gerar_kit_gold`, `_ler` |
@@ -118,7 +118,7 @@ src/rodoia/
 
 | Arquivo | O que faz | Funções-chave |
 |---|---|---|
-| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (27 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
+| `mlops/gate.py` | Gate de avaliação: regressão de métrica falha o CI (30 portões) | `avaliar`, `GATES`, `_acessar`, `_passou` |
 | `mlops/rastreio.py` | Consolida métricas das fases em runs MLflow (sqlite) | `coletar`, `registrar` |
 | `mlops/drift.py` | Drift por PSI (coorte de praças, 12m vs 12m) | `psi`, `drift_volume`, `classificar` |
 | `mlops/reproduzir.py` | Reprodução real: re-executa o pipeline e confere contra o JSON commitado | `reproduzir_retrieval`, `reproduzir_previsao` |
@@ -134,11 +134,12 @@ src/rodoia/
 | `ingestao/ingestao_cfpb.py` | Zip ZIP64 → Parquet particionado `ano=YYYY/` por streaming, sem materializar o CSV | `ingerir_cfpb`, `_FluxoZip`, `_data_iso`, `_EscritorParticionado` |
 | `rag/baixar_cuad.py` | Download do CUAD (benchmark externo) via API pública do Kaggle, sem credencial | `baixar_cuad`, `consultar_metadados` |
 | `rag/cuad.py` | Parser do `CUAD_v1.json` (SQuAD 2.0) → JSONL + aferição de integridade (offsets) | `carregar`, `validar_offsets`, `estatisticas` |
-| `rag/avaliacao_cuad.py` | Recuperação BM25 dentro do contrato + métricas com IC; `consolidar` partilhado | `avaliar`, `consolidar`, `chunkar`, `gold_da_pergunta` |
+| `rag/avaliacao_cuad.py` | Recuperação BM25 dentro do contrato + métricas com IC; `consolidar` partilhado. Dois chunkers (janela / cláusula) e o **teto + recall normalizado** que torna a comparação entre eles legítima | `avaliar`, `consolidar`, `chunkar`, `chunkar_clausula`, `obter_chunker`, `_registrar`, `gold_da_pergunta`, `diagnostico_chunker` |
 | `rag/avaliacao_cuad_denso.py` | Recuperação densa (e5) vs BM25 por categoria — forças complementares | `avaliar_denso`, `_ranquear_denso`, `_comparar_categorias` |
 | `rag/avaliacao_cuad_hibrido.py` | Fusão RRF (reusa `recuperador.fundir_rrf`); tabela de 3 vias com IC | `avaliar_hibrido`, `fundir`, `_tabela_tres_vias` |
 | `rag/avaliacao_cuad_rerank.py` | Pilha COMPLETA da Fase 1 (denso+BM25→RRF→cross-encoder) — único ganho com IC disjunto | `avaliar_rerank`, `rerankear`, `_delta_vs_hibrido` |
-| `rag/avaliacao_cuad_geracao.py` | **Alucinação vs cobertura** (LLM local, API=0) + ablação de prompt | `avaliar_geracao`, `consolidar_geracao`, `absteve`, `amostrar` |
+| `rag/avaliacao_cuad_geracao.py` | **Alucinação vs cobertura** (LLM local, API=0) + ablação de prompt + **comparação pareada** (McNemar) entre duas rodadas | `avaliar_geracao`, `consolidar_geracao`, `comparar_pareado`, `absteve`, `amostrar` |
+| `rag/calibracao_abstencao.py` | Varre o limiar sobre o escore do cross-encoder e publica a **curva inteira**: AUC-ROC, melhor ponto (J de Youden) e a **economia de cascata** (chamadas de LLM evitadas × respondíveis perdidas) | `analisar`, `varrer_limiar`, `auc_roc`, `melhor_ponto`, `economia_cascata` |
 
 ## 🌐 API (`api/`)
 
@@ -162,7 +163,7 @@ pergunta → api/app.py:/agente → agente/grafo.responder
 ## 🔬 Onde ver as evidências
 
 - **Métricas versionadas:** `reports/<fase>/*.json` (carimbadas por `proveniencia.carimbar`).
-- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 27 portões) e o CI em `.github/workflows/ci.yml`.
+- **Gate de qualidade:** `src/rodoia/mlops/gate.py` (pisos por métrica, 30 portões) e o CI em `.github/workflows/ci.yml`.
 - **Auditoria da avaliação:** κ humano em `anotacao.py` → `reports/fase1_rag/kappa_humano.json` e `kappa_gold_fonte.json`; efeito no hit@5 em `hit5_auditado.json`.
-- **Testes:** `tests/test_*.py` (247 testes; 230 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
+- **Testes:** `tests/test_*.py` (264 testes; 247 no CI — os 17 de fundamentos que exigem torch são pulados via `tests/conftest.py`).
 - **Narrativa por fase:** `docs/00`–`docs/17`; decisões/trade-offs no [README](../README.md).

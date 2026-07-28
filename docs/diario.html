@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>O diário do RodoIA — 81 passos</title>
-<meta name="description" content="A construção do RodoIA contada linha a linha — os 81 passos, com as métricas em cada passo.">
+<title>O diário do RodoIA — 98 passos</title>
+<meta name="description" content="A construção do RodoIA contada linha a linha — os 98 passos, com as métricas em cada passo.">
 </head>
 <body>
 
@@ -13,14 +13,14 @@
 <main>
 
   <header class="hero">
-    <p class="eyebrow">Registro de construção · 81 commits · 9–17 jul 2026</p>
+    <p class="eyebrow">Registro de construção · 98 passos · 9–28 jul 2026</p>
     <h1>O diário do RodoIA</h1>
     <p class="lede">A construção de um portfólio de Engenharia de IA sobre os dados abertos da ANTT — contada <strong>linha a linha</strong>, na ordem real em que aconteceu. Cada passo abaixo é um commit: o que eu fiz e por que importava.</p>
 
     <ul class="stats" aria-label="Resumo">
-      <li><span class="stat-n">81</span><span class="stat-l">passos</span></li>
-      <li><span class="stat-n">9</span><span class="stat-l">dias</span></li>
-      <li><span class="stat-n">6</span><span class="stat-l">fases</span></li>
+      <li><span class="stat-n">98</span><span class="stat-l">passos</span></li>
+      <li><span class="stat-n">9</span><span class="stat-l">dias de trabalho</span></li>
+      <li><span class="stat-n">7</span><span class="stat-l">fases</span></li>
       <li><span class="stat-n">½</span><span class="stat-l">é rigor</span></li>
     </ul>
 
@@ -320,6 +320,31 @@
         {n:79,k:"build",t:"Fase 1",e:"🔎",h:"2ª passada de de-boilerplate.",b:"Removi um rodapé que ainda escapava da limpeza — sem alterar o hit@5."},
         {n:80,k:"build",t:"Fase 5",e:"⚙️",h:"Red-team adversarial.",b:"Um ataque automatizado mediu a taxa de sucesso de invasão (ASR) — e achou um bug real no guardrail, que corrigi.",m:["ASR 0 · detecção 100%","FPR 0% · PII 0%"]},
         {n:81,k:"build",t:"Fase 5",e:"⚙️",h:"Segurança da cadeia de suprimentos.",b:"Trava de dependências com hash, inventário de componentes (SBOM) e auditoria de vulnerabilidades (CVEs).",m:["0 CVEs · SBOM CycloneDX"]}
+      ]},
+    { date:"24–27 jul", title:"A Fase 6 — escala e um teste que não é meu",
+      context:"Duas objeções que as fases anteriores não respondiam: o corpus não tem escala, e o gold é meu. A Fase 6 atacou as duas — e derrubou a própria premissa no primeiro dia.",
+      items:[
+        {n:82,k:"rigor",t:"Fase 6",e:"📈",h:"A premissa da Fase 6 morreu antes do código.",b:"A ideia era fazer RAG sobre as reclamações de ouvidoria da ANTT. Fui medir o dado antes de construir: o campo \"mensagem\" é um número de identificação, não o texto do cidadão. Descobrir no dia 0 custou uma tarde em vez de dois meses."},
+        {n:83,k:"build",t:"Fase 6",e:"📈",h:"Ingestão em escala (17,2 milhões de linhas).",b:"Troquei a fonte: o banco público de reclamações financeiras dos EUA. 1,43 GB comprimido vira Parquet sem nunca gravar os 13,5 GB de texto intermediários no disco.",m:["17.226.584 linhas","1,43 GB → 1,1 GB"]},
+        {n:84,k:"rigor",t:"Fase 6",e:"📈",h:"Um benchmark que não é meu.",b:"Trouxe o CUAD — 510 contratos anotados por advogados. Antes de medir qualquer coisa, conferi os 13.823 trechos-resposta um a um: todos apontam exatamente onde dizem. Gold desalinhado produziria métrica plausível e falsa.",m:["13.823 spans · 0 divergentes"]},
+        {n:85,k:"build",t:"Fase 6",e:"📈",h:"Busca por palavra-chave, com intervalo de confiança.",b:"Primeira medida sobre o benchmark externo. E um diagnóstico embutido revelou que não dá para saber se o contrato tem a cláusula olhando só o escore — descoberto antes de construir a política, não depois.",m:["recall@5 0,588"]},
+        {n:86,k:"rigor",t:"Fase 6",e:"🔬",h:"O resultado que contrariou a expectativa.",b:"A busca semântica perde da busca por palavra-chave no geral — mas vence exatamente onde a outra falha: nos campos em que o texto não repete os termos da pergunta. Não é \"pior\": são forças complementares."},
+        {n:87,k:"rigor",t:"Fase 6",e:"🔬",h:"O ganho que recusei anunciar.",b:"Combinando as duas buscas, o resultado é o melhor em toda métrica. Mas o intervalo de confiança se sobrepõe ao da busca simples: o ganho não é estatisticamente distinguível, e está reportado assim.",m:["0,595 · IC sobreposto"]},
+        {n:88,k:"rigor",t:"Fase 6",e:"📈",h:"Spark medido e rejeitado.",b:"Em vez de colocar \"Spark\" no currículo, medi: DuckDB é 6,7× mais rápido nos 17,2 milhões de linhas, com resultado idêntico. O número também mostra quando o Spark venceria.",m:["DuckDB 6,7× Spark","0 divergências"]},
+        {n:89,k:"rigor",t:"Fase 6",e:"🔬",h:"Testei minha própria previsão — e ela estava errada.",b:"Eu tinha escrito que um modelo de busca semântica maior e específico para inglês \"quase certamente\" melhoraria o resultado. Rodei: 2,8× maior, 7,3× mais lento, e nenhuma diferença mensurável. Ficou registrado como previsão errada."},
+        {n:90,k:"build",t:"Fase 6",e:"📈",h:"O estágio que faltava.",b:"Um reordenador que lê pergunta e trecho juntos elevou o acerto para 0,652 — e este é o único ganho da fase que sobrevive ao intervalo de confiança. Ele ganha exatamente onde a fusão simples atrapalhava.",m:["0,595 → 0,652 · IC disjunto"]},
+        {n:91,k:"rigor",t:"Fase 6",e:"🔬",h:"A métrica que sozinha seria mentira.",b:"Medi se o sistema inventa quando o contrato não tem a cláusula: 98,7% de acerto. Sozinho, pareceria um triunfo. Mas a segunda taxa que eu tinha exigido revelou que ele recusava a maioria das perguntas que tinham resposta — quase tão inútil quanto um programa que só sabe dizer \"não sei\".",m:["98,7% não-alucinação","26,0% cobertura"]},
+        {n:92,k:"rigor",t:"Fase 6",e:"🔬",h:"Descobri que parte do problema era meu.",b:"O texto de instrução que eu escrevi induzia a recusa. Testei uma versão equilibrada: mais cobertura sem nenhum aumento de invenção. O confundidor era do autor, não do modelo.",m:["+12,7 pp de cobertura"]}
+      ]},
+    { date:"28 jul", title:"Fechar o que ficou declarado em aberto",
+      context:"Quatro pontas soltas que o próprio documento listava como \"não feito\". Fechá-las derrubou dois resultados meus — e um deles eu já tinha escrito como ganho.",
+      items:[
+        {n:93,k:"rigor",t:"Fase 6",e:"📈",h:"Calibrei a política de abstenção — e ela não presta para o trabalho.",b:"O escore do reordenador era o único sinal que separava \"o contrato tem a cláusula\" de \"não tem\". Varri o limiar inteiro em vez de escolher um ponto: sinal real, mas para chegar ao nível de acerto que o LLM já entrega ele barraria 92,9% das perguntas que tinham resposta. Um filtro grátis que não substitui o caro — com o preço medido.",m:["AUC 0,751","custo: 92,9% barradas"]},
+        {n:94,k:"rigor",t:"Fase 6",e:"🔬",h:"Computei o teste que eu mesmo declarara \"não feito\".",b:"A comparação dos dois textos de instrução vivia com intervalos sobrepostos — o teste conservador. O correto, num desenho em que as perguntas são as mesmas, é o teste pareado. E, no caminho, achei o motivo de a comparação anterior não ser confiável: o modelo rodava sem semente fixa, então duas execuções idênticas davam respostas diferentes. Ruído contado como efeito.",m:["21 × 2 discordantes","p = 0,000066"]},
+        {n:95,k:"rigor",t:"Fase 6",e:"🔬",h:"Quatro intervalos disjuntos que eram a régua se mexendo.",b:"Fatiar o contrato por cláusula elevou o acerto na 1ª posição em quatro buscadores, com intervalos disjuntos — a evidência que se aceita sem conferir. Só que outra métrica caiu nos mesmos quatro. Era o denominador: fatiar diferente muda quantos trechos contam como resposta certa, e o teto subiu sozinho mais que o \"ganho\" inteiro. Normalizei, reexecutei as oito avaliações: efeito nenhum.",m:["teto +0,067","efeito real: nenhum"]},
+        {n:96,k:"rigor",t:"Fase 6",e:"🔬",h:"O campo que sumia sem erro nenhum.",b:"A correção acima adicionou um campo ao registro de cada pergunta — e os quatro módulos de avaliação o descartavam em silêncio, porque cada um reconstruía o registro à mão. Relatórios saíram zerados passando por lint, checagem de tipos e 53 testes. Unifiquei numa função só, e o teste que guarda isso compara todos os campos: travar o sintoma não impediria a próxima vez."},
+        {n:97,k:"rigor",t:"Fase 6",e:"🔬",h:"A licença que eu tinha declarado de memória.",b:"Uma varredura de ponta a ponta achou o benchmark de terceiros documentado como Apache 2.0 quando é CC BY 4.0 — a diferença é que a segunda exige atribuição — e as duas fontes novas ausentes dos três documentos de governança. Na mesma varredura, a trilha de auditoria: escrevia num arquivo local, que num contêiner efêmero desaparece sem erro nenhum — um controle de LGPD que evaporaria em produção."},
+        {n:98,k:"rigor",t:"Fase 6",e:"🔬",h:"O gerador maior ganhou na média e perdeu no que importa.",b:"Rodei o gemma2:9b contra o qwen2.5:7b — mesmas perguntas, mesmas sementes. Pela média ele vence. Mas o teste pareado, feito recorte a recorte, mostrou as duas taxas indo em direções opostas: responde muito mais (+23 pontos) e inventa 8× mais — de 1,3% para 10%. Não é melhor, é outro ponto de operação; num sistema jurídico, uma resposta ficcional a cada dez reprova. Se o teste fosse só do agregado, o veredito sairia invertido.",m:["cobertura +23,3 pp · p=2,3e-8","alucinação 1,3% → 10,0%","não entra"]}
       ]}
   ];
 

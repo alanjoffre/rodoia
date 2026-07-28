@@ -338,13 +338,143 @@ Resolve o "não tem demo viva" sem custo de nuvem. *(O caminho anterior Gradio/D
 6. **Observabilidade em produção** — logs estruturados + as métricas do §6 exportadas; alerta se
    o gate (rodado periodicamente sobre uma amostra rotulada) cair, ou se o PSI de drift subir.
 
+### 7.1 Trilha concreta na AWS — `sa-east-1`, passo a passo, **não executada**
+
+O §7 justifica a *classe* de serviço (contêiner stateless, escala a zero) e cita "Cloud Run ou App
+Runner" sem descer ao concreto. Esta seção fecha isso do lado da **AWS**, porque é a conta que
+existe — `sa-east-1` (São Paulo), escolhida por latência ao usuário brasileiro, não por preço:
+São Paulo é uma das regiões **mais caras** da AWS, e `us-east-1` sairia ~30–40% menor. Para um
+portfólio que escala a zero, a diferença em repouso é ~R$0 dos dois lados, então a latência ganha.
+
+**Nada aqui foi executado.** Não é "deploy pronto": é o caminho auditável para executá-lo, com os
+pontos onde o projeto *já* colide com a AWS marcados. Toda alteração de serviço na conta depende de
+aprovação explícita antes de rodar.
+
+**Escolha de serviço — e por que não ECS/Fargate direto.**
+
+| opção | escala a zero | HTTPS gerenciado | veredito |
+|---|:---:|:---:|---|
+| **App Runner** | **sim** | **sim** (domínio `*.awsapprunner.com`) | **escolhido** — equivalente ao Cloud Run; o mínimo de peça móvel |
+| ECS + Fargate + ALB | não (ALB cobra ~US$16/mês parado) | sim (via ACM no ALB) | rejeitado: o ALB sozinho custa mais que o tráfego do portfólio |
+| Lambda + API Gateway | sim | sim | rejeitado: **cold start** de ~500 MB de torch + E5 + fatiamento de 3.647 chunks a cada contêiner frio, e você **paga os 30 s de espera pelo LLM externo** por requisição |
+| EC2 always-on | não | não (nginx+certbot à mão) | rejeitado: paga 24/7 para servir tráfego esporádico |
+
+A decisão cai do mesmo número que decidiu o §7: o custo é dominado por **recurso ocioso**, não por
+requisição.
+
+> **Correção — o "teto de 29 s" não é mais argumento.** Este documento rejeitou o Lambda alegando
+> que o p95 de geração (~30 s, medido na F1) estouraria o limite de 29 s do API Gateway. **A AWS
+> levantou esse limite em junho de 2024**: dá para elevar o *integration timeout* por Service
+> Quotas em REST APIs regionais e privadas, ao custo de reduzir o *throttle quota* da conta. E
+> **Lambda Function URLs com response streaming** ignoram o API Gateway de todo modo (teto de
+> 15 min). Era folclore de nuvem repetido de memória — o mesmo defeito da licença do CUAD
+> (docs/17 §8), noutro domínio.
+>
+> A rejeição **continua de pé**, pelos dois motivos da tabela acima, que vêm deste código e não de
+> uma tabela de limites: `carregar_recuperador()` ([`avaliacao_retrieval.py`](../src/rodoia/rag/avaliacao_retrieval.py))
+> lê as normas, fatia os chunks e carrega o E5 a **cada contêiner frio** — no App Runner isso roda
+> uma vez no `lifespan`; e o p95 é quase todo **espera de I/O** pelo LLM, que o Lambda cobra como
+> execução e o App Runner dilui com concorrência > 1.
+
+**O p95 de 30 s é um problema de desenho, não de plataforma.** `OllamaLLM.gerar` envia
+`"stream": False` e `/perguntar` devolve a resposta inteira de uma vez. Com **SSE**, o
+*time-to-first-token* cai para ~1–2 s e os 30 s deixam de ser latência percebida em qualquer
+provedor. Está registrado como **próximo passo, não feito**, e com o custo declarado: streaming
+**colide com o guardrail atual** — `responder_seguro` mascara PII e extrai citações **sobre a
+resposta completa**, e não se mascara um CPF já enviado ao cliente. Fazer streaming exige mascarar
+numa janela em buffer ou aceitar que a verificação final chegue depois do primeiro token. É uma
+decisão de segurança, não um refactor mecânico, e por isso não entrou junto com esta seção.
+
+**Passo a passo.**
+
+```bash
+# 0) Pré: AWS CLI autenticado, região fixa. Sem chave root — usuário/role com MFA.
+export AWS_REGION=sa-east-1 AWS_ACCOUNT=<id-da-conta>
+export ECR=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com
+
+# 1) Registro de imagem (ECR) — com scan de vulnerabilidade ligado, coerente com o pip-audit do CI
+aws ecr create-repository --repository-name rodoia-api \
+  --image-scanning-configuration scanOnPush=true --region $AWS_REGION
+
+# 2) Build e push
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR
+docker build -t rodoia-api:1.0 .
+docker tag rodoia-api:1.0 $ECR/rodoia-api:1.0
+docker push $ECR/rodoia-api:1.0
+
+# 3) Segredos — NUNCA como variável de ambiente em texto claro no serviço
+aws secretsmanager create-secret --name rodoia/api --region $AWS_REGION \
+  --secret-string file://.env.producao.json     # arquivo local, fora do Git
+
+# 4) Serviço (App Runner). scale-to-zero: MinSize=0 é o que zera a conta em repouso.
+aws apprunner create-service --service-name rodoia-api --region $AWS_REGION \
+  --source-configuration file://apprunner.json \
+  --instance-configuration Cpu=1024,Memory=2048,InstanceRoleArn=<role-com-acesso-ao-secret>
+
+# 5) Índice e dados — o contêiner sobe sem estado; o corpus vem de fora
+aws s3 sync data/processed/ s3://rodoia-artefatos/processed/ --region $AWS_REGION
+
+# 6) Trilha de auditoria e métricas para o CloudWatch, não para disco efêmero.
+#    Variável de ambiente do serviço (conferida, não suposta):  LOG_DESTINO=stdout
+#    Sem isso a auditoria some a cada reciclagem — ver colisão nº 1 abaixo.
+```
+
+**Os quatro pontos onde este projeto especificamente colide com a AWS:**
+
+1. **O `rodoia` não era totalmente stateless — e a parte grave não era o índice.** A API monta o
+   Qdrant **em modo local** (arquivo) e um DuckDB em disco. Ao investigar, os dois se mostraram
+   **somente leitura** depois de construídos: embutir na imagem resolve, e para 3.647 chunks é a
+   escolha certa (a alternativa — baixar do S3 no start — só compensa com corpus grande).
+
+   **O que realmente quebrava era o log.** `seguranca.registrar_auditoria` e
+   `observabilidade.registrar_metrica` faziam `open(caminho, "a")` num arquivo do repositório. Com
+   disco efêmero isso **não falha — desaparece**: cada instância escreve a sua cópia e a reciclagem
+   apaga, sem erro e sem alarme. Para a métrica é perda de observabilidade; para a **trilha de
+   auditoria** é um controle de LGPD que o README lista como provado e que evaporaria em produção.
+
+   **Corrigido** (`config.log_destino`, sink único em `observabilidade.emitir_evento`): com
+   `LOG_DESTINO=stdout` o processo **não escreve arquivo** — emite uma linha JSON por evento,
+   marcada com `_fluxo`, e a plataforma coleta (CloudWatch Logs no App Runner, `docker logs`
+   local). É a regra de 12-factor, resolve efemeridade e multi-instância, e custa zero. O default
+   segue `arquivo`, para o desenvolvimento local não mudar. O teste que trava isso afirma que em
+   `stdout` **o arquivo não é criado** — não que o conteúdo está certo, porque o modo de falha aqui
+   é justamente escrever num lugar que some.
+2. **O cérebro (Ollama) não vai junto.** Ele exige GPU e é o oposto de scale-to-zero. Em produção o
+   roteamento/síntese aponta para um endpoint hosted via a interface `OpenAICompatLLM` que já
+   existe — o Ollama sai do caminho crítico, como o §7 já previa. **O modelo FT (Fase 2) não tem
+   caminho barato aqui**: GPU sob demanda no SageMaker ou `g5` ligado por janela; always-on em
+   `sa-east-1` é a linha de custo que inviabiliza o portfólio.
+3. **O gate precisa continuar rodando.** O valor do projeto é a avaliação como portão, e ele morre
+   se ficar só no CI de push. Uma tarefa agendada (EventBridge → App Runner ou Lambda leve) roda
+   `python -m rodoia.mlops.gate` sobre a amostra rotulada e alarma no CloudWatch quando reprovar.
+4. **Orçamento antes de qualquer `create`.** AWS Budgets com alerta em valor absoluto, mais o alarme
+   de uso da chave root que a conta já tem. `sa-east-1` cara + GPU esquecida ligada é a combinação
+   que gera a fatura-surpresa clássica.
+
+**Como derrubar tudo** (a parte que a maioria dos runbooks esquece, e a que mais importa num
+portfólio que não vai ficar de pé):
+
+```bash
+aws apprunner delete-service --service-arn <arn> --region $AWS_REGION
+aws ecr delete-repository --repository-name rodoia-api --force --region $AWS_REGION
+aws secretsmanager delete-secret --secret-id rodoia/api --force-delete-without-recovery
+aws s3 rb s3://rodoia-artefatos --force --region $AWS_REGION
+```
+
+> **Por que isto continua não executado.** É a mesma decisão do §7 — orçamento — e ela não mudou por
+> existir um passo a passo. O que muda é que a lacuna agora é **"não gastei"**, não **"não sei
+> como"**: as quatro colisões acima são específicas deste código, não copiadas de um tutorial.
+
 ## 8. Critérios de conclusão
 
 - [x] **Containerização** — Dockerfile + compose (API + Ollama + vLLM opcional). *Build não
       executado neste ambiente (Docker/WSL off) — documentado no runbook.*
 - [x] **CI/CD com avaliação como gate** — GitHub Actions: lint + testes + **gate de regressão**.
 - [x] **MLflow + DVC** — rastreio das métricas (sqlite, 5 runs) + dados/modelos via DVC.
-- [~] **Deploy em cloud** — **runbook completo (§7), não executado** (decisão de orçamento).
+- [~] **Deploy em cloud** — **runbook completo, não executado** (decisão de orçamento): §7 justifica
+      a classe de serviço; **§7.1 desce ao passo a passo concreto na AWS `sa-east-1`** (App Runner
+      escolhido com tabela comparativa, comandos de subida e de derrubada, e as **quatro colisões
+      específicas deste código** com a plataforma).
 - [x] **Observabilidade** — latência/tokens/qualidade medidos e versionados; gate sobre eles.
 - [x] **Custo de serving** — R$/1k req derivado da vazão MEDIDA (§6.1, `custo.json`): marginal vs
       always-on, com premissas explícitas.

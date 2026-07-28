@@ -140,6 +140,38 @@ que não se pode regenerar é exatamente o que este projeto não aceita.
 
 ---
 
+## Lotes longos de avaliação (GPU)
+
+As avaliações do CUAD levam de segundos (BM25) a ~30 min (rerank sobre os 510 contratos), e as de
+geração dependem do **Ollama**, que é um serviço à parte. Duas regras aprendidas quebrando um lote:
+
+**1. Recuperação antes de geração.** Só a geração depende de serviço externo. Um lote que roda
+geração primeiro, com `set -e`, perde as re-execuções de recuperação quando o Ollama cai — que foi
+exatamente o que aconteceu: `URLError: [Errno 110] Connection timed out` no meio da rodada do
+`gemma2:9b` abortou oito re-execuções que não tinham relação nenhuma com o LLM.
+
+**2. `set -e` é a armadilha, não o remédio.** Num lote de etapas independentes ele transforma uma
+falha local em perda total. O padrão aqui é `set -uo pipefail` (sem `-e`), cada etapa numa função
+que conta a falha e segue, e um `falhas=N` no fim.
+
+O Ollama do WSL **não sobe sozinho** e não é serviço systemd. Antes de qualquer lote de geração:
+
+```bash
+pgrep -a ollama || (nohup ollama serve > /tmp/ollama.log 2>&1 &)
+curl -s -m 10 http://127.0.0.1:11434/api/tags > /dev/null && echo OK
+```
+
+> ⚠️ `localhost` no WSL resolve para `::1` (só IPv6). Quando o servidor está fora do ar, o erro é
+> **timeout** (Errno 110), não *connection refused* — o que faz parecer problema de rede em vez de
+> serviço parado. Testar contra `127.0.0.1` desambigua.
+
+**A seed do LLM não é opcional numa ablação.** `OllamaLLM` roda a `temperatura=0.1`, que **não é
+determinismo**: duas rodadas das mesmas perguntas dão respostas diferentes. Num desenho pareado
+(McNemar) esse ruído entra contado como discordância. `avaliacao_cuad_geracao` fixa `seed=--seed`;
+qualquer comparação nova precisa fazer o mesmo.
+
+---
+
 ## Mapa de comandos por objetivo
 
 | Quero… | Comando |
@@ -153,6 +185,9 @@ que não se pode regenerar é exatamente o que este projeto não aceita.
 | Ingerir o CFPB (17,2 M linhas) | `python -m rodoia.ingestao.baixar_cfpb && python -m rodoia.ingestao.ingestao_cfpb` |
 | Avaliar recuperação no CUAD | `python -m rodoia.rag.avaliacao_cuad` (BM25) · `..._denso` · `..._hibrido` · `..._rerank` |
 | Medir alucinação (LLM local) | `python -m rodoia.rag.avaliacao_cuad_geracao --amostra 150` |
+| Comparar duas rodadas de geração (McNemar) | `..._geracao --comparar A.json B.json` (não chama o LLM) |
+| Calibrar o limiar de abstenção | `..._rerank --dump-escores && python -m rodoia.rag.calibracao_abstencao` |
+| Medir a cobertura do chunker por cláusula | `python -m rodoia.rag.avaliacao_cuad --diagnostico-chunker` |
 | Comparar motores de dados | ver *Ambientes efêmeros* §3 |
 | Ver o que cada fase prova | `README.md` (tabela de rastreabilidade) |
 | Entender uma decisão | `docs/00`–`docs/03` |

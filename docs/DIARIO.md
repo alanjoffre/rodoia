@@ -2,7 +2,7 @@
 
 # 📅 O diário do RodoIA
 
-**A construção contada linha a linha** — os 92 passos reais do projeto, na ordem em que aconteceram, cada um em linguagem clara.
+**A construção contada linha a linha** — os 98 passos reais do projeto, na ordem em que aconteceram, cada um em linguagem clara.
 
 [← README](../README.md) · [📖 A história (por fase)](HISTORIA.md) · [🗺️ Arquitetura](ARQUITETURA.md) · [🎓 Guia didático](GUIA_ENGENHARIA_IA.md)
 
@@ -14,7 +14,7 @@
 
 Se o [HISTORIA.md](HISTORIA.md) conta **o "porquê"** de cada fase, este diário conta **o "o quê", passo a passo**. Cada item abaixo é um passo real e datado da construção (um *commit* no histórico do código): o que fiz naquele momento e por que importava.
 
-São **92 passos**, feitos entre **9 e 24 de julho de 2026**. Lidos em sequência, mostram como o projeto saiu do zero e chegou a um sistema completo — e, principalmente, como o **rigor** corrigiu os próprios números várias vezes pelo caminho.
+São **98 passos**, feitos entre **9 e 28 de julho de 2026**. Lidos em sequência, mostram como o projeto saiu do zero e chegou a um sistema completo — e, principalmente, como o **rigor** corrigiu os próprios números várias vezes pelo caminho.
 
 **Legenda das fases:** 🧮 Fase 0 (fundamentos) · 🔎 Fase 1 (RAG) · 🎯 Fase 2 (fine-tuning) · 📊 Fase 3 (dados) · 🤖 Fase 4 (agente) · ⚙️ Fase 5 (MLOps) · 📈 Fase 6 (escala e benchmark externo) · 🔬 rigor/auditoria · 🚀 deploy · 🎨 apresentação
 
@@ -145,6 +145,13 @@ São **92 passos**, feitos entre **9 e 24 de julho de 2026**. Lidos em sequênci
 79. **🔎 2ª passada de de-boilerplate.** Removi um rodapé que ainda escapava da limpeza — sem alterar o hit@5.
 80. **⚙️ Red-team adversarial.** Um ataque automatizado mediu a taxa de sucesso de invasão (ASR) — e **achou um bug real no guardrail**, que corrigi.
 81. **⚙️ Segurança da cadeia de suprimentos.** Trava de dependências com hash, inventário de componentes (SBOM) e auditoria de vulnerabilidades (CVEs).
+
+---
+
+## 🗓️ 24 a 27 de julho — a Fase 6: escala e um teste que não é meu
+
+*Duas objeções que as fases anteriores não respondiam: o corpus não tem escala, e o gold é meu. A Fase 6 atacou as duas — e derrubou a própria premissa no primeiro dia.*
+
 82. **🔬 A premissa da Fase 6 morreu antes do código.** A ideia era fazer RAG sobre as reclamações de ouvidoria da ANTT. Fui **medir o dado antes de construir**: o campo "mensagem" é um **número de identificação**, não o texto do cidadão. Descobrir isso no dia 0 custou uma tarde em vez de dois meses.
 83. **📈 Ingestão em escala (17,2 milhões de linhas).** Troquei a fonte: o banco público de reclamações financeiras dos EUA. 1,43 GB comprimido vira Parquet **sem nunca gravar os 13,5 GB de texto intermediários** no disco.
 84. **📈 Um benchmark que não é meu.** Trouxe o CUAD — 510 contratos anotados **por advogados**. Antes de medir qualquer coisa, **conferi os 13.823 trechos-resposta um a um**: todos apontam exatamente onde dizem. Gold desalinhado produziria métrica plausível e falsa.
@@ -155,7 +162,20 @@ São **92 passos**, feitos entre **9 e 24 de julho de 2026**. Lidos em sequênci
 89. **🔬 Testei minha própria previsão — e ela estava errada.** Eu tinha escrito que um modelo de busca semântica maior e específico para inglês "quase certamente" melhoraria o resultado. Rodei: **2,8× maior, 7,3× mais lento, e nenhuma diferença mensurável**. Ficou registrado como previsão errada.
 90. **📈 O estágio que faltava.** Um **reordenador** que lê pergunta e trecho *juntos* elevou o acerto de 0,595 para **0,652** — e este é o **único ganho da fase que sobrevive ao intervalo de confiança**. Ele ganha exatamente onde a fusão simples atrapalhava.
 91. **🔬 A métrica que sozinha seria mentira.** Medi se o sistema **inventa** quando o contrato não tem a cláusula: **98,7% de acerto**. Sozinho, pareceria um triunfo. Mas a segunda taxa que eu tinha exigido revelou que ele **recusava 3 de cada 4 perguntas que tinham resposta** — quase tão inútil quanto um programa que só sabe dizer "não sei".
-92. **🔬 Descobri que parte do problema era meu.** O texto de instrução que **eu** escrevi induzia a recusa. Testei uma versão equilibrada: **+10 pontos de cobertura, sem nenhum aumento de invenção**. O confundidor era do autor, não do modelo.
+92. **🔬 Descobri que parte do problema era meu.** O texto de instrução que **eu** escrevi induzia a recusa. Testei uma versão equilibrada: **+12,7 pontos de cobertura, sem nenhum aumento de invenção**. O confundidor era do autor, não do modelo.
+
+---
+
+## 🗓️ 28 de julho — fechar o que ficou declarado em aberto
+
+*Quatro pontas soltas que o próprio documento listava como "não feito". Fechá-las derrubou dois resultados meus — e um deles eu já tinha escrito como ganho.*
+
+93. **📈 Calibrei a política de abstenção — e ela não presta para o trabalho.** O escore do reordenador era o único sinal que separava "o contrato tem a cláusula" de "não tem". Varri o limiar inteiro em vez de escolher um ponto: **AUC 0,751** — sinal real. Mas para chegar ao nível de acerto que o LLM já entrega, ele **barraria 92,9% das perguntas que tinham resposta**. Um filtro grátis que não substitui o caro, com o preço medido em vez de suposto.
+94. **🔬 Computei o teste que eu mesmo tinha declarado como "não feito".** A comparação dos dois textos de instrução vivia com intervalos sobrepostos — o teste conservador. O correto, num desenho em que **as perguntas são as mesmas**, é o teste pareado: **21 perguntas em que só a versão equilibrada acerta contra 2 no sentido oposto**, p = 0,000066. E, no caminho, achei o motivo de a comparação anterior não ser confiável: o modelo rodava **sem semente fixa**, então duas execuções idênticas davam respostas diferentes. Ruído contado como efeito.
+95. **🔬 Quatro intervalos disjuntos que eram a régua se mexendo.** Testei fatiar o contrato por cláusula em vez de por janela fixa. Em **quatro buscadores**, o acerto na 1ª posição subiu com intervalos **disjuntos** — a evidência que se aceita sem conferir. Só que outra métrica **caiu** nos mesmos quatro, o que é incoerente. Era o denominador: fatiar diferente muda **quantos trechos contam como resposta certa**, e o teto da métrica subiu 0,067 sozinho — mais que o "ganho" inteiro. Normalizei, reexecutei as oito avaliações, e o efeito é **nenhum**. O que pegou não foi um teste: foi uma métrica secundária discordando da manchete.
+96. **🔬 O campo que sumia sem erro nenhum.** A correção acima adicionou um campo ao registro de cada pergunta — e os quatro módulos de avaliação o **descartavam em silêncio**, porque cada um reconstruía o registro à mão. Relatórios saíram com o teto zerado passando por lint, checagem de tipos e 53 testes: o campo *existia*, só chegava vazio. Unifiquei numa função só que copia o registro inteiro, e o teste que guarda isso compara **todos** os campos — travar o sintoma não impediria a próxima vez.
+97. **🔬 A licença que eu tinha declarado de memória.** Uma varredura de ponta a ponta achou o benchmark de terceiros documentado como **Apache 2.0** quando é **CC BY 4.0** — a diferença é que a segunda **exige atribuição** — e as duas fontes novas ausentes dos três documentos de governança do projeto. A regra "licença confirmada antes do uso" existia desde o dia 1 e falhou justamente na fase que trouxe dado de fora. Na mesma varredura, a trilha de auditoria: ela escrevia num **arquivo local**, que num contêiner efêmero **desaparece sem erro nenhum** — um controle de LGPD que o README dava como provado e que evaporaria em produção.
+98. **🔬 O gerador maior ganhou na média e perdeu no que importa.** O último item da lista era "testar um modelo maior". Rodei o `gemma2:9b` contra o `qwen2.5:7b` — mesmas perguntas, mesmas sementes. Pela média ele **vence**. Mas o teste pareado, feito **recorte a recorte**, mostrou as duas taxas indo em **direções opostas**: ele responde muito mais (+23 pontos) **e inventa 8× mais** — de 1,3% para 10% de invenção. Não é melhor, é outro ponto de operação; num sistema jurídico, uma resposta ficcional a cada dez reprova. **O modelo maior não entra.** Se o teste fosse só do agregado, os dois efeitos se cancelariam e o veredito sairia invertido.
 
 ---
 

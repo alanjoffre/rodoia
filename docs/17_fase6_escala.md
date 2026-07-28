@@ -134,7 +134,7 @@ pip install -e ".[escala]"
 python -m rodoia.ingestao.baixar_cfpb --verificar   # HEAD: confere se o WAF ainda libera
 python -m rodoia.ingestao.baixar_cfpb               # ~1,43 GB, idempotente
 python -m rodoia.ingestao.ingestao_cfpb             # -> reports/fase6_escala/contagem_cfpb.json
-python -m rodoia.mlops.gate                         # 27/27
+python -m rodoia.mlops.gate                         # 30/30
 ```
 
 Custo medido na Nitro: ~2,5 min de download + ~20 min de parse.
@@ -155,9 +155,20 @@ Custo medido na Nitro: ~2,5 min de download + ~20 min de parse.
 
 ## 8. Bloco "benchmark externo" — CUAD ingerido e aferido
 
-[CUAD](https://www.atticusprojectai.org/cuad) (Apache 2.0) — 510 contratos comerciais anotados
+[CUAD](https://www.atticusprojectai.org/cuad) (**CC BY 4.0**) — 510 contratos comerciais anotados
 por advogados. `rag/baixar_cuad.py` → `rag/cuad.py` normaliza o `CUAD_v1.json` (SQuAD 2.0) para
 `contratos.jsonl` + `perguntas.jsonl`, e afere a integridade:
+
+> **Correção de licença.** Este documento afirmou *"Apache 2.0"* até 28/07/2026. O Atticus Project
+> libera **todos os seus datasets sob CC BY 4.0** — o que **exige atribuição**, ao contrário do que
+> a declaração errada implicava. A atribuição completa, com a citação do paper que os autores pedem,
+> está no [`NOTICE`](../NOTICE); o cartão da fonte está em
+> [`docs/DATASET_CARD.md`](DATASET_CARD.md). Uma licença afirmada de memória é o mesmo defeito que
+> este documento persegue nas métricas — só que com consequência fora do repositório.
+>
+> Ressalva que o próprio Atticus repassa: a CC BY 4.0 cobre **a anotação**, não os contratos
+> subjacentes, que são públicos e vêm do EDGAR (SEC/EUA); eles não declaram garantia sobre o status
+> de licença deles.
 
 | | medido |
 |---|---:|
@@ -475,14 +486,20 @@ consta" a **tudo** teria não-alucinação perfeita e seria inútil. Daí as **d
 | | não-alucinação | cobertura | balanceada |
 |---|---:|---:|---:|
 | *Baseline trivial: abster de tudo* | *1,000* | *0,000* | *0,500* |
-| Prompt **estrito** | 0,987 [0,953; 0,996] | 0,273 [0,208; 0,350] | 0,630 |
-| Prompt **equilibrado** | 0,987 [0,953; 0,996] | **0,373** [0,300; 0,453] | **0,680** |
+| Prompt **estrito** | 0,987 [0,953; 0,996] | 0,260 [0,196; 0,336] | 0,623 |
+| Prompt **equilibrado** | 0,987 [0,953; 0,996] | **0,387** [0,312; 0,467] | **0,687** |
 
-**O sistema está a +0,180 de um modelo que diz "não consta" a tudo.** Reportar apenas
+**O sistema está a +0,187 de um modelo que diz "não consta" a tudo.** Reportar apenas
 "98,7% de não-alucinação" seria verdade e seria enganoso.
 
+> **Sobre estes números terem mudado.** A primeira versão desta tabela trazia 0,273 e 0,373. O
+> `OllamaLLM` roda a `temperatura=0.1` e **sem seed** — o que não é determinismo: duas execuções da
+> mesma amostra dão respostas diferentes. Numa ablação isso é ruído contado como efeito. O backend
+> passou a aceitar `seed` (default `None`, para não mexer nos outros chamadores) e a avaliação a
+> fixá-la. Os números acima são os reprodutíveis; os anteriores eram um sorteio.
+
 **E não é falha de recuperação.** O teto — fração de perguntas em que algum chunk de gold está no
-top-5 (hit@5 do híbrido) — é **0,713**. A geração aproveita **52%** dele: em quase metade dos casos
+top-5 (hit@5 do híbrido) — é **0,713**. A geração aproveita **54%** dele: em quase metade dos casos
 o trecho certo **estava no contexto** e o modelo disse "não consta" mesmo assim.
 
 **A ablação de prompt — um confundidor que eu mesmo introduzi.** O prompt inicial dizia *"Never
@@ -491,16 +508,210 @@ guess, never use outside knowledge"*. Sem testar, "o modelo abstém demais" seri
 não-alucinação IDÊNTICA (0,987)** — ganho de graça, e prova de que **parte do problema era meu, não
 do modelo**.
 
-Duas ressalvas honestas sobre essa ablação: (a) os **ICs de cobertura se sobrepõem**
-([0,208; 0,350] vs [0,300; 0,453]), então o ganho de 10 pp **não é significativo** a este n; (b) o
-desenho é **pareado** (mesma amostra, mesma seed, mesmas perguntas), então um **teste de McNemar**
-seria bem mais potente que a comparação de ICs — **não foi computado**, e a comparação de ICs
-sobrepostos é o teste conservador. O sinal é consistente, a prova estatística não está fechada.
+**O McNemar — a limitação que esta seção declarava em aberto, agora fechada.** A versão anterior
+registrava: *"os ICs de cobertura se sobrepõem, então o ganho não é significativo; o desenho é
+pareado, então um teste de McNemar seria bem mais potente — não foi computado"*. Foi.
+
+Os ICs de cobertura de fato se sobrepõem ([0,196; 0,336] vs [0,312; 0,467]) — e **escondiam uma
+diferença real**, porque comparar dois ICs ignora que as perguntas são as mesmas. Pareando por
+pergunta:
+
+| recorte | só o estrito acerta | só o equilibrado acerta | n discordantes | p |
+|---|---:|---:|---:|---:|
+| não-alucinação | 0 | 0 | 0 | 1,0 |
+| **cobertura** | **2** | **21** | 23 | **6,6 × 10⁻⁵** |
+
+**O prompt equilibrado é melhor, e agora com prova.** Ele não troca nada: a não-alucinação é
+*literalmente idêntica* — zero perguntas em que as duas variantes discordam nessa população.
+
+Duas notas sobre o teste em si. (a) Com **23 discordantes** a aproximação χ² **não vale** (a regra
+prática pede ≥ 25) — `estat.mcnemar` detecta o regime e usa o **binomial exato**, que sob H₀ é
+cara-ou-coroa em cada discordante e não aproxima nada. Qual dos dois foi usado sai no campo
+`metodo`, porque um p-valor sem a proveniência do teste esconde a decisão mais importante dele.
+(b) O McNemar só é legítimo aqui porque a **seed do LLM está fixa**; sem ela, respostas que mudam
+entre rodadas entrariam contadas como discordância e inflariam a significância.
 
 O que sobra depois de descontar o confundidor: mesmo no melhor prompt, **o gargalo é o gerador, não
 a busca**. Levers plausíveis — modelo maior, few-shot, ou uma política de abstenção calibrada sobre
 o escore do cross-encoder (§13.3, o primeiro sinal com separação real) — ficam medidos como
 *próximos*, não como *feitos*.
+
+### 13.5 Abstenção calibrada — o sinal com separação real é fraco demais para o trabalho
+
+A §13.3 fechou com "melhorou de impossível para difícil". *Difícil quanto?* — a pergunta ficou em
+aberto, e responder por adjetivo seria o inverso do que este documento faz. `rag/calibracao_abstencao.py`
+varre o limiar sobre o escore do cross-encoder e reporta a **curva inteira**, não um ponto escolhido.
+
+Sobre as **20.910 perguntas** (6.702 respondíveis + 14.208 impossíveis):
+
+**AUC-ROC = 0,751.** É a probabilidade de uma pergunta respondível sorteada ter escore maior que
+uma impossível sorteada — um resumo **independente de limiar**, que é o número que responde "esse
+sinal presta?". 0,5 seria moeda. 0,751 é um sinal real, e insuficiente.
+
+O melhor ponto por J de Youden (limiar −4,678): não-alucinação **0,729** [0,722; 0,736], cobertura
+**0,634** [0,622; 0,645].
+
+**A tradução para a decisão de engenharia.** A curva sozinha ainda não diz se vale a pena. O uso
+real do limiar é uma **cascata**: abaixo dele, nem se chama o LLM. Então o que importa é quanto se
+economiza e o que se perde — ponderado pelo prior do corpus (67,9% impossíveis):
+
+| alvo de não-alucinação | limiar | chamadas de LLM evitadas | respondíveis perdidas |
+|---:|---:|---:|---:|
+| 0,50 | −6,726 | 42,0% | 19,4% |
+| 0,70 | −4,970 | 58,8% | 34,4% |
+| 0,80 | −3,800 | 68,8% | 44,3% |
+| 0,90 | −2,045 | 81,9% | 62,0% |
+| 0,95 | −0,874 | 88,6% | 74,4% |
+| **0,99** | 1,467 | 97,2% | **92,9%** |
+
+**A conclusão é negativa, e é a que importa.** O gerador da §13.4 opera a **0,987 de
+não-alucinação com 0,387 de cobertura**. Para o limiar grátis chegar perto disso (0,99) ele barra
+**92,9% das respondíveis** — cobertura ~0,071, cinco vezes pior que o gerador. **O limiar sobre o
+escore de recuperação não substitui o gate do LLM.** O único sinal com separação real (§13.3) é
+fraco demais para o trabalho, e agora isso está medido em vez de suposto.
+
+O que ele *serve* é o outro extremo da cascata: a −6,726 evita **42% das chamadas** ao custo de
+19,4% das respondíveis. Se a economia de inferência valer esse preço é decisão de produto, não de
+métrica — mas o preço agora tem número.
+
+### 13.6 Chunking por cláusula — o ganho é real e mora só no topo do ranking
+
+A §13.1 levantou a hipótese (a): *o gargalo do denso é o chunking, não o embedder?* A janela de
+1.500 caracteres corta no meio de cláusulas; `chunkar_clausula` divide na unidade semântica
+natural — a mesma filosofia do `rag/chunking.py` da Fase 1, que divide por `Art. Nº`.
+
+**A cobertura do detector foi medida antes de qualquer métrica** (`--diagnostico-chunker` →
+`fronteiras_clausula.json`): **410 dos 510 contratos (80,4%)** têm 3+ fronteiras detectáveis,
+mediana de 13. Os outros 100 caem no **fallback explícito para janela** — sem isso, "divide por
+cláusula" seria uma afirmação sobre um corpus que não tem cláusulas detectáveis em 1/5 dos casos.
+Chunks: 20.806 → 23.464.
+
+O primeiro resultado, nos quatro recuperadores, parecia limpo:
+
+| recuperador | recall@1 janela → cláusula | ICs |
+|---|---|---|
+| BM25 | 0,275 → 0,311 | [0,266; 0,284] vs [0,301; 0,321] — **disjuntos** |
+| denso e5 | 0,225 → 0,262 | [0,216; 0,233] vs [0,253; 0,272] — **disjuntos** |
+| híbrido RRF | 0,275 → 0,312 | [0,266; 0,284] vs [0,302; 0,322] — **disjuntos** |
+| rerank | 0,313 → 0,355 | [0,303; 0,322] vs [0,344; 0,366] — **disjuntos** |
+
+Quatro ICs disjuntos na mesma direção. Estava escrito como ganho — e estava errado.
+
+#### O que desmontou: o MRR andou para o outro lado
+
+Nos **mesmos quatro**, o MRR **caiu**: BM25 0,557 → 0,546, denso 0,496 → 0,491, híbrido 0,562 →
+0,553, rerank 0,604 → 0,601. Recall@1 subindo com MRR descendo é incoerente para um mesmo
+recuperador — a menos que o **denominador do recall** tenha mudado.
+
+Mudou. `recall@k = |gold ∩ top-k| / |gold|`, e **|gold| depende do chunker**: a janela usa
+`overlap=200`, então um span de fronteira intersecta **dois** chunks; o chunker por cláusula não
+sobrepõe entre cláusulas. Medido sobre as 6.702 perguntas com gold:
+
+| | |gold| médio | teto de recall@1 | teto de recall@5 |
+|---|---:|---:|---:|
+| janela | 1,908 | **0,717** | 0,989 |
+| cláusula | 1,701 | **0,784** | 0,992 |
+
+**O teto do recall@1 subiu 0,067 sozinho** — mais que qualquer ganho observado (+0,036 a +0,042).
+Os quatro ICs disjuntos estavam medindo a régua, não o recuperador. Um span rotulado por advogado
+não muda de tamanho porque eu troquei o fatiador; o número de chunks que ele toca, sim.
+
+**Correção estrutural, não nota de rodapé.** `consolidar` agora reporta, em todo relatório:
+`teto` por k, `gold_medio_por_pergunta`, e um **`recall_norm_at_k` = `|gold ∩ top-k| / min(k,|gold|)`**
+— "do gold que **cabia** em k posições, quanto foi recuperado". Cada pergunta contribui numa escala
+0–1 independente do seu |gold|, então a média **e o bootstrap** são comparáveis entre chunkings.
+Normalizar só a média (razão de médias) daria o ponto sem o IC, que aqui é exatamente o que decide.
+As **oito avaliações foram reexecutadas** com a métrica nova — nenhum número abaixo é derivado à
+mão a partir dos relatórios antigos.
+
+#### O resultado depois da correção
+
+| recuperador | recall@1 **bruto** (janela → cláusula) | recall@1 **normalizado** |
+|---|---|---|
+| BM25 | 0,275 → 0,311 · **disjuntos** | 0,431 → 0,421 · sobrepõem |
+| denso e5 | 0,225 → 0,262 · **disjuntos** | 0,352 → 0,356 · sobrepõem |
+| híbrido RRF | 0,275 → 0,312 · **disjuntos** | 0,435 → 0,427 · sobrepõem |
+| rerank | 0,313 → 0,355 · **disjuntos** | 0,473 → 0,472 · sobrepõem |
+
+E as métricas que **nunca** dependeram do denominador concordam entre si, apontando de leve para o
+outro lado — todas com ICs sobrepostos:
+
+| | janela → cláusula |
+|---|---|
+| **hit@5** (algum gold no top-5) | BM25 0,705 → 0,694 · híbrido 0,713 → 0,700 · rerank 0,769 → 0,761 |
+| **MRR** | BM25 0,557 → 0,546 · híbrido 0,562 → 0,553 · rerank 0,604 → 0,601 |
+
+**A conclusão é efeito nenhum.** Não "ganho pequeno": em quatro recuperadores × quatro métricas
+comparáveis, **nenhum IC se separa**, e em dois dos quatro o recall@1 normalizado até desce. Os
+quatro ICs disjuntos da primeira tabela eram **integralmente** o denominador se mexendo. A
+**hipótese (a) da §13.1 está refutada**: o chunking não era o gargalo do denso.
+
+**O chunker fica no repositório** (`--chunker clausula`), como o `bge-large-en` da §13.1 — um
+experimento negativo só é verificável se dá para rodá-lo de novo.
+
+**Por que isto fica no documento em vez de sumir com o resultado.** O modo de falha aqui é o mesmo
+que a §13.4 tem sobre o prompt e a §5 sobre o `ruff` local: um artefato do instrumento lido como
+propriedade do objeto. Quatro ICs disjuntos e concordantes são exatamente o tipo de evidência que
+se aceita sem conferir — e teriam sustentado uma alegação falsa no README. O que pegou não foi um
+teste: foi uma métrica **secundária** (MRR) discordando da manchete. É o argumento para reportar
+mais de uma métrica mesmo quando uma já conta a história que se queria contar.
+
+> **Um segundo defeito, achado no meio da correção.** A primeira reexecução saiu com `teto: 0,0` e
+> `recall_norm: 0,0` em tudo. Causa: os quatro módulos de avaliação reconstruíam o registro
+> `Avaliada` campo a campo, e o `n_gold` recém-criado foi descartado pelos quatro em silêncio —
+> passando por `ruff`, `mypy --strict` e 53 testes, porque o campo *existia*, só chegava zerado.
+> As quatro reconstruções viraram um `_registrar` único com `dataclasses.replace`. O teste que
+> guarda isso compara **todos** os campos via `fields()`, não o `n_gold`: travar o sintoma não
+> impediria a próxima ocorrência.
+
+### 13.7 O gerador maior — melhor na média, e **pior no que importa**
+
+A §13.4 fechou apontando "modelo maior" como lever plausível. Rodado: **`gemma2:9b`** contra o
+`qwen2.5:7b`, **mesmo prompt** (`equilibrado`), **mesma amostra**, **mesmas seeds** — de amostragem
+e do LLM. 75 minutos a **6,3 tok/s** (5,4 GB de modelo em 6 GB de VRAM, com offload para CPU).
+
+| | não-alucinação | cobertura | balanceada |
+|---|---:|---:|---:|
+| *Baseline trivial: abster de tudo* | *1,000* | *0,000* | *0,500* |
+| `qwen2.5:7b` | **0,987** [0,953; 0,996] | 0,387 [0,312; 0,467] | 0,687 |
+| `gemma2:9b` | 0,900 [0,842; 0,938] | **0,620** [0,540; 0,694] | **0,760** |
+
+Pela média balanceada, o modelo maior vence com folga: **+0,073**. E a leitura de manchete pararia
+aí. O McNemar pareado por recorte mostra o que a média esconde:
+
+| recorte | só o qwen acerta | só o gemma acerta | n disc. | p | método |
+|---|---:|---:|---:|---:|---|
+| **cobertura** | 1 | **36** | 37 | **2,28 × 10⁻⁸** | χ² (Yates) |
+| **não-alucinação** | **14** | 1 | 15 | **9,77 × 10⁻⁴** | binomial exato |
+| geral | 15 | 37 | 52 | 3,59 × 10⁻³ | χ² (Yates) |
+
+**As duas taxas se movem em direções opostas, e as duas com significância.** O `gemma2:9b`
+responde muito mais (+23,3 pp de cobertura) **e inventa muito mais**: a alucinação sai de 1,3%
+para **10,0%** — quase **8× mais**. Não é "melhor": é **outro ponto de operação**.
+
+**Por que isso decide a escolha, e não a média balanceada.** A média trata os dois erros como
+equivalentes, e neste domínio eles não são. Um contrato em que o sistema afirma existir uma
+cláusula de rescisão que não existe é um erro de outra natureza que "não encontrei". A 10% de
+invenção, uma em cada dez respostas afirmativas é ficção com aparência de citação — e o
+`qwen2.5:7b`, com 1,3%, é o que se manda para produção jurídica. **O modelo maior perde por uma
+razão que a métrica agregada premiava.**
+
+**A justificativa metodológica desta seção inteira.** Foi para este caso que o McNemar foi feito
+**por recorte** e não só no agregado: no "geral", os 36 acertos exclusivos de cobertura e os 14 de
+não-alucinação **se cancelam parcialmente** (52 discordantes, p três ordens de grandeza mais fraco).
+Um teste só do agregado teria reportado "o gemma é melhor, p = 0,004" — verdadeiro e enganoso.
+Também é o caso que exigiu os **dois regimes** de teste: com 15 discordantes na não-alucinação a
+aproximação χ² não vale, e o p vem do binomial exato — os dois números da tabela acima saem de
+testes diferentes, e a coluna `método` existe para que isso não passe como detalhe.
+
+> **Correção de reporte, achada ao escrever esta tabela.** O p da cobertura saía como **`0.0`** —
+> `round(p, 6)` engolindo 2,28e-08. Um p-valor **nunca é zero**, e a perda de ordem de grandeza
+> acontecia justamente onde a evidência é mais forte. Trocado por 3 algarismos significativos.
+
+**O que o arco de geração fecha, então:** o prompt equilibrado é um ganho **de graça** (mais
+cobertura, não-alucinação idêntica, p = 6,6 × 10⁻⁵) e entra; o gerador maior é um **trade-off**
+medido, e **não entra** — o preço em invenção não vale a cobertura neste domínio. Os dois foram
+listados como "próximos passos" na §13.4 com a mesma plausibilidade; medir separou um do outro.
 
 ## Fase 6 — encerrada
 
