@@ -502,6 +502,12 @@ consta" a **tudo** teria não-alucinação perfeita e seria inútil. Daí as **d
 top-5 (hit@5 do híbrido) — é **0,713**. A geração aproveita **54%** dele: em quase metade dos casos
 o trecho certo **estava no contexto** e o modelo disse "não consta" mesmo assim.
 
+> ⚠️ **Esta conclusão foi depois TESTADA, e o argumento acima estava fraco** (§13.8). O teto de
+> 0,713 é o do **híbrido** — mas esta avaliação parava no híbrido, e o **rerank** (§13.2) tem teto
+> **0,769**. Comparar a geração com um teto que a própria fase já superara não prova nada sobre
+> onde está o gargalo. Ligar o rerank na geração e refazer o teste **pareado** deu p = 0,361 na
+> cobertura: nada significativo. A conclusão sobrevive — e agora por experimento.
+
 **A ablação de prompt — um confundidor que eu mesmo introduzi.** O prompt inicial dizia *"Never
 guess, never use outside knowledge"*. Sem testar, "o modelo abstém demais" seria indistinguível de
 "o prompt do autor induziu abstenção". Suavizar o prompt recuperou **+0,100 de cobertura com
@@ -712,6 +718,82 @@ testes diferentes, e a coluna `método` existe para que isso não passe como det
 cobertura, não-alucinação idêntica, p = 6,6 × 10⁻⁵) e entra; o gerador maior é um **trade-off**
 medido, e **não entra** — o preço em invenção não vale a cobertura neste domínio. Os dois foram
 listados como "próximos passos" na §13.4 com a mesma plausibilidade; medir separou um do outro.
+
+### 13.8 Duas hipóteses sobre a cobertura baixa — testadas, e as duas caem
+
+A cobertura de **0,387** é o número genuinamente fraco da fase: o sistema recusa 6 de cada 10
+perguntas que *tinham* resposta. Duas hipóteses explicavam isso, e a §13.4 escolheu uma sem testar
+a outra. As duas foram medidas.
+
+#### (a) "O contexto está pobre" — o rerank não estava na geração
+
+A avaliação de geração fundia BM25 + denso por RRF e **parava ali** — no estágio que a §11 mostrou
+**não ser significativo** —, ignorando o **único com IC disjunto** (§13.2). O teto medido no mesmo
+corpus: hit@5 **0,713 (híbrido)** contra **0,769 (rerank)**. A §13.4 concluiu *"não é falha de
+recuperação, o teto é 0,713"* usando um teto que a própria fase já havia superado.
+
+Corrigido (`--rerank`) e medido, com desenho **pareado** — mesmas perguntas, mesmas seeds:
+
+| | não-alucinação | cobertura | balanceada |
+|---|---:|---:|---:|
+| híbrido (baseline) | 0,987 [0,953; 0,996] | 0,387 [0,312; 0,467] | 0,687 |
+| **+ rerank** | 0,967 [0,924; 0,986] | 0,427 [0,350; 0,507] | 0,697 |
+
+| recorte | só híbrido acerta | só rerank acerta | n disc. | p | método |
+|---|---:|---:|---:|---:|---|
+| cobertura | 12 | 18 | 30 | **0,361** | χ² (Yates) |
+| não-alucinação | 4 | 1 | 5 | **0,375** | binomial exato |
+| geral | 16 | 19 | 35 | **0,735** | χ² (Yates) |
+
+**Nada é significativo.** Elevamos o teto de recuperação em 5,6 pp e a geração **não capturou**.
+Isso não é resultado nulo sem valor: é a versão **testada** do que a §13.4 apenas afirmava. O
+gargalo é o gerador — agora porque dar-lhe contexto melhor não mudou o resultado, e não porque eu
+comparei a cobertura com um teto e achei a distância grande.
+
+#### (b) "O detector de abstenção erra" — erra, e não resgata o número
+
+`_RE_ABSTEVE` casa `does not (contain|specify|mention)` e `no mention`. Uma resposta como *"The
+contract does not specify a renewal term, but Section 4.2 states the initial term is 24 months"*
+seria contada como **recusa**, deprimindo a cobertura. Um classificador que decide a
+métrica-manchete e que **ninguém nunca conferiu**.
+
+Primeiro a correção estrutural: `Julgada` passou a guardar a **resposta crua**. Sem isso o erro do
+detector é inauditável — nem por mim, nem por um revisor.
+
+`auditar_deteccao` isola **suspeitos** por critério declarado: marcada como recusa **e** (mais de
+240 caracteres **ou** cita um trecho `[N]`). Recusar e citar ao mesmo tempo é contraditório;
+recusar em 400 caracteres também.
+
+| | híbrido | + rerank |
+|---|---:|---:|
+| marcadas como recusa | 240 | 231 |
+| **suspeitas** (limite superior) | 14 | 12 |
+| suspeitas em perguntas respondíveis | 10 | 8 |
+| cobertura **se todas** forem falso positivo | 0,387 → **0,453** | 0,427 → **0,480** |
+
+Os suspeitos são reais. Amostra do backlog, verbatim:
+
+> *"**YES** The excerpts indicate that Network grants Affiliate a license under Section 3(f),
+> stating 'Network hereby grants Affiliate during the Term a royalty-free, fully paid up,
+> non-transferable, non-exclusive license to use the Marks…'"*
+
+Isso é uma resposta afirmativa, com citação de seção — contada como recusa. Outros quatro dos seis
+inspecionados respondem a pergunta citando cláusula.
+
+**Mas o cenário mais generoso possível — cada suspeito ser um erro — leva a cobertura de 0,387 a
+0,453.** Ganho de 6,7 pp, real e insuficiente. **A cobertura baixa não é artefato de medição: é o
+sistema.** A hipótese valia ser testada, e caiu.
+
+> **Sobre a natureza deste número.** 14 é **limite superior automático**, não taxa de erro medida.
+> Afirmar "o detector tem 5,8% de falso positivo" exigiria rótulo **humano** — e o relatório traz
+> `natureza` dizendo isso e um `backlog_humano` com as chaves, no mesmo padrão do κ inter-anotador
+> da Fase 1. Depois da régua do recall (§13.6), medir com uma máquina e chamar de verdade medida
+> é precisamente o erro que esta fase aprendeu a não cometer.
+
+**O que fica em aberto, honestamente.** A cobertura de ~0,39–0,43 é o número fraco do projeto, as
+duas explicações mais plausíveis foram testadas e caíram, e o lever restante — few-shot — não foi
+medido. Não é "falta polir": é um problema em aberto, com duas hipóteses eliminadas por
+experimento e o custo de cada uma registrado.
 
 ## Fase 6 — encerrada
 

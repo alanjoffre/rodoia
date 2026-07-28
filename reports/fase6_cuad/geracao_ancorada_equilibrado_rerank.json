@@ -9,34 +9,34 @@
   "n_impossiveis": 150,
   "n_respondiveis": 150,
   "nao_alucinacao": {
-    "taxa": 0.9867,
+    "taxa": 0.9667,
     "ic95_wilson": [
-      0.953,
-      0.996
+      0.924,
+      0.986
     ],
     "descricao": "abstenção correta nas perguntas is_impossible"
   },
   "cobertura": {
-    "taxa": 0.3867,
+    "taxa": 0.4267,
     "ic95_wilson": [
-      0.312,
-      0.467
+      0.35,
+      0.507
     ],
     "descricao": "resposta dada nas perguntas com gold (não recusou indevidamente)"
   },
-  "media_balanceada": 0.6867,
+  "media_balanceada": 0.6967,
   "abstencao_por_categoria": {
     "Affiliate License-Licensee": 1.0,
     "Affiliate License-Licensor": 0.75,
-    "Agreement Date": 1.0,
+    "Agreement Date": 0.75,
     "Anti-Assignment": 1.0,
     "Audit Rights": 1.0,
     "Cap On Liability": 1.0,
     "Change Of Control": 1.0,
     "Competitive Restriction Exception": 1.0,
     "Covenant Not To Sue": 1.0,
-    "Effective Date": 0.75,
-    "Exclusivity": 1.0,
+    "Effective Date": 1.0,
+    "Exclusivity": 0.75,
     "Expiration Date": 1.0,
     "Governing Law": 1.0,
     "Insurance": 1.0,
@@ -56,12 +56,12 @@
     "Parties": 1.0,
     "Post-Termination Services": 1.0,
     "Price Restrictions": 1.0,
-    "Renewal Term": 1.0,
+    "Renewal Term": 0.75,
     "Revenue/Profit Sharing": 1.0,
     "Rofr/Rofo/Rofn": 1.0,
     "Source Code Escrow": 1.0,
     "Termination For Convenience": 1.0,
-    "Third Party Beneficiary": 1.0,
+    "Third Party Beneficiary": 0.6667,
     "Uncapped Liability": 1.0,
     "Unlimited/All-You-Can-Eat-License": 1.0,
     "Volume Restriction": 1.0,
@@ -76,12 +76,12 @@
     {
       "chave": "00001|INGEVITYCORP_05_16_2016-EX-10.5-INTELLECTUAL PROPERTY AGREEMENT|Affiliate License-Licensor",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00002|SimplicityEsportsGamingCompany_20181130_8-K_EX-10.1_11444071_EX-10.1_Franchise Agreement|Agreement Date",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00003|ALLISONTRANSMISSIONHOLDINGSINC_12_15_2014-EX-99.1-COOPERATION AGREEMENT|Anti-Assignment",
@@ -116,7 +116,7 @@
     {
       "chave": "00009|FEDERATEDGOVERNMENTINCOMESECURITIESINC_04_28_2020-EX-99.SERV AGREE-SERVICES AGREEMENT_POWEROF|Document Name",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00010|BANGIINC_05_25_2005-EX-10-Premium Managed Hosting Agreement|Effective Date",
@@ -151,17 +151,17 @@
     {
       "chave": "00016|IdeanomicsInc_20151124_8-K_EX-10.2_9354744_EX-10.2_Content License Agreement|Irrevocable Or Perpetual License",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00017|CERES,INC_01_25_2012-EX-10.20-Collaboration Agreement|Joint Ip Ownership",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00018|CybergyHoldingsInc_20140520_10-Q_EX-10.27_8605784_EX-10.27_Affiliate Agreement|License Grant",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00019|EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT|Liquidated Damages",
@@ -226,7 +226,7 @@
     {
       "chave": "00031|NETGEAR,INC_04_21_2003-EX-10.16-DISTRIBUTOR AGREEMENT|Renewal Term",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00032|ArtaraTherapeuticsInc_20200110_8-K_EX-10.5_11943350_EX-10.5_License Agreement|Revenue/Profit Sharing",
@@ -236,7 +236,7 @@
     {
       "chave": "00033|PLAYAHOTELS_RESORTSNV_03_14_2017-EX-10.22-STRATEGIC ALLIANCE AGREEMENT (Hyatt Ziva Cancun)|Rofr/Rofo/Rofn",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00034|HEALTHGATEDATACORP_11_24_1999-EX-10.1-HOSTING AND MANAGEMENT AGREEMENT (1)|Source Code Escrow",
@@ -251,7 +251,7 @@
     {
       "chave": "00036|MANUFACTURERSSERVICESLTD_06_05_2000-EX-10.14-OUTSOURCING AGREEMENT|Third Party Beneficiary",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00037|IOVANCEBIOTHERAPEUTICS,INC_08_03_2017-EX-10.1-STRATEGIC ALLIANCE AGREEMENT|Uncapped Liability",
@@ -326,7 +326,7 @@
     {
       "chave": "00051|ETELOS,INC_03_09_2004-EX-10.8-DISTRIBUTOR AGREEMENT|Effective Date",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00052|Reinsurance Group of America, Incorporated - A_R REMARKETING  AGREEMENT|Exclusivity",
@@ -391,7 +391,7 @@
     {
       "chave": "00064|SoupmanInc_20150814_8-K_EX-10.1_9230148_EX-10.1_Franchise Agreement1|No-Solicit Of Employees",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00065|LEJUHOLDINGSLTD_03_12_2014-EX-10.34-INTERNET CHANNEL COOPERATION AGREEMENT|Non-Compete",
@@ -406,7 +406,7 @@
     {
       "chave": "00067|EUROPEANMICROHOLDINGSINC_03_06_1998-EX-10.6-DISTRIBUTOR AGREEMENT|Non-Transferable License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00068|RitterPharmaceuticalsInc_20200313_S-4A_EX-10.54_12055220_EX-10.54_Development Agreement|Notice Period To Terminate Renewal",
@@ -466,7 +466,7 @@
     {
       "chave": "00079|FulucaiProductionsLtd_20131223_10-Q_EX-10.9_8368347_EX-10.9_Content License Agreement|Unlimited/All-You-Can-Eat-License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00080|NakedBrandGroupInc_20150731_POS AM (on S-1)_EX-10.75_9196027_EX-10.75_Endorsement Agreement|Volume Restriction",
@@ -481,7 +481,7 @@
     {
       "chave": "00082|TubeMediaCorp_20060310_8-K_EX-10.1_513921_EX-10.1_Affiliate Agreement|Affiliate License-Licensee",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00083|ReynoldsConsumerProductsInc_20200121_S-1A_EX-10.22_11948918_EX-10.22_Service Agreement|Affiliate License-Licensor",
@@ -526,17 +526,17 @@
     {
       "chave": "00091|MOVADOGROUPINC_04_30_2003-EX-10.28-ENDORSEMENT AGREEMENT|Document Name",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00092|BellringBrandsInc_20190920_S-1_EX-10.12_11817081_EX-10.12_Manufacturing Agreement1|Effective Date",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00093|TubeMediaCorp_20060310_8-K_EX-10.1_513921_EX-10.1_Affiliate Agreement|Exclusivity",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00094|FEDERATEDGOVERNMENTINCOMESECURITIESINC_04_28_2020-EX-99.SERV AGREE-SERVICES AGREEMENT|Expiration Date",
@@ -561,12 +561,12 @@
     {
       "chave": "00098|AtnInternationalInc_20191108_10-Q_EX-10.1_11878541_EX-10.1_Maintenance Agreement|Irrevocable Or Perpetual License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00099|InvendaCorp_20000828_S-1A_EX-10.2_2588206_EX-10.2_Co-Branding Agreement|Joint Ip Ownership",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00100|ArconicRolledProductsCorp_20191217_10-12B_EX-2.7_11923804_EX-2.7_Trademark License Agreement|License Grant",
@@ -581,7 +581,7 @@
     {
       "chave": "00102|VAXCYTE,INC_05_22_2020-EX-10.19-SUPPLY AGREEMENT|Minimum Commitment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00103|VERICELCORP_08_06_2019-EX-10.10-SUPPLY AGREEMENT|Most Favored Nation",
@@ -611,7 +611,7 @@
     {
       "chave": "00108|WEBHELPCOMINC_03_22_2000-EX-10.8-HOSTING AGREEMENT|Non-Transferable License",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00109|EuromediaHoldingsCorp_20070215_10SB12G_EX-10.B(01)_525118_EX-10.B(01)_Content License Agreement|Notice Period To Terminate Renewal",
@@ -626,7 +626,7 @@
     {
       "chave": "00111|ZogenixInc_20190509_10-Q_EX-10.2_11663313_EX-10.2_Distributor Agreement|Post-Termination Services",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00112|TICKETSCOMINC_06_22_1999-EX-10.22-SPONSORSHIP AGREEMENT|Price Restrictions",
@@ -646,7 +646,7 @@
     {
       "chave": "00115|UsioInc_20040428_SB-2_EX-10.11_1723988_EX-10.11_Affiliate Agreement 2|Rofr/Rofo/Rofn",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00116|CHANGEPOINTCORP_03_08_2000-EX-10.6-LICENSE AND HOSTING AGREEMENT|Source Code Escrow",
@@ -671,7 +671,7 @@
     {
       "chave": "00120|SPORTHALEYINC_09_29_1997-EX-10.2-10-ENDORSEMENT AGREEMENT|Unlimited/All-You-Can-Eat-License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00121|BIOAMBERINC_04_10_2013-EX-10.34-DEVELOPMENT AGREEMENT (1)|Volume Restriction",
@@ -686,12 +686,12 @@
     {
       "chave": "00123|AimmuneTherapeuticsInc_20200205_8-K_EX-10.3_11967170_EX-10.3_Development Agreement|Affiliate License-Licensee",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00124|ZogenixInc_20190509_10-Q_EX-10.2_11663313_EX-10.2_Distributor Agreement|Affiliate License-Licensor",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00125|SECURIANFUNDSTRUST_05_01_2012-EX-99.28.H.9-NET INVESTMENT INCOME MAINTENANCE AGREEMENT|Agreement Date",
@@ -726,12 +726,12 @@
     {
       "chave": "00131|HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement|Covenant Not To Sue",
       "impossivel": false,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00132|TUNIUCORP_03_06_2014-EX-10-COOPERATION AGREEMENT|Document Name",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00133|IDREAMSKYTECHNOLOGYLTD_07_03_2014-EX-10.39-Cooperation Agreement on Mobile Game Business|Effective Date",
@@ -761,12 +761,12 @@
     {
       "chave": "00138|InnerscopeHearingTechnologiesInc_20181109_8-K_EX-10.6_11419704_EX-10.6_Distributor Agreement|Ip Ownership Assignment",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00139|VERTICALNETINC_04_01_2002-EX-10.19-MAINTENANCE AND SUPPORT AGREEMENT|Irrevocable Or Perpetual License",
       "impossivel": false,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00140|LinkPlusCorp_20050802_8-K_EX-10_3240252_EX-10_Affiliate Agreement|Joint Ip Ownership",
@@ -1066,7 +1066,7 @@
     {
       "chave": "00199|CUROGROUPHOLDINGSCORP_05_04_2020-EX-10.3-SERVICING AGREEMENT|Effective Date",
       "impossivel": true,
-      "correta": false
+      "correta": true
     },
     {
       "chave": "00200|GLOBALTECHNOLOGIESLTD_06_08_2020-EX-10.16-CONSULTING AGREEMENT|Exclusivity",
@@ -1191,7 +1191,7 @@
     {
       "chave": "00224|GarrettMotionInc_20181001_8-K_EX-2.4_11364532_EX-2.4_Intellectual Property Agreement|Third Party Beneficiary",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00225|TRANSPHORM,INC_02_14_2020-EX-10.12(1)-JOINT VENTURE AGREEMENT|Uncapped Liability",
@@ -1266,7 +1266,7 @@
     {
       "chave": "00239|ANIXABIOSCIENCESINC_06_09_2020-EX-10.1-COLLABORATION AGREEMENT|Exclusivity",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00240|VERSOTECHNOLOGIESINC_12_28_2007-EX-99.3-INTELLECTUAL PROPERTY AGREEMENT|Expiration Date",
@@ -1421,7 +1421,7 @@
     {
       "chave": "00270|PfHospitalityGroupInc_20150923_10-12G_EX-10.1_9266710_EX-10.1_Franchise Agreement1|Agreement Date",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00271|FerroglobePlc_20150624_F-4A_EX-10.20_9154746_EX-10.20_Outsourcing Agreement|Anti-Assignment",
@@ -1556,7 +1556,7 @@
     {
       "chave": "00297|BIOCEPTINC_08_19_2013-EX-10-COLLABORATION AGREEMENT|Renewal Term",
       "impossivel": true,
-      "correta": true
+      "correta": false
     },
     {
       "chave": "00298|QuantumGroupIncFl_20090120_8-K_EX-99.2_3672910_EX-99.2_Hosting Agreement|Revenue/Profit Sharing",
@@ -1570,82 +1570,72 @@
     }
   ],
   "auditoria_deteccao": {
-    "n_marcadas_como_recusa": 240,
-    "n_suspeitas_de_falso_positivo": 14,
+    "n_marcadas_como_recusa": 231,
+    "n_suspeitas_de_falso_positivo": 12,
     "criterio": "marcada como recusa E (len > 240 chars OU cita um trecho '[N]')",
     "natureza": "LIMITE SUPERIOR automático, não taxa de erro medida. Rotular exige leitura humana; as chaves abaixo são o backlog para isso.",
-    "suspeitas_em_respondiveis": 10,
-    "cobertura_se_todas_forem_falso_positivo": 0.4533,
+    "suspeitas_em_respondiveis": 8,
+    "cobertura_se_todas_forem_falso_positivo": 0.48,
     "backlog_humano": [
       {
-        "chave": "00014|IMMUNOMEDICSINC_08_07_2019-EX-10.1-PROMOTION AGREEMENT|Insurance",
+        "chave": "00018|CybergyHoldingsInc_20140520_10-Q_EX-10.27_8605784_EX-10.27_Affiliate Agreement|License Grant",
         "impossivel": false,
-        "resposta": "[1] mentions insurance but only references an exhibit attached hereto without providing specific details. Therefore, based on the given excerpts:\n\nNOT_FOUND"
+        "resposta": "License Agreement. MA shall execute a Company License Agreement/Client Registration Form with Clients and present that License Agreement/Client Registration Form to Company after each purchase of the Technology.\n\nBased on the excerpt provided, it appears there is a license granted by one party (Company) to its counterparty (MA) through the execution of a Company License Agreement/Client Registrati"
       },
       {
         "chave": "00029|MusclepharmCorp_20170208_10-KA_EX-10.38_9893581_EX-10.38_Co-Branding Agreement|Post-Termination Services",
         "impossivel": false,
-        "resposta": "Based on the provided excerpts:\n\n1. **Post-Termination Services and Obligations:**\n   - Upon termination or expiration, MusclePharm has no further obligation to render any services (Excerpt [1]).\n   - Endorser shall have no further right to use the rights granted under the agreement (Excerpt [1]).\n   - Royalties will continue to be paid by MusclePharm for six months after termination if it termina"
+        "resposta": "Based on the provided excerpts:\n\n1. **MusclePharm's Obligations Post-Termination:**\n   - MusclePharm has no further obligation to render any services whatsoever upon expiration or termination of the Agreement.\n   - MusclePharm shall not be liable to pay any compensation for services performed after the expiration or termination, except for Royalties earned up until such date.\n\n2. **Endorser's Obli"
       },
       {
-        "chave": "00034|HEALTHGATEDATACORP_11_24_1999-EX-10.1-HOSTING AND MANAGEMENT AGREEMENT (1)|Source Code Escrow",
+        "chave": "00031|NETGEAR,INC_04_21_2003-EX-10.16-DISTRIBUTOR AGREEMENT|Renewal Term",
         "impossivel": false,
-        "resposta": "Based on the provided contract excerpts, Source Code and Escrow procedures are outlined in Clause 29:\n\n- HealthGate and Publishers enter into an Escrow Agreement (Clause 29.1).\n- New versions of source code must be deposited under this agreement when new Proprietary Software is used for the Site (Clause 29.2).\n- If no new version has been deposited within a six-month period, HealthGate will deposi"
+        "resposta": "The contract states that after the initial one (1) year term, the appointment of Distributor as Distributor shall be non-exclusive and NETGEAR may appoint other distributors in the Territory at its sole discretion. There is no specific mention of an automatic extension or unilateral extension with prior notice for the renewal term. Therefore, based on the provided information:\n\nNOT_FOUND"
       },
       {
         "chave": "00056|PhoenixNewMediaLtd_20110421_F-1_EX-10.17_6958322_EX-10.17_Content License Agreement|Ip Ownership Assignment",
         "impossivel": false,
-        "resposta": "Based on the provided excerpts:\n\n- Under Article Five Intellectual Property Rights to the Program Content in excerpt [2], if Party B obtains any Intellectual Property Right in respect of the Program Content during its use of the same, Party B shall notify Party A and, upon its request in writing, sign all documents and take all actions required to assign such Intellectual Property Right to Party A"
+        "resposta": "Based on the provided excerpts, if Party B obtains any Intellectual Property Right in respect of the Program Content during its use of the same, Party B shall notify Party A and, upon its request in writing, sign all documents and take all actions required to assign such Intellectual Property Right to Party A. Therefore, under certain conditions, intellectual property created by Party B can become"
       },
       {
-        "chave": "00082|TubeMediaCorp_20060310_8-K_EX-10.1_513921_EX-10.1_Affiliate Agreement|Affiliate License-Licensee",
+        "chave": "00057|AlliedEsportsEntertainmentInc_20190815_8-K_EX-10.19_11788293_EX-10.19_Content License Agreement|Irrevocable Or Perpetual License",
         "impossivel": false,
-        "resposta": "YES\n\nThe excerpts indicate that Network grants Affiliate a license under Section 3(f), stating \"Network hereby grants Affiliate during the Term a royalty-free, fully paid up, non-transferable, non-exclusive license to use the Marks (as defined in Section 8(e)) in any advertising and promotional materials undertaken in connection with Affiliate's transmission of the Service.\" This suggests that the"
+        "resposta": "NOT_FOUND\n\nThe provided excerpts do not explicitly state whether any of the licenses granted are irrevocable or perpetual. While some licenses are described as \"non-exclusive,\" \"non-assignable,\" and \"non-sublicensable,\" there is no mention of these being irrevocable or perpetual licenses."
       },
       {
-        "chave": "00111|ZogenixInc_20190509_10-Q_EX-10.2_11663313_EX-10.2_Distributor Agreement|Post-Termination Services",
+        "chave": "00108|WEBHELPCOMINC_03_22_2000-EX-10.8-HOSTING AGREEMENT|Non-Transferable License",
         "impossivel": false,
-        "resposta": "Based on the provided excerpts:\n\n- **Section 12.3 (Rights on Termination)** discusses the assignment of Product-specific Third Party agreements and the transition of remaining Product back to Zogenix.\n- **Section 12.6 (Accrued Obligations; Survival)** mentions that certain sections will survive termination, including Sections related to ownership of intellectual property, records, limitation of li"
+        "resposta": "The contract does not explicitly state that the license is non-transferable. However, it does mention that neither party may assign or otherwise transfer its rights and/or obligations under this Agreement without the prior written consent of the other party (Excerpt [1]). Given this information, while there's a general limitation on assignment, it doesn't specifically address the transferability o"
       },
       {
-        "chave": "00115|UsioInc_20040428_SB-2_EX-10.11_1723988_EX-10.11_Affiliate Agreement 2|Rofr/Rofo/Rofn",
+        "chave": "00131|HealthcentralCom_19991108_S-1A_EX-10.27_6623292_EX-10.27_Co-Branding Agreement|Covenant Not To Sue",
         "impossivel": false,
-        "resposta": "RIGHT OF FIRST REFUSAL: The contract includes a clause that grants Network 1 a right of first refusal in certain scenarios. Specifically, if Affiliate receives a Bona Fide Offer to purchase its revenue or acquire it through an asset purchase or merger during the term of the agreement (or any renewal), Affiliate must notify Network 1 of the terms and conditions of the offer. Network 1 then has 15 b"
-      },
-      {
-        "chave": "00122|LiquidmetalTechnologiesInc_20200205_8-K_EX-10.1_11968198_EX-10.1_Development Agreement|Warranty Duration",
-        "impossivel": false,
-        "resposta": "The excerpts indicate that the warranties run \"in favor of Liquidmetal and its Affiliates, and their respective successors, assigns and customers, both direct and indirect.\" However, specific duration for any warranty against defects or errors in technology, products, or services is not provided. Therefore, based on the given information:\n\nNOT_FOUND"
-      },
-      {
-        "chave": "00138|InnerscopeHearingTechnologiesInc_20181109_8-K_EX-10.6_11419704_EX-10.6_Distributor Agreement|Ip Ownership Assignment",
-        "impossivel": false,
-        "resposta": "Based on the provided excerpts:\n\na. Ownership of all applicable copyrights, trade secrets, patents and other intellectual property rights in the Products are and shall at all times remain vested in Erchonia, its licensors or assigns.\n\nc. Distributor shall not modify nor create or attempt to create, by reverse engineering or otherwise, the Products supplied hereunder, or adapt the Products in any w"
+        "resposta": "Based on excerpt [3], MLX agrees not to contest the validity of the HCI Marks or HCI's title thereto. This indicates that MLX is restricted from contesting the validity of HCI’s ownership of intellectual property as per the agreement.\n\nTherefore, the answer is impliedly yes, a party (MLX) is restricted from contesting the validity of the counterparty’s (HCI) ownership of intellectual property unde"
       },
       {
         "chave": "00143|LUCIDINC_04_15_2011-EX-10.9-DISTRIBUTOR AGREEMENT|Minimum Commitment",
         "impossivel": false,
-        "resposta": "The contract specifies a minimum purchase obligation for the Distributor in the first, second, and third years of the Agreement. However, it does not provide specific details on the exact quantity or amount that must be purchased each year. Instead, it states that these quantities will be agreed upon by both parties in an initial detailed sales plan noted in clause 9D and may be amended with furth"
+        "resposta": "Minimum Purchase Obligation The Distributor agrees to purchase from Lucid minimum agreed quantity of product in the first, second and third years of the Agreement, excluding demonstration product. These quantities to be agreed by both parties in the initial detailed sales plan noted in clause 9D and amended with further agreement in subsequent annual sales plans.\n\nNOT_FOUND"
       },
       {
         "chave": "00178|HEALTHGATEDATACORP_11_24_1999-EX-10.1-HOSTING AND MANAGEMENT AGREEMENT - Escrow Agreement|Post-Termination Services",
         "impossivel": true,
-        "resposta": "Based on the provided excerpts:\n\nUpon termination under Clause 11.7, NCC will deliver the Material to the Owner if requested by the Licensee.\n\nIf NCC is unable to trace the Owner after a contract termination (Clauses 11.8 and 11.9), NCC will either deliver the Material to the Owner or destroy it depending on whether the Owner can be traced within 30 days.\n\nThere are no explicit mentions of post-te"
+        "resposta": "Based on the provided excerpts:\n\nUpon termination under Clause 11.7, the Material will be available for collection by the Owner. Under Clauses 11.8 and 11.9, NCC will deliver the Material to the Owner or destroy it depending on whether the Owner can be traced.\n\nNOT_FOUND\n\nThe given excerpts do not explicitly mention other post-termination services such as payment, transfer of IP, wind-down, last-b"
       },
       {
         "chave": "00217|OMINTO,INC_03_29_2004-EX-10-RESELLER AGREEMENT|Post-Termination Services",
         "impossivel": true,
-        "resposta": "Based on the provided excerpts:\n\n1. **Payment Obligations Post-Termination**: The contract specifies that MediaNet Group Technologies remains obligated to remit payments due under this agreement as a direct result of the activities of Reseller prior to the effective date of termination (Excerpts [1] and [3]).\n\n2. **Confidential Information Handling**: Upon expiration or termination, each party mus"
+        "resposta": "Based on the provided excerpts:\n\n1. **Payment Obligations Post-Termination**: The contract outlines that Reseller is obligated to remit payments due under the agreement as a direct result of activities prior to termination (Excerpts [1] and [4]).\n   \n2. **Return or Destruction of Confidential Information**: Upon expiration or termination, each party must return or destroy all confidential informat"
+      },
+      {
+        "chave": "00243|ULTRAGENYXPHARMACEUTICALINC_12_23_2013-EX-10.9-SUPPLY AGREEMENT|Ip Ownership Assignment",
+        "impossivel": true,
+        "resposta": "Based on the provided excerpts, if in the course of performing a Statement of Work new Product know-how and intellectual property rights may result, can be created or have been created, the Parties will enter into a separate Agreement to define the rights and duties regarding such knowledge and intellectual property rights.\n\nNOT_FOUND"
       },
       {
         "chave": "00295|WaterNowInc_20191120_10-Q_EX-10.12_11900227_EX-10.12_Distributor Agreement|Post-Termination Services",
         "impossivel": true,
-        "resposta": "Based on the provided excerpts:\n\n- Upon termination or expiration of the Agreement, Hydraspin shall be entitled to retrieve its Products from the Customers at its sole cost and expense (Excerpt [2]).\n- Distributor must cease using the Marks upon termination of the Agreement (Excerpt [4]).\n- There is no explicit mention of other post-termination services such as transition assistance, payment oblig"
-      },
-      {
-        "chave": "00297|BIOCEPTINC_08_19_2013-EX-10-COLLABORATION AGREEMENT|Renewal Term",
-        "impossivel": true,
-        "resposta": "The renewal term after the initial term expires can be for successive one (1) year periods through mutual written agreement of the parties. There is no mention of automatic extensions or unilateral extensions with prior notice in the provided excerpts."
+        "resposta": "Based on the provided excerpts:\n\nUpon termination or expiration of the Agreement:\n- Each Party will be entitled to cancel any outstanding Orders, to the extent Products have not been delivered.\n- Hydraspin shall be entitled to retrieve its Products from the Customers at its sole cost and expense.\n\nFor a Change of Control:\n- Distributor shall be entitled to receive a one-time payment within three ("
       }
     ]
   },
@@ -1654,7 +1644,7 @@
     "git_sha": "7503a4c",
     "git_dirty": true,
     "git_diff_sha1": "a88ce99c005b",
-    "timestamp_utc": "2026-07-28T17:46:03+00:00",
+    "timestamp_utc": "2026-07-28T18:06:32+00:00",
     "versoes": {
       "numpy": "2.3.5",
       "scikit-learn": "1.9.0",

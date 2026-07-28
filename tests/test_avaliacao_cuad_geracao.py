@@ -13,6 +13,7 @@ from rodoia.rag.avaliacao_cuad_geracao import (
     Julgada,
     absteve,
     amostrar,
+    auditar_deteccao,
     comparar_pareado,
     consolidar_geracao,
     montar_contexto,
@@ -222,3 +223,52 @@ def test_comparar_pareado_casa_por_chave_nao_por_posicao() -> None:
 def test_comparar_pareado_sem_interseccao() -> None:
     cmp = comparar_pareado(_rel(("k1", True, True)), _rel(("k9", True, True)))
     assert "erro" in cmp
+
+
+# --- auditoria do detector de abstenção ------------------------------------
+
+
+def test_auditoria_acha_o_falso_positivo_plausivel() -> None:
+    """O caso concreto que motivou a auditoria: `_RE_ABSTEVE` casa `does not
+    specify`, então uma resposta que NEGA uma coisa e RESPONDE outra é contada como
+    recusa — deprimindo a cobertura e sustentando a conclusão 'o gargalo é o
+    gerador'."""
+    longa = (
+        "The contract does not specify a renewal term explicitly, but Section 4.2 "
+        "states that the initial term is 24 months from the Effective Date and that "
+        "the agreement continues in force until terminated by either party with "
+        "ninety (90) days written notice, as described in trecho [2] above and "
+        "further qualified by the provisions of Section 9 regarding assignment."
+    )
+    julgadas = [Julgada("A", False, absteve(longa), False, "k1", longa)]
+    assert julgadas[0].absteve is True          # o detector marcou como recusa
+    a = auditar_deteccao(julgadas)
+    assert a["n_marcadas_como_recusa"] == 1
+    assert a["n_suspeitas_de_falso_positivo"] == 1
+    assert a["suspeitas_em_respondiveis"] == 1
+
+
+def test_auditoria_nao_suspeita_de_recusa_curta() -> None:
+    """Uma recusa de verdade é curta e não cita trecho — não pode entrar no backlog
+    e inflar o limite superior."""
+    curta = "NOT_FOUND"
+    julgadas = [Julgada("A", True, True, True, "k1", curta)]
+    a = auditar_deteccao(julgadas)
+    assert a["n_marcadas_como_recusa"] == 1
+    assert a["n_suspeitas_de_falso_positivo"] == 0
+
+
+def test_auditoria_suspeita_de_recusa_que_cita_trecho() -> None:
+    """Citar `[N]` é conteúdo ancorado: recusar e citar ao mesmo tempo é contraditório."""
+    r = "The excerpts do not contain the answer, though [3] mentions termination."
+    a = auditar_deteccao([Julgada("A", False, True, False, "k1", r)])
+    assert a["n_suspeitas_de_falso_positivo"] == 1
+
+
+def test_auditoria_declara_a_natureza_do_numero() -> None:
+    """O número é LIMITE SUPERIOR automático, não taxa de erro medida. Rotular exige
+    humano — e o relatório precisa dizer isso, senão vira evidência fabricada."""
+    a = auditar_deteccao([Julgada("A", True, True, True, "k1", "NOT_FOUND")])
+    assert "LIMITE SUPERIOR" in a["natureza"]
+    assert "humana" in a["natureza"]
+    assert "backlog_humano" in a

@@ -59,6 +59,7 @@ from rodoia.rag.avaliacao_cuad import (
 )
 from rodoia.rag.avaliacao_cuad_denso import _ranquear_denso
 from rodoia.rag.avaliacao_cuad_hibrido import fundir
+from rodoia.rag.avaliacao_cuad_rerank import MODELO_RERANK, rerankear
 from rodoia.rag.cuad import Contrato, Pergunta, carregar
 from rodoia.rag.embeddings import Embedder
 from rodoia.rag.llm import LLM
@@ -120,6 +121,64 @@ def absteve(resposta: str) -> bool:
     return bool(_RE_ABSTEVE.search(resposta))
 
 
+# Uma recusa de verdade é CURTA: o marcador, ou uma frase dizendo que não achou.
+# Acima disto, a resposta tem conteúdo demais para ser só recusa — e a suspeita é
+# de FALSO POSITIVO do detector (§13.8).
+_MAX_CHARS_RECUSA = 240
+
+
+def auditar_deteccao(julgadas: list[Julgada]) -> dict[str, Any]:
+    """Audita o classificador `absteve` — que decide a métrica-manchete e nunca foi
+    conferido.
+
+    **A suspeita concreta.** `_RE_ABSTEVE` casa `does not (contain|specify|mention)`
+    e `no mention`. Uma resposta legítima como *"The contract does not specify a
+    renewal term, but Section 4 states the initial term is 24 months"* seria contada
+    como **recusa** — e a cobertura sairia **subestimada**, junto com a conclusão
+    "o gargalo é o gerador".
+
+    **Como se mede sem rótulo humano, sem inventar evidência.** Não dá para afirmar
+    "isto é falso positivo" por máquina. O que dá é isolar os **suspeitos** por um
+    critério declarado e verificável — respostas marcadas como recusa que são
+    **longas** (têm conteúdo além da negativa) ou que **citam um trecho** (`[N]`).
+    O número abaixo é um **limite superior automático**, não uma taxa de erro
+    medida: rotular de fato exige leitura humana, e as chaves ficam listadas para
+    isso. Chamar isto de "taxa de falso positivo" seria fabricar evidência.
+    """
+    recusas = [j for j in julgadas if j.absteve and j.resposta]
+    suspeitos = [
+        j
+        for j in recusas
+        if len(j.resposta) > _MAX_CHARS_RECUSA or re.search(r"\[\d+\]", j.resposta)
+    ]
+    resp_suspeitas = [j for j in suspeitos if not j.impossivel]
+    n_resp = sum(1 for j in julgadas if not j.impossivel)
+    return {
+        "n_marcadas_como_recusa": len(recusas),
+        "n_suspeitas_de_falso_positivo": len(suspeitos),
+        "criterio": (
+            f"marcada como recusa E (len > {_MAX_CHARS_RECUSA} chars OU cita um trecho '[N]')"
+        ),
+        "natureza": (
+            "LIMITE SUPERIOR automático, não taxa de erro medida. Rotular exige leitura "
+            "humana; as chaves abaixo são o backlog para isso."
+        ),
+        # O que realmente move a manchete: falso positivo em pergunta RESPONDÍVEL
+        # deprime a cobertura.
+        "suspeitas_em_respondiveis": len(resp_suspeitas),
+        "cobertura_se_todas_forem_falso_positivo": (
+            round((n_resp - sum(1 for j in julgadas if not j.impossivel and j.absteve)
+                   + len(resp_suspeitas)) / n_resp, 4)
+            if n_resp
+            else 0.0
+        ),
+        "backlog_humano": [
+            {"chave": j.chave, "impossivel": j.impossivel, "resposta": j.resposta[:400]}
+            for j in suspeitos[:40]
+        ],
+    }
+
+
 @dataclass(frozen=True)
 class Julgada:
     categoria: str
@@ -131,6 +190,7 @@ class Julgada:
     # for por identidade — casar por posição na lista quebraria em silêncio se um
     # contrato fosse pulado numa das rodadas e não na outra.
     chave: str = ""
+    resposta: str = ""   # texto cru — insumo da auditoria de `absteve` (§13.8)
 
 
 def amostrar(
@@ -189,8 +249,18 @@ def avaliar_geracao(
     max_chars: int = MAX_CHARS,
     overlap: int = OVERLAP,
     prompt: str = "estrito",
+    reranker: Any = None,
+    candidatos: int = 20,
 ) -> dict[str, Any]:
-    """Gera respostas ancoradas para a amostra e mede a política de abstenção."""
+    """Gera respostas ancoradas para a amostra e mede a política de abstenção.
+
+    `reranker`, se passado, insere o **cross-encoder** entre a fusão RRF e o
+    contexto. Isso importa mais do que parece: a primeira versão desta avaliação
+    parava no híbrido — o estágio que a §11 mostrou **não ser significativo** — e
+    ignorava o **único com IC disjunto** (§13.2). O teto medido no mesmo corpus é
+    hit@5 **0,713 (híbrido)** contra **0,769 (rerank)**: a §13.4 concluiu "não é
+    falha de recuperação" contra um teto que a própria fase já tinha superado.
+    """
     if prompt not in PROMPTS:
         raise ValueError(f"prompt inválido: {prompt!r} (use {sorted(PROMPTS)})")
     sistema = PROMPTS[prompt]["sistema"]
@@ -227,6 +297,8 @@ def avaliar_geracao(
         qv = embedder.encode_queries([query])[0]
         denso_rk, _ = _ranquear_denso(vecs_all[ini:fim], cs, qv)
         ranking, _ = fundir(bm25_rk, denso_rk)
+        if reranker is not None:
+            ranking, _ = rerankear(reranker, query, ranking, cs, candidatos)
 
         texto_prompt = template.format(
             contexto=montar_contexto(cs, ranking, top_k), pergunta=query
@@ -241,6 +313,9 @@ def avaliar_geracao(
                 # correto = absteve na impossível, respondeu na respondível
                 correta=(a if pergunta.impossivel else not a),
                 chave=f"{i:05d}|{contrato.titulo}|{pergunta.categoria}",
+                # A resposta CRUA. Sem ela, `absteve` é um classificador cujo erro
+                # ninguém consegue conferir — e ele decide a métrica-manchete.
+                resposta=resposta,
             )
         )
 
@@ -298,6 +373,8 @@ def consolidar_geracao(julgadas: list[Julgada], config: dict[str, Any]) -> dict[
             {"chave": j.chave, "impossivel": j.impossivel, "correta": j.correta}
             for j in julgadas
         ],
+        # Auditoria do próprio classificador que produziu os números acima.
+        "auditoria_deteccao": auditar_deteccao(julgadas),
     }
 
 
@@ -353,6 +430,10 @@ def main() -> None:
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
+        "--rerank", action="store_true",
+        help="insere o cross-encoder antes do contexto (teto hit@5 0,713 → 0,769)",
+    )
+    parser.add_argument(
         "--prompt", type=str, default="estrito", choices=tuple(PROMPTS),
         help="variante do prompt (a ablação que separa 'modelo abstém' de 'prompt induziu')",
     )
@@ -385,10 +466,17 @@ def main() -> None:
     # diferem por amostragem, e o McNemar contaria ruído como discordância.
     llm = OllamaLLM(modelo=args.modelo_llm, seed=args.seed)
 
+    reranker = None
+    if args.rerank:
+        from rodoia.rag.recuperador import Reranker
+
+        reranker = Reranker(modelo=MODELO_RERANK)
+
     contratos = carregar(zip_path=args.zip)
     rel = avaliar_geracao(
         contratos, embedder, llm,
         n_por_populacao=args.amostra, seed=args.seed, prompt=args.prompt,
+        reranker=reranker,
     )
 
     destino.mkdir(parents=True, exist_ok=True)
@@ -398,6 +486,9 @@ def main() -> None:
     # comparação que motivou a rodada desapareceria.
     if args.modelo_llm:
         sufixo += f"_{_sanitizar(args.modelo_llm)}"
+    # ...e por recuperador, para a comparação híbrido-vs-rerank ficar lado a lado.
+    if args.rerank:
+        sufixo += "_rerank"
     caminho = destino / f"geracao_ancorada{sufixo}.json"
     caminho.write_text(json.dumps(carimbar(rel), ensure_ascii=False, indent=2))
 
