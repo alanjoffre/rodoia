@@ -9,7 +9,7 @@
 [![CI](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml/badge.svg)](https://github.com/alanjoffre/rodoia/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![Tests](https://img.shields.io/badge/testes-297%20passando-brightgreen.svg)
+![Tests](https://img.shields.io/badge/testes-302%20passando-brightgreen.svg)
 ![Tipos](https://img.shields.io/badge/mypy-strict%20no%20núcleo-brightgreen.svg)
 ![Gate](https://img.shields.io/badge/gate%20de%20avaliação-30%2F30-brightgreen.svg)
 ![Segurança](https://img.shields.io/badge/red--team-ASR%200%20na%20camada--1-brightgreen.svg)
@@ -32,14 +32,14 @@ Projeto de portfólio **público e open-source**. Objetivo: provar, **com códig
 
 ## 📊 Resultados por fase
 
-**Status: projeto encerrado ✅ · 7 fases (0–6) entregues · 297 testes · gate 30/30 no CI** — cada fase é um marco publicável, testado e documentado antes de a próxima começar, e cada número abaixo aponta para um relatório versionado com carimbo de proveniência.
+**Status: projeto encerrado ✅ · 7 fases (0–6) entregues · 302 testes · gate 30/30 no CI** — cada fase é um marco publicável, testado e documentado antes de a próxima começar, e cada número abaixo aponta para um relatório versionado com carimbo de proveniência.
 
 | Fase | Entrega | Métrica-chave (com evidência versionada) | Docs |
 |:---:|---|---|:---:|
 | **0 · Fundamentos** | backprop + self-attention à mão (NumPy/PyTorch puro); MLP de severidade de acidentes | **ROC-AUC 0,81** | [00–05](docs/) |
 | **1 · RAG** | busca híbrida (BM25+E5+RRF) sobre 125 normas / 3.647 chunks + guardrails | **hit@5 0,62** [0,48–0,74] · citação **0,92** · **κ humano 0,86 / 0,92** | [06–09](docs/09_fase1_api.md) |
 | **2 · Fine-tuning** | QLoRA (Qwen2.5-3B) p/ NER jurídico + serving vLLM fp8 | **F1 0,13 → 0,77** (SOTA 0,89) · **205 tok/s** | [13](docs/13_fase2_ner.md) |
-| **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,01pp (IC [1,76; 4,40]) | [14](docs/14_fase3_dados_estruturados.md) |
+| **3 · Dados** | esquema estrela DuckDB, 741k linhas, previsão de demanda | **Holt-Winters bate o naïve** Δ3,21pp (IC [1,78; 4,68]) | [14](docs/14_fase3_dados_estruturados.md) |
 | **4 · Agente** | grafo LangGraph com arestas condicionais reais (RAG+FT+dados) | **roteamento 0,95** (n=21, objetivo) | [15](docs/15_fase4_agente.md) |
 | **5 · MLOps** | gate de avaliação no CI · MLflow · DVC · drift · custo · **red-team + lockfile/SBOM** | **gate 30/30** · **drift 0,005** · **ASR 0 (camada-1) · 0 CVEs** | [16](docs/16_fase5_mlops.md) |
 | **6 · Escala + benchmark externo** | ingestão de 1,43 GB → Parquet particionado (17,2 M linhas) · **avaliação sobre gold de TERCEIROS (CUAD)** · motor escolhido por benchmark · abstenção calibrada | CUAD recall@5 **0,588 BM25 → 0,595 híbrido** (não-signif.) **→ 0,652 +rerank (IC disjunto)** · geração: **98,7% não-alucinação / 38,7% cobertura**, ablação de prompt com **McNemar p=6,6e-5** · **DuckDB 6,7× Spark** | [17](docs/17_fase6_escala.md) |
@@ -91,7 +91,7 @@ Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQ
 
 | Requisito | Onde é provado | Evidência |
 |---|---|---|
-| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 297 testes (280 no CI) · `async` nos endpoints |
+| Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 302 testes (285 no CI) · `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
 | Matemática aplicada (álgebra, cálculo, prob./estat.) | Fase 0 | Derivações + gradiente/atenção manuais |
 | SQL avançado e modelagem | Fase 3 | Esquema **estrela** (DuckDB, 741k linhas), window functions (LAG/RANK), camada de acesso testada + **previsão de demanda** (MAPE) |
@@ -121,7 +121,7 @@ O diferencial não são os números altos — é **o rigor ter corrigido os pró
 
 - **Fase 1 — a auditoria que achou defeito.** Um κ humano inter-anotador sobre os rótulos-gold do `hit@5` **rejeitou 16% deles** (resoluções mal atribuídas por resíduo de numeração antiga). Em vez de esconder, **rerotulei pela fonte correta** e reportei a faixa real (**[0,70; 0,76]**) ao lado do número do gate (0,62, mantido conservador). Auditar a própria métrica é a disciplina.
 - **Fase 2 — o pivô do fine-tuning.** Um *estudo-baseline* mostrou, com held-out, que o QLoRA **não injeta conhecimento factual** (in-sample melhorava, held-out piorava = memorização). Virei para uma tarefa **objetiva** — NER jurídico — onde o FT vence com métrica dura (**F1 0,13→0,77**). O arco negativo→pivô é a entrega.
-- **Fase 3 — a cereja e a inconsistência.** Um "MAPE 5,9%" **cereja** virou ~13% no backtest de 63 praças + IC. E um **erro metodológico meu** (naïve de 1-passo × Holt-Winters de 12-passos) foi corrigido para **multi-step justo** — aí o Holt-Winters **bate o naïve com significância** (Δ3,01pp, IC [1,76; 4,40]).
+- **Fase 3 — a cereja e a inconsistência.** Um "MAPE 5,9%" **cereja** virou ~13% no backtest de 63 praças + IC. E um **erro metodológico meu** (naïve de 1-passo × Holt-Winters de 12-passos) foi corrigido para **multi-step justo** — aí o Holt-Winters **bate o naïve com significância** (Δ3,21pp, IC [1,78; 4,68]).
 - **Fase 4 — o artefato do juiz.** O juiz penalizava "não rotear" nos casos fora-de-escopo/adversarial (onde declinar é o certo). Separar in-scope de declinados tirou o artefato: **roteamento 0,95** e juiz **rota 2,0/2**.
 - **Fase 5 — o drift enganoso.** PSI sobre o volume **agregado** dava ~11 (a malha cresceu ~10×); trocar para a **coorte comum de praças** revelou o valor real — **0,005, estável**.
 - **Fase 1 — o rodapé que o de-boilerplate não via.** O filtro de navegação exigia **2+ sinais** para classificar um trecho como "chrome do portal"; o rodapé `Carregando... Voltar ao Topo` tem **um** — e passava. **133 chunks (3,6%)** carregavam navegação grudada no fim e **2 eram só isso**, recuperáveis numa busca. O corte virou simétrico (cabeça *e* rodapé, antes de fatiar). Aí a parte que interessa: **reconstruí o índice e o hit@5 não mudou em nenhum modo** (híbrido 0,62; rerank 0,68) — o lixo era 0,08% dos caracteres. **Medir e nada mudar também é resultado**: a alternativa era "limpar e alegar melhora" sem nunca ter medido.
@@ -190,7 +190,7 @@ Projeto de portfólio desenvolvido por mim, com apoio de um assistente de IA (Cl
 
 ## 🏁 Encerramento
 
-O projeto está **fechado** em 28 de julho de 2026. Sete fases entregues, **100 passos** registrados no [diário](docs/DIARIO.md), **297 testes** e **gate 30/30** bloqueando o CI.
+O projeto está **fechado** em 28 de julho de 2026. Sete fases entregues, **100 passos** registrados no [diário](docs/DIARIO.md), **302 testes** e **gate 30/30** bloqueando o CI (5 deles somados em nov/2026, na correção da rotina de reprodução semanal).
 
 O que fica não é a lista de números altos — é o **rastro das dezesseis vezes em que a evidência contrariou a narrativa e a narrativa cedeu**. Na Fase 6, das **sete hipóteses testadas, cinco foram refutadas** — e duas delas já estavam escritas como ganho antes de alguém conferir. Uma métrica secundária discordando da manchete foi o que pegou o erro; nenhum teste teria pego.
 
@@ -200,6 +200,6 @@ Os itens em aberto estão no topo desta página e em [docs/HISTORIA.md § Estado
 
 <div align="center">
 
-<sub>Encerrado em 28 de julho de 2026 · 7 fases · 100 passos · 297 testes · gate 30/30 · custo de API R$0.</sub>
+<sub>Encerrado em 28 de julho de 2026 · 7 fases · 100 passos · 302 testes · gate 30/30 · custo de API R$0.</sub>
 
 </div>

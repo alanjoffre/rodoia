@@ -133,7 +133,8 @@ def test_reports_citados_existem() -> None:
     """Evidência citada e ausente é pior que evidência não citada."""
     faltando = []
     for doc in DOCS:
-        for rel in set(re.findall(r"`?(reports/[\w/]+\.json)`?", doc.read_text(encoding="utf-8"))):
+        texto = doc.read_text(encoding="utf-8")
+        for rel in set(re.findall(r"`?(reports/[\w/]+\.json(?:\.gz)?)`?", texto)):
             if not (RAIZ / rel).exists():
                 faltando.append(f"{doc.name}: {rel}")
     assert not faltando, "reports citados e ausentes:\n" + "\n".join(faltando)

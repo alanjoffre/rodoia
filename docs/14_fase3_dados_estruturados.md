@@ -65,14 +65,20 @@ o **teste pareado** melhor-modelo vs naïve (diferença por praça).
 
 | Modelo | MAPE médio | IC95 (bootstrap, n=63) |
 |---|---|---|
-| **Holt-Winters** | **13,25%** | [8,48; 19,57] |
-| Gradient Boosting (recursivo) | 15,43% | [11,06; 21,38] |
-| naïve (random walk) | 16,26% | [11,31; 22,89] |
-| sazonal-naïve | 17,87% | [12,96; 24,28] |
+| **Holt-Winters** | **13,35%** | [8,48; 19,63] |
+| Gradient Boosting (recursivo) | 15,32% | [10,80; 21,26] |
+| naïve (random walk) | 16,57% | [11,46; 23,19] |
+| sazonal-naïve | 17,06% | [12,03; 23,49] |
 
-**Comparação pareada Holt-Winters vs naïve:** Δ = **3,01 pp** de MAPE, **IC95 [1,76; 4,40]** —
-**não cruza 0 → o ganho é estatisticamente significativo**; o HW vence em **73% das praças**
-(≈ **18% de redução relativa** de erro).
+*Recorte congelado: séries até 2026-08 em `reports/fase3_dados/recorte_previsao.json.gz` (o sha256
+fica no report). Até nov/2026 o backtest rodava sobre o dado ao vivo; como a ANTT publica meses
+novos e revisa meses antigos, o mesmo código dava 13,25% em julho e 13,43% em setembro, e a
+reprodução semanal passou a divergir. Com o recorte versionado, o número só muda quando alguém
+gera um recorte novo de propósito (`python -m rodoia.dominio.previsao --atualizar-recorte`).*
+
+**Comparação pareada Holt-Winters vs naïve:** Δ = **3,21 pp** de MAPE, **IC95 [1,78; 4,68]** —
+**não cruza 0 → o ganho é estatisticamente significativo**; o HW vence em **79% das praças**
+(≈ **19% de redução relativa** de erro).
 
 → **Leitura honesta:** na tarefa realista (prever 12 meses à frente), o clássico **Holt-Winters
 bate o baseline de forma significativa** (teste pareado, não só ICs marginais que se sobrepõem por
@@ -97,7 +103,7 @@ python -m rodoia.dominio.previsao       # previsão -> reports/fase3_dados/previ
 - [x] Datasets modelados com **schema justificado** (estrela, grão documentado) + licença/pipeline
 - [x] **Queries analíticas** com CTEs + window functions (LAG/RANK/médias) versionadas
 - [x] **Camada de acesso** tipada, parametrizada (anti-injection) e testada — ferramenta do agente
-- [x] **Resultado objetivo**: previsão de demanda avaliada com **rigor** — backtest multi-step (12m à frente) em 63 praças, **MAPE + IC95**, 4 modelos; **Holt-Winters bate o naïve de forma significativa** (teste pareado Δ=3,01pp, IC95 [1,76; 4,40], vence em 73% das praças)
+- [x] **Resultado objetivo**: previsão de demanda avaliada com **rigor** — backtest multi-step (12m à frente) em 63 praças, **MAPE + IC95**, 4 modelos; **Holt-Winters bate o naïve de forma significativa** (teste pareado Δ=3,21pp, IC95 [1,78; 4,68], vence em 79% das praças)
 - [x] README do modelo de dados (este doc) + observabilidade de ingestão + reprodução
 - [x] Testes dos caminhos críticos (acesso, ingestão, métricas)
 

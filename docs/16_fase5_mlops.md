@@ -25,7 +25,7 @@ $ python -m rodoia.mlops.gate
   [✓] F2 · NER F1 (FT QLoRA)             0.7735 >= 0.72
   [✓] F2 · ganho FT vs base              0.6429 >= 0.55
   [✓] F3 · linhas do fato (estrela)      741205 >= 700000
-  [✓] F3 · Holt-Winters MAPE             13.25 <= 15.0
+  [✓] F3 · Holt-Winters MAPE             13.35 <= 15.0
   [✓] F3 · HW bate naïve (pareado)       True == True
   [✓] F4 · roteamento (n=21, exato)      0.952 >= 0.85
   [✓] F4 · juiz rota adequada            2.0 >= 1.5
@@ -133,9 +133,12 @@ commitado — respondendo diretamente a "seu CI só lê números que você mesmo
 
 - **Âncoras (2):** (1) `hit@5` do retrieval híbrido e (2) `MAPE` do Holt-Winters na previsão —
   ambas **determinísticas** e **CPU**, sem LLM; reproduzem **exatas** (Δ=0,0 contra os reports).
-  O workflow **reconstrói do zero** tanto o índice (corpus público) quanto o DuckDB (volume público),
-  então **as duas âncoras rodam no CI hosted**; a de previsão **pula graciosamente** (sem reprovar o
-  job) só se o CKAN da ANTT estiver fora do ar. Evidência (com carimbo `git_sha`/`git_dirty`) em
+  O workflow **reconstrói do zero** o índice (corpus público). A de previsão roda sobre o **recorte
+  versionado** das séries (`reports/fase3_dados/recorte_previsao.json.gz`) e exige o mesmo sha256
+  gravado no report: o dado ao vivo da ANTT ganha meses novos e tem meses antigos revisados, e foi
+  isso que fez a rotina divergir de set/2026 em diante (13,25 commitado × 13,43 reproduzido). O
+  DuckDB reconstruído do volume público entra só como **deriva informativa**, que não reprova; o
+  `_get` da ANTT tenta de novo em erro 5xx passageiro. Evidência (com carimbo `git_sha`/`git_dirty`) em
   `reports/fase1_retrieval/reproducao.json`.
 - **Onde roda:** runner **github-hosted** (`ubuntu-latest`), `workflow_dispatch` + agendado semanal.
   O job **baixa o corpus público** (`baixar_normas`), **reconstrói o índice** (`construir_indice`) e

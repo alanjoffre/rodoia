@@ -30,12 +30,14 @@ jobs:
           python -m rodoia.rag.baixar_normas
           python -m rodoia.rag.construir_indice
 
-      - name: Âncora 2 — volume + DuckDB (previsão; tolerante a CKAN fora do ar)
+      # A âncora de previsão roda sobre o recorte versionado (reports/fase3_dados/); o volume ao
+      # vivo só mede a deriva do dado público, que não reprova.
+      - name: Deriva da previsão — volume ao vivo + DuckDB (informativo; tolerante a CKAN fora do ar)
         run: |
           python -m rodoia.ingestao.baixar_volume \
             && python -m rodoia.ingestao.ingestao_volume \
             && python -m rodoia.dominio.estrela \
-            || echo "volume indisponível — a âncora de previsão pulará (sem falhar)"
+            || echo "volume indisponível — sem medida de deriva nesta rodada (a âncora usa o recorte)"
 
       - name: Reproduzir as âncoras (re-executa o pipeline e confere; grava evidência)
         run: python -m rodoia.mlops.reproduzir

@@ -23,7 +23,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 | **0** · 🧮 | Entender o motor antes de usá-lo | ROC-AUC **0,81** |
 | **1** · 🔎 | Responder a lei da ANTT sem inventar | hit@5 **0,62** · citação **0,92** · κ humano **0,86/0,92** |
 | **2** · 🎯 | Especializar um modelo e provar o ganho | F1 **0,13 → 0,77** |
-| **3** · 📊 | Do CSV sujo à previsão que convence | Holt-Winters bate o naïve (**Δ3,01pp**) |
+| **3** · 📊 | Do CSV sujo à previsão que convence | Holt-Winters bate o naïve (**Δ3,21pp**) |
 | **4** · 🤖 | Juntar tudo e decidir | roteamento **0,95** (n=21) |
 | **5** · ⚙️ | Não quebrar e não piorar | gate **30/30** · drift **0,005** · red-team **ASR 0** · **0 CVEs** |
 | **6** · 📈 | E se o teste não for meu? | **17,2 M linhas** · CUAD (gold de terceiros) **0,588 → 0,652** (rerank, IC disjunto) · alucinação **1,3%** · DuckDB **6,7×** Spark |
@@ -76,7 +76,7 @@ A pergunta que move o projeto: **como provar, com código e número, o perfil co
 
 **Resultado.** **741.205 linhas limpas** (197 meses, 50 concessionárias, 292 praças).
 
-> ⚖️ **O rigor corrigiu o próprio número duas vezes.** Um "MAPE 5,9%" que era **cereja** virou ~13% no backtest; e uma comparação injusta (naïve de 1-passo × Holt-Winters de 12-passos) foi corrigida para **multi-step justo** — aí o **Holt-Winters bate o naïve com significância** (pareado Δ=3,01 pp, IC [1,76; 4,40], vence em 73% das praças).
+> ⚖️ **O rigor corrigiu o próprio número duas vezes.** Um "MAPE 5,9%" que era **cereja** virou ~13% no backtest; e uma comparação injusta (naïve de 1-passo × Holt-Winters de 12-passos) foi corrigida para **multi-step justo** — aí o **Holt-Winters bate o naïve com significância** (pareado Δ=3,21 pp, IC [1,78; 4,68], vence em 79% das praças).
 
 ---
 
@@ -146,7 +146,7 @@ O diferencial não é ter números altos — é o **rigor ter corrigido os próp
 
 ## 🏁 Estado final — o que está provado e o que continua aberto
 
-O projeto está **encerrado** em 28 de julho de 2026, com as sete fases entregues, **297 testes**,
+O projeto está **encerrado** em 28 de julho de 2026, com as sete fases entregues, **302 testes**,
 **gate 30/30** no CI e cada número acima ligado a um relatório versionado e carimbado com
 proveniência.
 
