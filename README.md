@@ -175,6 +175,10 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 | [**docs/RUNBOOK.md**](docs/RUNBOOK.md) | Setup do zero, ambiente GPU (WSL2) |
 | [docs/MODEL_CARD.md](docs/MODEL_CARD.md) · [docs/DATASET_CARD.md](docs/DATASET_CARD.md) | Governança do modelo FT e dos dados |
 
+## 🤖 Como foi feito
+
+Projeto de portfólio desenvolvido por mim, com apoio de um assistente de IA (Claude) para código, testes e documentação; o apoio é visível nos commits. Eu defini o escopo, as decisões de arquitetura, as medições e revisei o resultado. Dados públicos, sem código de empregador ou cliente.
+
 ## 👤 Autor
 
 **Alan Joffre** — Engenheiro de IA
