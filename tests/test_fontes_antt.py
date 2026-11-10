@@ -82,3 +82,44 @@ def test_ato_id_e_url() -> None:
     assert ato.id == "RES_5386_2017"
     u = url_ato(ato)
     assert "num_ato=00005386" in u and "sgl_orgao=DG%2FANTT%2FMTPA" in u
+
+
+def test_get_tenta_de_novo_no_erro_500(monkeypatch) -> None:
+    """07/09/2026: um erro 500 passageiro do portal derrubou a rotina semanal inteira."""
+    import io
+    import urllib.error
+
+    from rodoia.rag import fontes_antt as F
+
+    chamadas = []
+
+    def falso(req, timeout, context):
+        chamadas.append(req.full_url)
+        if len(chamadas) < 3:
+            raise urllib.error.HTTPError(req.full_url, 500, "erro", {}, None)  # type: ignore[arg-type]
+        return io.BytesIO("ok ação".encode("latin-1"))
+
+    monkeypatch.setattr(F.urllib.request, "urlopen", falso)
+    monkeypatch.setattr(F.time, "sleep", lambda s: None)
+    assert F._get("https://x") == "ok ação"
+    assert len(chamadas) == 3
+
+
+def test_get_nao_repete_erro_404(monkeypatch) -> None:
+    import urllib.error
+
+    import pytest
+
+    from rodoia.rag import fontes_antt as F
+
+    chamadas = []
+
+    def falso(req, timeout, context):
+        chamadas.append(1)
+        raise urllib.error.HTTPError(req.full_url, 404, "nao achou", {}, None)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(F.urllib.request, "urlopen", falso)
+    monkeypatch.setattr(F.time, "sleep", lambda s: None)
+    with pytest.raises(urllib.error.HTTPError):
+        F._get("https://x")
+    assert len(chamadas) == 1

@@ -72,3 +72,61 @@ def test_para_data_formatos_mistos():
     d = _para_data(pd.Series(["01/01/2010", "03/2024"]))
     assert str(d.iloc[0].date()) == "2010-01-01"
     assert str(d.iloc[1].date()) == "2024-03-01"
+
+
+def _series_sinteticas():
+    import numpy as np
+    idx = pd.date_range("2015-01-01", periods=110, freq="MS")
+    t = np.arange(110)
+    return [("PA", pd.Series(1000 + 5 * t + 100 * np.sin(2 * np.pi * t / 12), index=idx)),
+            ("PB", pd.Series(500.5 + 3 * t[:100], index=idx[:100]))]
+
+
+def test_recorte_ida_e_volta_e_deterministico(tmp_path, monkeypatch):
+    """O recorte congelado devolve as MESMAS séries e o mesmo sha256 a cada gravação —
+    é isso que permite reproduzir a âncora de previsão sem depender do dado ao vivo."""
+    from rodoia.dominio import previsao as P
+    monkeypatch.setattr(P, "REPO_ROOT", tmp_path)
+    series = _series_sinteticas()
+    a = P.salvar_recorte(series, tmp_path / "r1.json.gz")
+    b = P.salvar_recorte(series, tmp_path / "r2.json.gz")
+    assert a["sha256"] == b["sha256"]
+    assert a["n_pracas"] == 2 and a["mes_final"] == "2024-02"
+    for (n1, s1), (n2, s2) in zip(series, P.carregar_recorte(tmp_path / "r1.json.gz"), strict=True):
+        assert n1 == n2
+        pd.testing.assert_series_equal(s1, s2, check_names=False, check_freq=False)
+
+
+def _preparar_reproducao(tmp_path, monkeypatch, sha_do_report=None):
+    import json
+
+    from rodoia.dominio import estrela
+    from rodoia.dominio import previsao as P
+    from rodoia.mlops import reproduzir as R
+    monkeypatch.setattr(P, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(R, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(estrela, "DB", tmp_path / "nao_existe.duckdb")
+    recorte = tmp_path / "recorte.json.gz"
+    monkeypatch.setattr(P, "RECORTE", recorte)
+    info = P.salvar_recorte(_series_sinteticas(), recorte)
+    mape = R._mape_hw(P.carregar_recorte(recorte))
+    rel = tmp_path / "reports" / "fase3_dados" / "previsao.json"
+    rel.parent.mkdir(parents=True)
+    rel.write_text(json.dumps({"modelos": {"holt_winters": {"mape_medio": mape}},
+                               "recorte": {"sha256": sha_do_report or info["sha256"]}}))
+    return R
+
+
+def test_reproduzir_previsao_usa_o_recorte(tmp_path, monkeypatch):
+    R = _preparar_reproducao(tmp_path, monkeypatch)
+    ok, info = R.reproduzir_previsao()
+    assert ok and info["delta"] == 0 and info["recorte_igual_ao_report"]
+    assert "deriva_ao_vivo" not in info   # sem DuckDB, não há deriva a medir (e não pula)
+
+
+def test_reproduzir_previsao_reprova_recorte_trocado(tmp_path, monkeypatch):
+    """Mesmo com o MAPE igual, recorte diferente do report reprova: o número commitado
+    não veio daquele dado."""
+    R = _preparar_reproducao(tmp_path, monkeypatch, sha_do_report="0" * 64)
+    ok, info = R.reproduzir_previsao()
+    assert not ok and info["recorte_igual_ao_report"] is False

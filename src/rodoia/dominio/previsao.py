@@ -6,12 +6,22 @@ depois agrega com **IC por bootstrap** sobre as praças. Compara baselines (naï
 sazonal-naïve), o clássico **Holt-Winters** (statsmodels) e um **Gradient Boosting** (lags +
 médias móveis + mês). Split temporal, sem vazamento. Métrica: **MAPE** (escala-livre, agregável).
 
-Uso:  python -m rodoia.dominio.previsao
+RECORTE CONGELADO: o backtest roda sobre um recorte versionado das séries mensais
+(`reports/fase3_dados/recorte_previsao.json.gz`, dado público agregado por praça, sem PII),
+não sobre o dado ao vivo. A ANTT publica meses novos e REVISA meses antigos; sem o recorte,
+o mesmo código dá outro MAPE a cada mês e a reprodução da métrica-âncora vira loteria.
+
+Uso:  python -m rodoia.dominio.previsao                      # backtest sobre o recorte versionado
+      python -m rodoia.dominio.previsao --atualizar-recorte  # novo recorte a partir do DuckDB
 """
 from __future__ import annotations
 
+import gzip
+import hashlib
 import json
+import sys
 import warnings
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -24,6 +34,7 @@ from rodoia.proveniencia import carimbar
 N_TESTE = 12
 MIN_MESES = 100   # praças com histórico longo (≥ ~8 anos) e contíguo
 MODELOS = ["naive", "sazonal_naive", "holt_winters", "gradient_boosting"]
+RECORTE = REPO_ROOT / "reports" / "fase3_dados" / "recorte_previsao.json.gz"
 
 
 def _series_completas(min_meses: int = MIN_MESES) -> list[tuple[str, pd.Series]]:
@@ -35,8 +46,8 @@ def _series_completas(min_meses: int = MIN_MESES) -> list[tuple[str, pd.Series]]
         cand = con.execute("""
             SELECT praca_id, count(DISTINCT data) n,
                    datediff('month', min(data), max(data)) + 1 AS span
-            FROM fato_volume GROUP BY praca_id
-        """).df()
+            FROM fato_volume GROUP BY praca_id ORDER BY praca_id
+        """).df()  # ORDER BY: sem ele a ordem das praças muda entre rodadas (e o IC do bootstrap)
         ids = cand[(cand.n == cand.span) & (cand.n >= min_meses)]["praca_id"].tolist()
         out = []
         for pid in ids:
@@ -47,6 +58,36 @@ def _series_completas(min_meses: int = MIN_MESES) -> list[tuple[str, pd.Series]]
         return out
     finally:
         con.close()
+
+
+def salvar_recorte(series: list[tuple[str, pd.Series]], destino: Path | None = None) -> dict:
+    """Congela as séries num arquivo determinístico (mesmo conteúdo → mesmo sha256)."""
+    destino = destino or RECORTE
+    pracas = [{"praca": nome, "inicio": s.index[0].strftime("%Y-%m"),
+               "valores": [float(v) for v in s.values]} for nome, s in series]
+    bruto = json.dumps({"pracas": pracas}, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    with open(destino, "wb") as f, gzip.GzipFile(filename="", fileobj=f, mode="wb", mtime=0) as gz:
+        gz.write(bruto)
+    return info_recorte(destino)
+
+
+def carregar_recorte(origem: Path | None = None) -> list[tuple[str, pd.Series]]:
+    origem = origem or RECORTE
+    pracas = json.loads(gzip.decompress(origem.read_bytes()).decode("utf-8"))["pracas"]
+    return [(p["praca"], pd.Series(p["valores"], dtype=float,
+                                   index=pd.date_range(p["inicio"], periods=len(p["valores"]),
+                                                       freq="MS")))
+            for p in pracas]
+
+
+def info_recorte(origem: Path | None = None) -> dict:
+    origem = origem or RECORTE
+    series = carregar_recorte(origem)
+    return {"arquivo": str(origem.relative_to(REPO_ROOT)),
+            "sha256": hashlib.sha256(origem.read_bytes()).hexdigest(),
+            "n_pracas": len(series),
+            "mes_final": max(s.index[-1] for _, s in series).strftime("%Y-%m")}
 
 
 def _features(s: pd.Series) -> pd.DataFrame:
@@ -113,8 +154,10 @@ def _melhor(agg: dict) -> str:
     return min(agg, key=lambda m: agg[m]["mape_medio"])
 
 
-def avaliar() -> dict:
-    series = _series_completas()
+def avaliar(atualizar_recorte: bool = False) -> dict:
+    if atualizar_recorte or not RECORTE.exists():
+        salvar_recorte(_series_completas())
+    series = carregar_recorte()
     por_modelo: dict[str, list[float]] = {m: [] for m in MODELOS}
     por_praca: list[dict] = []          # guarda o pareamento (mesma praça, todos os modelos)
     for _, s in series:
@@ -148,7 +191,7 @@ def avaliar() -> dict:
         "tarefa": "previsão de volume mensal 12 meses à frente (multi-step, backtest multi-praça)",
         "n_pracas": len(series), "n_teste": N_TESTE, "min_meses": MIN_MESES,
         "metrica": "MAPE (%) — média entre praças com IC95 por bootstrap",
-        "modelos": agg, "comparacao_pareada": pareado,
+        "modelos": agg, "comparacao_pareada": pareado, "recorte": info_recorte(),
     })
     _plotar(max(series, key=lambda x: len(x[1])))
     saida = REPO_ROOT / "reports" / "fase3_dados"
@@ -188,4 +231,4 @@ def _plotar(alvo) -> None:
 
 
 if __name__ == "__main__":
-    avaliar()
+    avaliar(atualizar_recorte="--atualizar-recorte" in sys.argv[1:])

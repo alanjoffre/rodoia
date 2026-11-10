@@ -23,6 +23,8 @@ from __future__ import annotations
 import html as htmllib
 import re
 import ssl
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -76,10 +78,25 @@ class Ato:
         return f"{int(self.num)}/{self.ano}"
 
 
-def _get(url: str, timeout: int = 60) -> str:
-    req = urllib.request.Request(url, headers=_UA)
-    with urllib.request.urlopen(req, timeout=timeout, context=_CTX) as resp:
-        return resp.read().decode("latin-1", "replace")
+_ESPERAS = (5, 20, 60)  # segundos entre tentativas: o portal da ANTT tem erro 500 passageiro
+
+
+def _get(url: str, timeout: int = 60, esperas: tuple[float, ...] = _ESPERAS) -> str:
+    """GET com novas tentativas para erro passageiro (5xx, queda de conexão, timeout).
+    Erro 4xx não se repete: o pedido está errado e tentar de novo não resolve."""
+    for tentativa in range(len(esperas) + 1):
+        try:
+            req = urllib.request.Request(url, headers=_UA)
+            with urllib.request.urlopen(req, timeout=timeout, context=_CTX) as resp:
+                return resp.read().decode("latin-1", "replace")
+        except urllib.error.HTTPError as e:
+            if e.code < 500 or tentativa == len(esperas):
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if tentativa == len(esperas):
+                raise
+        time.sleep(esperas[tentativa])
+    raise AssertionError("inalcançável")
 
 
 def url_tema(tema: Tema) -> str:
