@@ -91,16 +91,16 @@
       <text x="136" y="271" fill="#f2b942">F1 0,13 &#8594; 0,77</text>
     </g>
     <g>
-      <rect x="220" y="250" width="222" height="32" rx="8" fill="#241f16" stroke="#e0a32666"/>
-      <text x="331" y="271" fill="#f2b942">recall@5 0,588 &#8594; 0,652</text>
+      <rect x="220" y="250" width="231" height="32" rx="8" fill="#241f16" stroke="#e0a32666"/>
+      <text x="335.5" y="271" fill="#f2b942">CUAD recall@5 0,588 &#8594; 0,652</text>
     </g>
     <g>
-      <rect x="450" y="250" width="112" height="32" rx="8" fill="#1a2620" stroke="#4fa17b66"/>
-      <text x="506" y="271" fill="#7cc4a0">gate 30/30</text>
+      <rect x="459" y="250" width="112" height="32" rx="8" fill="#1a2620" stroke="#4fa17b66"/>
+      <text x="515" y="271" fill="#7cc4a0">gate 30/30</text>
     </g>
     <g>
-      <rect x="570" y="250" width="170" height="32" rx="8" fill="#1c1f26" stroke="#353a45"/>
-      <text x="655" y="271" fill="#a2a4ad">5 de 7 refutadas</text>
+      <rect x="579" y="250" width="170" height="32" rx="8" fill="#1c1f26" stroke="#353a45"/>
+      <text x="664" y="271" fill="#a2a4ad">5 de 7 refutadas</text>
     </g>
   </g>
 </svg>

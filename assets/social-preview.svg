@@ -60,11 +60,7 @@
   </g>
 
   <!-- chips de metrica -->
-  <g font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="middle">
-    <g><rect x="334" y="415" width="180" height="40" rx="10" fill="#241f16" stroke="#e0a32666"/><text x="424" y="441" fill="#f2b942">F1 0,13&#8594;0,77</text></g>
-    <g><rect x="530" y="415" width="260" height="40" rx="10" fill="#241f16" stroke="#e0a32666"/><text x="660" y="441" fill="#f2b942">recall@5 0,588&#8594;0,652</text></g>
-    <g><rect x="806" y="415" width="140" height="40" rx="10" fill="#1a2620" stroke="#4fa17b66"/><text x="876" y="441" fill="#7cc4a0">gate 30/30</text></g>
-  </g>
+  <g font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="middle"><g><rect x="348" y="415" width="150" height="40" rx="10" fill="#241f16" stroke="#e0a32666"/><text x="423" y="441" fill="#f2b942">F1 0,13&#8594;0,77</text></g><g><rect x="514" y="415" width="271" height="40" rx="10" fill="#241f16" stroke="#e0a32666"/><text x="650" y="441" fill="#f2b942">CUAD recall@5 0,588&#8594;0,652</text></g><g><rect x="801" y="415" width="131" height="40" rx="10" fill="#1a2620" stroke="#4fa17b66"/><text x="867" y="441" fill="#7cc4a0">gate 30/30</text></g></g>
 
   <!-- linha de rigor -->
   <text x="640" y="486" text-anchor="middle" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="500" fill="#8b8d86">7 fases &#183; 302 testes &#183; IC em toda m&#233;trica &#183; 5 de 7 hip&#243;teses refutadas e publicadas</text>
