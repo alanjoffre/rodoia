@@ -80,4 +80,4 @@ Fase 2; CFPB e CUAD na Fase 6), cada um com licença confirmada (ver `NOTICE` e
   confirmada antes do uso" existia e não foi cumprida justamente na fase que trouxe dado de
   terceiros. Fica no cartão porque uma governança que só registra os acertos não é governança.
 - PII mascarada nas respostas/logs da API (`rag/seguranca.mascarar_pii`).
-- Zero dado/regra de empregador ou cliente (fronteira em `PROMPT_MESTRE.md` §3.1).
+- Zero dado/regra de empregador ou cliente (ver `NOTICE`).

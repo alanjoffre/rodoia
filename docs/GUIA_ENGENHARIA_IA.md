@@ -2,7 +2,7 @@
 
 # 🎓 Guia didático do RodoIA
 
-**O que este projeto faz, por quê, e o trabalho de um Engenheiro de IA — explicado sem jargão.**
+**O que este projeto faz, por quê, e como o trabalho de IA aplicada se organiza — explicado sem jargão.**
 
 [← README](../README.md) · [📖 A história](HISTORIA.md) · [🗺️ Arquitetura](ARQUITETURA.md)
 
@@ -20,9 +20,9 @@ Não é "chamar a API da OpenAI"; é construir o encanamento inteiro, do fundame
 
 ---
 
-## 2. O fluxo mental de um Engenheiro de IA
+## 2. O fluxo de trabalho de um projeto de IA
 
-Pense num médico que primeiro entende o paciente, depois escolhe o exame, depois o tratamento, e por fim acompanha a recuperação. O Engenheiro de IA segue um fluxo parecido. Cada **fase** do RodoIA é uma etapa desse fluxo:
+Pense num médico que primeiro entende o paciente, depois escolhe o exame, depois o tratamento, e por fim acompanha a recuperação. Um projeto de IA segue um fluxo parecido. Cada **fase** do RodoIA é uma etapa desse fluxo:
 
 | Etapa | Pergunta que responde | No RodoIA |
 |:---:|---|---|
@@ -101,7 +101,7 @@ Pense num médico que primeiro entende o paciente, depois escolhe o exame, depoi
 - **Gate de avaliação** — um teste que **reprova** a mudança se uma métrica-chave **piorar**. *Analogia:* o detector de metal do aeroporto para a qualidade do modelo. *Por quê:* IA pode regredir silenciosamente; o gate barra isso.
 - **MLflow / DVC** — MLflow guarda o histórico de experimentos/métricas; DVC versiona dados e modelos (que são grandes demais pro Git). *Por quê:* reprodutibilidade e rastreio.
 - **Drift / PSI** — drift = o mundo mudou e o modelo ficou desatualizado; PSI = a métrica que mede esse desvio. *Analogia:* a bússola que avisa quando o terreno mudou e é hora de recalibrar.
-- **Custo por 1k requisições** — quanto custa servir mil respostas, calculado da **vazão medida** (não chutado). *Por quê:* um engenheiro sênior não diz "escala" sem a cifra.
+- **Custo por 1k requisições** — quanto custa servir mil respostas, calculado da **vazão medida** (não chutado). *Por quê:* "escala" sem a cifra não é afirmação.
 - **Proveniência / seed** — proveniência = carimbar cada resultado com versão/data/código que o gerou; seed = fixar a aleatoriedade para o experimento ser **repetível**. *Por quê:* ciência de verdade é reproduzível. *Pegadinha real:* o LLM local rodava com "temperatura baixa", que **não é** o mesmo que determinismo — duas execuções idênticas davam respostas diferentes, e isso contaminava uma comparação (Fase 6).
 
 ### 📈 Fase 6 — escala e teste de terceiros

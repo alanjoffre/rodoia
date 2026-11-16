@@ -8,7 +8,7 @@
 
 </div>
 
-> Para o *porquê* de cada decisão, ver os docs da fase (`docs/NN`). Para o *fluxo de requisito → prova*, ver a tabela de rastreabilidade no [README](../README.md).
+> Para o *porquê* de cada decisão, ver os docs da fase (`docs/NN`). Para o *fluxo de capacidade → prova*, ver a tabela de rastreabilidade no [README](../README.md).
 
 ## 📦 Visão de pacotes
 

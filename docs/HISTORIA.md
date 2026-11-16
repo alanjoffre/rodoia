@@ -12,7 +12,7 @@
 
 ## O ponto de partida
 
-A pergunta que move o projeto: **como provar, com código e número, o perfil completo de um Engenheiro de IA** — do fundamento matemático ao sistema em produção — sobre dados **reais e públicos**? Escolhi o domínio da **ANTT** (regulação e dados abertos do transporte rodoviário brasileiro): real, público e não-trivial.
+A pergunta que move o projeto: **como construir, com código e número, um sistema de IA completo** — do fundamento matemático ao sistema em produção — sobre dados **reais e públicos**? Escolhi o domínio da **ANTT** (regulação e dados abertos do transporte rodoviário brasileiro): real, público e não-trivial.
 
 > **A regra de condução:** uma fase por vez, cada uma um marco publicável, nenhuma começa antes da anterior estar testada.
 
@@ -166,6 +166,6 @@ avaliação como portão de CI, sobre dados públicos — e, na Fase 6, sobre **
 - **Alguns *n* pequenos** — hit@5 com n=50, juiz de geração com n=12. Os ICs expõem isso, e onde
   o desenho é pareado o McNemar entrou no lugar da comparação de ICs.
 
-Um portfólio que só lista o que deu certo está escondendo a metade que ensina. Das sete hipóteses
+Um projeto que só lista o que deu certo está escondendo a metade que ensina. Das sete hipóteses
 que a Fase 6 testou, **cinco foram refutadas** — e duas delas já estavam escritas como ganho antes
 de alguém conferir.

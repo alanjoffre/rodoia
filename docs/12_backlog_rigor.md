@@ -2,15 +2,15 @@
 
 > ⚠️ **Documento histórico (2026-07-10).** As **Fases 3–5 aparecem abaixo como "a implementar", mas já foram TODAS concluídas** — ver [README](../README.md) e [HISTORIA](HISTORIA.md). Mantido como registro do plano de rigor daquele momento, não como estado atual do projeto.
 
-> Auditoria de nível especialista (2026-07-10) das Fases 0–2 entregues e plano de rigor
-> para as Fases 3–5. Objetivo: manter todas as fases no padrão do `PROMPT_MESTRE`
+> Auditoria de rigor (2026-07-10) das Fases 0–2 entregues e plano de rigor
+> para as Fases 3–5. Objetivo: manter todas as fases no mesmo padrão
 > (avaliação com números, testes de caminhos críticos, observabilidade, reprodutibilidade).
-> Itens marcados [ALTA]/[MÉDIA]/[BAIXA] por impacto no sinal de senioridade.
+> Itens marcados [ALTA]/[MÉDIA]/[BAIXA] por impacto no rigor.
 
 ## Fase 0 — Fundamentos ML/DL (concluída; núcleo sólido)
 **Forte:** backprop à mão provado por gradient-checking + equivalência autograd; SDPA de
 1 cabeça provada vs. PyTorch; baseline com métricas certas p/ desbalanceado + CV + anti-leakage;
-diagnóstico viés/variância + calibração + clustering. Já é nível especialista.
+diagnóstico viés/variância + calibração + clustering.
 
 **✅ Resolvido neste ciclo:**
 - [ALTA] **Multi-head attention** agora provada numericamente vs. `F.scaled_dot_product_attention` por cabeça + Wo, com caso causal (`tests/test_attention.py`).
@@ -22,7 +22,7 @@ diagnóstico viés/variância + calibração + clustering. Já é nível especia
 
 **Pendente (baixo):** limiar 0.5 do **baseline clássico** (não da MLP) segue como ponto de operação documentado; lockfile único de todo o projeto (a F2 já tem `versoes_nitro.txt`).
 
-## Fase 1 — RAG (concluída; engenharia sênior)
+## Fase 1 — RAG (concluída)
 **Forte:** reality-check de fontes ANTT (endpoints stateless, casca vs. texto, vigência), RRF por
 posição, ablação denso→bm25→híbrido→rerank, chunking por artigo, segurança integrada, API async.
 
@@ -92,7 +92,7 @@ firme em **0.88 [0.76;0.94]**. Nenhuma ressalva de rigor pendente; expandir aind
 - [ ] README final com rastreabilidade 100% preenchida; reativar juiz factual da Fase 2.
 
 ## Correções de documentação
-**Aplicadas neste ciclo:** `PROMPT_MESTRE` "primeira tarefa" PENDENTE → concluída; `data/README`
+**Aplicadas neste ciclo:** "primeira tarefa" (validação das fontes) PENDENTE → concluída; `data/README`
 "não há pipeline" → lista pipelines existentes (acidentes, normas); `pyproject` remove `autoawq`
 (contradizia a decisão fp8 do doc 11) e eleva pisos p/ trl 1.x/transformers 5.x; `docs/10` ganha
 aviso de "handoff superado por docs/11 (fp8, não AWQ)"; README rastreabilidade (fine-tuning →

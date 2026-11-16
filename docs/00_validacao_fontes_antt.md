@@ -1,7 +1,7 @@
 # 00 — Validação de realidade das fontes da ANTT
 
 > **Status:** concluída em 09/07/2026 (pesquisa web com URLs verificadas ao vivo).
-> **Por que este documento existe:** o `PROMPT_MESTRE.md` (Seção 6, "Primeira tarefa") exige confirmar disponibilidade, formato e licença dos dados **antes** de desenhar arquitetura. A arquitetura se adapta ao que existe, não ao que imaginamos. Este é o registro dessa validação — a base factual das Fases 0, 1 e 3.
+> **Por que este documento existe:** a primeira tarefa do projeto foi confirmar disponibilidade, formato e licença dos dados **antes** de desenhar arquitetura. A arquitetura se adapta ao que existe, não ao que imaginamos. Este é o registro dessa validação — a base factual das Fases 0, 1 e 3.
 >
 > **Como ler:** cada fonte traz URL verificada, formato, acesso programático, licença e as pegadinhas reais encontradas. Ao fim, as **decisões** tomadas e os **itens a confirmar** (honestos — o que a pesquisa não conseguiu fechar).
 

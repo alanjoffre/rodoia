@@ -1,8 +1,8 @@
 """Geração ancorada no CUAD — **a métrica de alucinação** (Fase 6, LLM local).
 
 Todas as métricas anteriores da Fase 6 medem RECUPERAÇÃO. Esta mede o que o
-gerador faz com o contexto recuperado — e o CUAD viabiliza a pergunta que quase
-nenhum portfólio responde:
+gerador faz com o contexto recuperado — e o CUAD viabiliza a pergunta que costuma
+ficar fora das avaliações de RAG:
 
 > Quando a cláusula **não existe** no contrato, o sistema diz "não consta" — ou
 > inventa uma resposta plausível?

@@ -378,8 +378,8 @@ e é o que impede a leitura preguiçosa "Spark é ruim":
 O padrão mostra **exatamente onde o modelo do Spark começaria a pagar**: quanto mais compute por
 query — e, sobretudo, quando o dado passar da RAM de um nó — o crossover se inverte. Abaixo disso,
 que é o CFPB (17 M linhas, 1,1 GB de Parquet), Spark é overhead puro. A decisão de motor da
-ingestão não foi enfeite de currículo evitado — foi **enfeite medido e rejeitado, com o número que
-também mostra a condição em que ele venceria**.
+ingestão foi medida, não presumida: **Spark medido e rejeitado, com o número que também mostra a
+condição em que ele venceria**.
 
 **Correção acima do tempo: 0 divergências** nas 6 queries. Os dois motores dão a MESMA resposta
 célula a célula (invariante gated) — então a escolha é sobre velocidade e operação, não correção.
@@ -479,7 +479,7 @@ que está reportado.
 esta mede o que o gerador faz com o contexto. Roda no **LLM local** (Ollama, qwen2.5:7b) — **custo
 de API zero**. Amostra estratificada por categoria, 150 por população, seed fixa.
 
-O CUAD viabiliza a pergunta que quase nenhum portfólio responde: *quando a cláusula **não existe**,
+O CUAD viabiliza a pergunta que costuma ficar fora das avaliações de RAG: *quando a cláusula **não existe**,
 o sistema se cala ou inventa?* Mas medir só isso seria maquiagem — um modelo que responde "não
 consta" a **tudo** teria não-alucinação perfeita e seria inútil. Daí as **duas taxas**:
 

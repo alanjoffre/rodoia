@@ -7,7 +7,7 @@ artefatos JSONL consumíveis pela avaliação, mais um relatório de integridade
 marca perguntas sem resposta no contexto. No CUAD elas são **67,9% do total** —
 e isso é proposital: um contrato que não tem cláusula de exclusividade *deve*
 produzir "não consta". Elas são o conjunto que mede **abstenção**, a métrica que
-quase nenhum portfólio mostra. Descartá-las (o reflexo comum ao ver "impossible")
+poucas avaliações de RAG mostram. Descartá-las (o reflexo comum ao ver "impossible")
 jogaria fora dois terços do benchmark e justamente a parte difícil.
 
 **Char offsets são preservados.** `answer_start` é um deslocamento de caractere

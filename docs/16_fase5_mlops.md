@@ -276,7 +276,7 @@ coorte estacionária é a mesma disciplina de rigor das fases anteriores.
 
 ### 6.1 Custo de serving — R$/1k req da vazão MEDIDA (`mlops/custo.py`)
 
-Um staff não diz "escala" sem cifra. Derivamos o custo **da vazão real** do modelo FT em vLLM
+Escala sem cifra não é afirmação. Derivamos o custo **da vazão real** do modelo FT em vLLM
 (`benchmark_vllm.json`: **2,05 req/s**, 205 tok/s, 5,2 GB VRAM medidos) — aritmética, não cotação
 ao vivo. A honestidade está em separar o **piso** (marginal, 100% de utilização) da **realidade**
 (always-on a ~30%, pagando GPU ociosa). Premissas explícitas: câmbio R$5,40/US$, preços-hora de
@@ -303,7 +303,7 @@ single-stream (teto: sem batching medido; batching baixaria):
 
 → **Achado:** servir o modelo FT é **barato** (centavos/1k) porque é pequeno (fp8, 5,2 GB); a rota
 RAG é **~40× mais cara** — os 20,7 s de geração do 7B dominam. Em ambas, o custo real de um endpoint
-de portfólio é **dominado pela GPU ociosa** (always-on ≈ 3,3× o marginal, = 1/utilização).
+de demo é **dominado pela GPU ociosa** (always-on ≈ 3,3× o marginal, = 1/utilização).
 Conclusão de engenharia: para tráfego baixo, **escala-a-zero / sob demanda** vence always-on —
 coerente com o runbook (§7, Cloud Run scale-to-zero). Ressalva honesta: scale-to-zero **adiciona
 cold-start** (carregar o 7B na VRAM, dezenas de s na 1ª req após ociosidade) — o trade-off de escalar
@@ -313,7 +313,7 @@ a zero. Números em `reports/fase5_mlops/custo.json`.
 
 Tudo acima roda local. Há **dois caminhos**, e o gratuito está pronto:
 
-**(0) Demo pública GRÁTIS — HuggingFace Spaces Static (client-side, recomendado p/ portfólio).** A
+**(0) Demo pública GRÁTIS — HuggingFace Spaces Static (client-side, recomendado p/ demo aberta).** A
 demo viva roda a busca semântica **no navegador do visitante** (Transformers.js), sem servidor e
 sem custo (HTTPS + URL pública). Arquivos e passo a passo em [`deploy/hf_space_static/`](../deploy/hf_space_static/README.md).
 Resolve o "não tem demo viva" sem custo de nuvem. *(O caminho anterior Gradio/Docker —
@@ -327,7 +327,7 @@ Resolve o "não tem demo viva" sem custo de nuvem. *(O caminho anterior Gradio/D
    docker tag rodoia-api:1.0 <registry>/rodoia-api:1.0 && docker push <registry>/rodoia-api:1.0
    ```
 2. **Serviço gerenciado justificado** — **Google Cloud Run** (ou AWS App Runner): container
-   stateless, escala a zero (custo ~0 em repouso — ideal para portfólio), HTTPS gerenciado, deploy
+   stateless, escala a zero (custo ~0 em repouso — ideal para tráfego baixo), HTTPS gerenciado, deploy
    por imagem. A API é sem estado (índice/DuckDB montados; cérebro externo), então casa com
    serverless de contêiner. GPU (modelo FT) iria para um serviço à parte (Cloud Run GPU / EC2 g5)
    **sob demanda**, não 24/7.
@@ -347,7 +347,7 @@ O §7 justifica a *classe* de serviço (contêiner stateless, escala a zero) e c
 Runner" sem descer ao concreto. Esta seção fecha isso do lado da **AWS**, porque é a conta que
 existe — `sa-east-1` (São Paulo), escolhida por latência ao usuário brasileiro, não por preço:
 São Paulo é uma das regiões **mais caras** da AWS, e `us-east-1` sairia ~30–40% menor. Para um
-portfólio que escala a zero, a diferença em repouso é ~R$0 dos dois lados, então a latência ganha.
+serviço que escala a zero, a diferença em repouso é ~R$0 dos dois lados, então a latência ganha.
 
 **Nada aqui foi executado.** Não é "deploy pronto": é o caminho auditável para executá-lo, com os
 pontos onde o projeto *já* colide com a AWS marcados. Toda alteração de serviço na conta depende de
@@ -358,7 +358,7 @@ aprovação explícita antes de rodar.
 | opção | escala a zero | HTTPS gerenciado | veredito |
 |---|:---:|:---:|---|
 | **App Runner** | **sim** | **sim** (domínio `*.awsapprunner.com`) | **escolhido** — equivalente ao Cloud Run; o mínimo de peça móvel |
-| ECS + Fargate + ALB | não (ALB cobra ~US$16/mês parado) | sim (via ACM no ALB) | rejeitado: o ALB sozinho custa mais que o tráfego do portfólio |
+| ECS + Fargate + ALB | não (ALB cobra ~US$16/mês parado) | sim (via ACM no ALB) | rejeitado: o ALB sozinho custa mais que o tráfego da demo |
 | Lambda + API Gateway | sim | sim | rejeitado: **cold start** de ~500 MB de torch + E5 + fatiamento de 3.647 chunks a cada contêiner frio, e você **paga os 30 s de espera pelo LLM externo** por requisição |
 | EC2 always-on | não | não (nginx+certbot à mão) | rejeitado: paga 24/7 para servir tráfego esporádico |
 
@@ -462,7 +462,7 @@ aws s3 sync data/processed/ s3://rodoia-artefatos/processed/ --region $AWS_REGIO
    roteamento/síntese aponta para um endpoint hosted via a interface `OpenAICompatLLM` que já
    existe — o Ollama sai do caminho crítico, como o §7 já previa. **O modelo FT (Fase 2) não tem
    caminho barato aqui**: GPU sob demanda no SageMaker ou `g5` ligado por janela; always-on em
-   `sa-east-1` é a linha de custo que inviabiliza o portfólio.
+   `sa-east-1` é a linha de custo dominante.
 3. **O gate precisa continuar rodando.** O valor do projeto é a avaliação como portão, e ele morre
    se ficar só no CI de push. Uma tarefa agendada (EventBridge → App Runner ou Lambda leve) roda
    `python -m rodoia.mlops.gate` sobre a amostra rotulada e alarma no CloudWatch quando reprovar.
@@ -471,7 +471,7 @@ aws s3 sync data/processed/ s3://rodoia-artefatos/processed/ --region $AWS_REGIO
    que gera a fatura-surpresa clássica.
 
 **Como derrubar tudo** (a parte que a maioria dos runbooks esquece, e a que mais importa num
-portfólio que não vai ficar de pé):
+ambiente que não vai ficar de pé):
 
 ```bash
 aws apprunner delete-service --service-arn <arn> --region $AWS_REGION

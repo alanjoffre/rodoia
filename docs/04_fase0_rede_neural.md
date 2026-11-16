@@ -12,7 +12,7 @@ Uma rede de 2 camadas escrita em NumPy puro, com os gradientes derivados na mão
 X ──(W1,b1)──> z1 ──ReLU──> a1 ──(W2,b2)──> z2 ──sigmoid──> p
 ```
 
-### A matemática (o que se defende em entrevista)
+### A matemática por trás
 
 A perda é **binary cross-entropy** (BCE). Ela não é arbitrária: é a
 **log-verossimilhança negativa** de uma distribuição de Bernoulli — a escolha

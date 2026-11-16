@@ -16,7 +16,7 @@
 [![Demo](https://img.shields.io/badge/🔗_demo_ao_vivo-HF_Spaces-blue.svg)](https://huggingface.co/spaces/alanjoffre/rodoia-rag)
 [![Diário visual](https://img.shields.io/badge/📅_diário_visual-timeline_dos_100_passos-e0a326.svg)](https://alanjoffre.github.io/rodoia/diario.html)
 
-[**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md) · [**📋 Plano mestre**](PROMPT_MESTRE.md)
+[**📖 A história**](docs/HISTORIA.md) · [**📅 Diário (passo a passo)**](docs/DIARIO.md) · [**🗺️ Arquitetura**](docs/ARQUITETURA.md) · [**🎓 Guia didático**](docs/GUIA_ENGENHARIA_IA.md)
 
 </div>
 
@@ -24,11 +24,11 @@
 
 > **🔗 Demo ao vivo (grátis):** busca semântica sobre a regulação da ANTT rodando **no seu navegador** (embeddings E5 via Transformers.js, sem servidor) — **[huggingface.co/spaces/alanjoffre/rodoia-rag](https://huggingface.co/spaces/alanjoffre/rodoia-rag)**.
 
-Projeto de portfólio **público e open-source**. Objetivo: provar, **com código, métrica e deploy**, o perfil completo de um Engenheiro de IA — a trilha moderna (LLM · RAG · agentes · MLOps) **e** o núcleo clássico (ML/DL do zero · fine-tuning · serving de modelo próprio). A maioria dos portfólios para em *"chamei a API da OpenAI e funcionou"*. Este vai do **fundamento matemático** ao **ciclo de produção**.
+Projeto **público e open-source** de engenharia de IA de ponta a ponta sobre os dados abertos da ANTT, provado **com código, métrica e deploy**: a trilha moderna (LLM · RAG · agentes · MLOps) **e** o núcleo clássico (ML/DL do zero · fine-tuning · serving de modelo próprio), do **fundamento matemático** ao **ciclo de produção**.
 
 ## 🧭 Índice
 
-[📊 Resultados por fase](#-resultados-por-fase) · [🧭 Os cinco eixos](#-os-cinco-eixos) · [🏗️ Arquitetura](#-arquitetura-visão-de-destino) · [✅ Rastreabilidade requisito → fase](#-rastreabilidade-requisito--fase) · [🔬 Decisões e trade-offs](#-decisões-e-trade-offs-o-arco-do-projeto) · [🚀 Como rodar](#-como-rodar) · [🔒 Higiene do repositório](#-higiene-de-repositório-público) · [📚 Documentação](#-documentação)
+[📊 Resultados por fase](#-resultados-por-fase) · [🧭 Os cinco eixos](#-os-cinco-eixos) · [🏗️ Arquitetura](#-arquitetura-visão-de-destino) · [✅ Rastreabilidade capacidade → fase](#-rastreabilidade-capacidade--fase) · [🔬 Decisões e trade-offs](#-decisões-e-trade-offs-o-arco-do-projeto) · [🚀 Como rodar](#-como-rodar) · [🔒 Higiene do repositório](#-higiene-de-repositório-público) · [📚 Documentação](#-documentação)
 
 ## 📊 Resultados por fase
 
@@ -82,14 +82,14 @@ Projeto de portfólio **público e open-source**. Objetivo: provar, **com códig
 
 Mapa **módulo a módulo** de todo o código em **[docs/ARQUITETURA.md](docs/ARQUITETURA.md)**.
 
-## ✅ Rastreabilidade requisito → fase
+## ✅ Rastreabilidade capacidade → fase
 
 <details>
-<summary><b>Cada requisito de uma vaga de Engenheiro de IA rastreado até a fase que o prova com código e evidência (clique para expandir)</b></summary>
+<summary><b>Cada capacidade listada aponta para a fase, o código e a evidência que a provam (clique para expandir)</b></summary>
 
 <br>
 
-| Requisito | Onde é provado | Evidência |
+| Capacidade | Onde é provada | Evidência |
 |---|---|---|
 | Python sólido (async, tipagem, produção) | Todas | **`mypy --strict` no núcleo servido, bloqueante no CI** (scripts de pesquisa fora por override declarado — [docs/16](docs/16_fase5_mlops.md) §2.1) · 302 testes (285 no CI) · `async` nos endpoints |
 | Estruturas de dados, algoritmos, complexidade | Fase 0 + 1 | Análise de complexidade em decisões de retrieval |
@@ -167,11 +167,10 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 
 | Documento | Para quê |
 |---|---|
-| [**PROMPT_MESTRE.md**](PROMPT_MESTRE.md) | Plano completo, critérios de conclusão e regras de condução |
 | [**docs/HISTORIA.md**](docs/HISTORIA.md) | Narrativa *problema → como resolvi → resultado* de cada fase |
 | [**docs/DIARIO.md**](docs/DIARIO.md) · [**🔗 timeline visual**](https://alanjoffre.github.io/rodoia/diario.html) | A construção contada **linha a linha** — os 100 passos reais, em ordem cronológica, com as métricas em cada passo. Também numa timeline visual navegável ([página](https://alanjoffre.github.io/rodoia/diario.html) · arquivo [docs/diario.html](docs/diario.html)) |
 | [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md) | Mapa módulo a módulo de `src/rodoia/**` |
-| [**docs/GUIA_ENGENHARIA_IA.md**](docs/GUIA_ENGENHARIA_IA.md) | Não é da área? Cada termo e o fluxo mental de um Eng. de IA em linguagem acessível |
+| [**docs/GUIA_ENGENHARIA_IA.md**](docs/GUIA_ENGENHARIA_IA.md) | Não é da área? Cada termo e o fluxo de trabalho de um projeto de IA em linguagem acessível |
 | [**docs/RUNBOOK.md**](docs/RUNBOOK.md) | Setup do zero, ambiente GPU (WSL2) |
 | [docs/MODEL_CARD.md](docs/MODEL_CARD.md) · [docs/DATASET_CARD.md](docs/DATASET_CARD.md) | Governança do modelo FT e dos dados |
 
@@ -181,7 +180,7 @@ Dados públicos, sem código de empregador ou cliente. Escopo, decisões, testes
 
 ## 👤 Autor
 
-**Alan Joffre** — Engenheiro de IA
+**Alan Joffre** — Engenheiro de Dados, com foco em IA aplicada
 [GitHub](https://github.com/alanjoffre) · [LinkedIn](https://www.linkedin.com/in/alanjoffre/)
 
 ## 📄 Licença

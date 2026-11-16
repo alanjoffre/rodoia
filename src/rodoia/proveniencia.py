@@ -1,4 +1,4 @@
-"""Proveniência de artefatos — reprodutibilidade científica (PROMPT_MESTRE §3).
+"""Proveniência de artefatos — reprodutibilidade científica.
 
 Carimba cada JSON de `reports/` com o suficiente para amarrar um número ao código e
 ao ambiente que o gerou: seed, commit git, versões das libs e timestamp. Assim um

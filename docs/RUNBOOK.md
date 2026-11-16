@@ -183,7 +183,7 @@ Isso é backup ausente, não inconveniência: os artefatos regeneram pelos scrip
 (fontes 100% públicas), então nada é irrecuperável — mas reconstruir o CFPB são **17,2 M linhas**
 reingeridas do zero.
 
-**Não executado por decisão de escopo** (o bucket custa e não é necessário para o portfólio
+**Não executado por decisão de escopo** (o bucket custa e não é necessário para o projeto
 provar o que se propõe). O caminho, para quando for:
 
 ```bash

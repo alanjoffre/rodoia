@@ -15,7 +15,7 @@
   <header class="hero">
     <p class="eyebrow">Registro de construção · 100 passos · 9–28 jul 2026</p>
     <h1>O diário do RodoIA</h1>
-    <p class="lede">A construção de um portfólio de Engenharia de IA sobre os dados abertos da ANTT — contada <strong>linha a linha</strong>, na ordem real em que aconteceu. Cada passo abaixo é um commit: o que eu fiz e por que importava.</p>
+    <p class="lede">A construção de um projeto de Engenharia de IA sobre os dados abertos da ANTT — contada <strong>linha a linha</strong>, na ordem real em que aconteceu. Cada passo abaixo é um commit: o que eu fiz e por que importava.</p>
 
     <ul class="stats" aria-label="Resumo">
       <li><span class="stat-n">100</span><span class="stat-l">passos</span></li>
@@ -39,7 +39,7 @@
   <footer class="outro">
     <h2>O que este diário mostra</h2>
     <p>Lido de ponta a ponta, o padrão fica claro: <strong>construí rápido, mas voltei sem dó para endurecer cada número</strong> — os passos de rigor são metade do diário. O apanhado dessas correções (o antes/depois de cada uma) vive numa fonte só: <a href="https://github.com/alanjoffre/rodoia#-decis%C3%B5es-e-trade-offs-o-arco-do-projeto">README § Decisões e trade-offs</a>.</p>
-    <p class="sig">Alan Joffre · Engenheiro de IA · <a href="https://github.com/alanjoffre">github.com/alanjoffre</a> · <a href="https://www.linkedin.com/in/alanjoffre/">LinkedIn</a></p>
+    <p class="sig">Alan Joffre · Engenheiro de Dados, com foco em IA aplicada · <a href="https://github.com/alanjoffre">github.com/alanjoffre</a> · <a href="https://www.linkedin.com/in/alanjoffre/">LinkedIn</a></p>
   </footer>
 
 </main>
@@ -268,15 +268,15 @@
         {n:39,k:"polish",t:"Docs",e:"📖",h:"Escrevi o HISTORIA.md.",b:"A narrativa problema → solução → resultado, fase a fase."},
         {n:40,k:"rigor",t:"Rigor",e:"🔬",h:"Correções da auditoria.",b:"Acertos de consistência no README e nos documentos novos."}
       ]},
-    { date:"13 jul", title:"O especialista entra em cena (o dia da qualidade)",
-      context:"Criei um revisor de padrão extremo e passei o dia inteiro respondendo aos furos que ele apontava — mais o deploy da demo.",
+    { date:"13 jul", title:"A revisão de ponta a ponta (o dia da qualidade)",
+      context:"Revisei o projeto inteiro com a régua mais exigente e passei o dia fechando os furos encontrados — mais o deploy da demo.",
       items:[
-        {n:41,k:"rigor",t:"Rigor",e:"🔬",h:"Criei o subagente “Especialista de Engenharia de IA”.",b:"Um revisor automático calibrado no padrão mais alto, para caçar fraquezas no projeto."},
-        {n:42,k:"rigor",t:"Rigor",e:"🔬",h:"QA-1 + QA-2.",b:"Apliquei as primeiras correções do especialista e reproduzi os resultados de verdade, do zero."},
+        {n:41,k:"rigor",t:"Rigor",e:"🔬",h:"Revisão de ponta a ponta.",b:"Uma passada crítica no projeto inteiro, com a régua mais exigente, para caçar fraquezas antes de seguir."},
+        {n:42,k:"rigor",t:"Rigor",e:"🔬",h:"QA-1 + QA-2.",b:"Apliquei as primeiras correções da revisão e reproduzi os resultados de verdade, do zero."},
         {n:43,k:"rigor",t:"Rigor",e:"🔬",h:"QA-3 — honestidade sobre limites.",b:"Em vez de inflar, assumi a limitação da avaliação onde ela existia."},
         {n:44,k:"build",t:"Fase 4",e:"🤖",h:"QA-4 — roteamento avaliado a sério.",b:"Aumentei a avaliação do agente de 6 para 21 casos (puros, combinados, ambíguos, fora de escopo, adversariais).",m:["roteamento 0,95 (n=21)"]},
         {n:45,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei residuais da reauditoria.",b:"Drift, documentação, reprodução em máquina limpa (GitHub-hosted) e testes.",m:["drift PSI 0,005 (estável)"]},
-        {n:46,k:"rigor",t:"Rigor",e:"🔬",h:"Banca de 3 juízes.",b:"Passei de um juiz para três juízes independentes com medida de concordância (κ de Fleiss) — rumo a um padrão sênior."},
+        {n:46,k:"rigor",t:"Rigor",e:"🔬",h:"Banca de 3 juízes.",b:"Passei de um juiz para três juízes independentes com medida de concordância (κ de Fleiss), para a nota não depender de um juiz só."},
         {n:47,k:"build",t:"Fase 1",e:"🔎",h:"Tripliquei o corpus.",b:"Ampliei a base de normas (~3×), com 2ª âncora de reprodução e cache/observabilidade."},
         {n:48,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei o punch-list da 3ª reauditoria.",b:"Evidência do corpus, 2ª âncora no CI e documentação de drift."},
         {n:49,k:"build",t:"Fase 5",e:"⚙️",h:"Teste de carga do cache.",b:"Medi latência p50/p95 sob carga — reportando o número, sem afirmar o que não medi."},
@@ -285,15 +285,15 @@
         {n:52,k:"polish",t:"Visual",e:"🎨",h:"Limpeza de estilo.",b:"Correção de formatação no app do Space."},
         {n:53,k:"deploy",t:"Deploy",e:"🚀",h:"Demo estática client-side.",b:"Como o HuggingFace passou a cobrar por Gradio/Docker, criei uma demo que roda no navegador do visitante (Transformers.js) — pública e de graça."},
         {n:54,k:"polish",t:"Visual",e:"🎨",h:"Demo no ar.",b:"Link e selo da demo ao vivo no README."},
-        {n:55,k:"build",t:"Fase 1",e:"🔎",h:"De-boilerplate do corpus + reversão honesta.",b:"O especialista achou lixo repetido (cabeçalhos/rodapés) nas normas; ao limpar, o reordenador passou a ajudar — e reportei essa reviravolta abertamente."},
+        {n:55,k:"build",t:"Fase 1",e:"🔎",h:"De-boilerplate do corpus + reversão honesta.",b:"A revisão achou lixo repetido (cabeçalhos/rodapés) nas normas; ao limpar, o reordenador passou a ajudar — e reportei essa reviravolta abertamente."},
         {n:56,k:"rigor",t:"Rigor",e:"🔬",h:"Kit de anotação humana.",b:"Ferramenta para dois anotadores humanos avaliarem em paralelo e medir a concordância real (κ de Cohen)."},
         {n:57,k:"polish",t:"Visual",e:"🎨",h:"Ajustes de estilo e versionamento do kit.",b:"Correções de formatação e inclusão do arquivo de anotação no repositório."},
         {n:58,k:"rigor",t:"Rigor",e:"🔬",h:"Kit em Excel.",b:"O kit de anotação passou a aceitar planilha (.xlsx) além de CSV, para facilitar a vida dos anotadores."},
         {n:59,k:"build",t:"Fase 1",e:"🔎",h:"κ humano inter-anotador (0,86).",b:"Registrei a concordância entre humanos como evidência versionada da qualidade da avaliação.",m:["κ Cohen 0,86 (relevância)"]},
-        {n:60,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei 3 furos do κ.",b:"Correções dos pontos que o especialista apontou na medida de concordância."},
+        {n:60,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei 3 furos do κ.",b:"Correções dos pontos que a revisão apontou na medida de concordância."},
         {n:61,k:"build",t:"Fase 5",e:"⚙️",h:"Custo de serving em R$/1k.",b:"Modelo de custo derivado da vazão medida — sem gastar de fato."},
         {n:62,k:"rigor",t:"Rigor",e:"🔬",h:"Intervalo de confiança no juiz + custo da rota RAG.",b:"Refinos que elevaram o rigor da avaliação de geração e ligaram a concordância humana ao conjunto-ouro."},
-        {n:63,k:"rigor",t:"Rigor",e:"🔬",h:"Cobertura de testes e correção de docstring.",b:"Detalhes finos apontados pelo especialista."},
+        {n:63,k:"rigor",t:"Rigor",e:"🔬",h:"Cobertura de testes e correção de docstring.",b:"Detalhes finos apontados pela revisão."},
         {n:64,k:"build",t:"Fase 1",e:"🔎",h:"Kit de validação dos rótulos-ouro do hit@5.",b:"Ferramenta para conferir, na fonte, se os rótulos usados na métrica-chave da Fase 1 estavam certos."}
       ]},
     { date:"15 jul", title:"A auditoria que corrigiu a métrica-chave + a repaginada visual",
@@ -308,14 +308,14 @@
         {n:71,k:"polish",t:"Visual",e:"🎨",h:"Tratamento visual do guia didático.",b:"Novos termos (κ, custo) e correções de números defasados."},
         {n:72,k:"polish",t:"Visual",e:"🎨",h:"Tratamento visual da arquitetura.",b:"Mapa atualizado com os módulos novos da sessão."},
         {n:73,k:"polish",t:"Visual",e:"🎨",h:"Banner no topo do README.",b:"A arte-cabeçalho (SVG) do RodoIA."},
-        {n:74,k:"polish",t:"Visual",e:"🎨",h:"Card para redes sociais (1200×1200).",b:"Peça para post no LinkedIn."},
+        {n:74,k:"polish",t:"Visual",e:"🎨",h:"Card de prévia (1200×1200).",b:"Imagem para compartilhar o projeto."},
         {n:75,k:"polish",t:"Visual",e:"🎨",h:"Card mostra o hit@5 auditado.",b:"Troquei o número conservador pelo auditado (0,70–0,76) na peça social."},
         {n:76,k:"polish",t:"Visual",e:"🎨",h:"Imagem de preview (1280×640).",b:"A prévia que aparece ao compartilhar o link (GitHub/OpenGraph)."}
       ]},
-    { date:"17 jul", title:"A auditoria de portfólio e a camada de segurança",
+    { date:"17 jul", title:"A auditoria final e a camada de segurança",
       context:"O fechamento: uma última auditoria, o endurecimento do CI e o red-team que achou um bug real.",
       items:[
-        {n:77,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei os 5 achados da auditoria de portfólio.",b:"A última passada de revisão de ponta a ponta."},
+        {n:77,k:"rigor",t:"Rigor",e:"🔬",h:"Fechei os 5 achados da auditoria final.",b:"A última passada de revisão de ponta a ponta."},
         {n:78,k:"build",t:"Fase 5",e:"⚙️",h:"Alinhei o Python em 3.12.",b:"Ajuste que destravou o portão de checagem de tipos (mypy) no CI."},
         {n:79,k:"build",t:"Fase 1",e:"🔎",h:"2ª passada de de-boilerplate.",b:"Removi um rodapé que ainda escapava da limpeza — sem alterar o hit@5."},
         {n:80,k:"build",t:"Fase 5",e:"⚙️",h:"Red-team adversarial.",b:"Um ataque automatizado mediu a taxa de sucesso de invasão (ASR) — e achou um bug real no guardrail, que corrigi.",m:["ASR 0 · detecção 100%","FPR 0% · PII 0%"]},
@@ -330,7 +330,7 @@
         {n:85,k:"build",t:"Fase 6",e:"📈",h:"Busca por palavra-chave, com intervalo de confiança.",b:"Primeira medida sobre o benchmark externo. E um diagnóstico embutido revelou que não dá para saber se o contrato tem a cláusula olhando só o escore — descoberto antes de construir a política, não depois.",m:["recall@5 0,588"]},
         {n:86,k:"rigor",t:"Fase 6",e:"🔬",h:"O resultado que contrariou a expectativa.",b:"A busca semântica perde da busca por palavra-chave no geral — mas vence exatamente onde a outra falha: nos campos em que o texto não repete os termos da pergunta. Não é \"pior\": são forças complementares."},
         {n:87,k:"rigor",t:"Fase 6",e:"🔬",h:"O ganho que recusei anunciar.",b:"Combinando as duas buscas, o resultado é o melhor em toda métrica. Mas o intervalo de confiança se sobrepõe ao da busca simples: o ganho não é estatisticamente distinguível, e está reportado assim.",m:["0,595 · IC sobreposto"]},
-        {n:88,k:"rigor",t:"Fase 6",e:"📈",h:"Spark medido e rejeitado.",b:"Em vez de colocar \"Spark\" no currículo, medi: DuckDB é 6,7× mais rápido nos 17,2 milhões de linhas, com resultado idêntico. O número também mostra quando o Spark venceria.",m:["DuckDB 6,7× Spark","0 divergências"]},
+        {n:88,k:"rigor",t:"Fase 6",e:"📈",h:"Spark medido e rejeitado.",b:"Em vez de adotar o Spark por padrão, medi: DuckDB é 6,7× mais rápido nos 17,2 milhões de linhas, com resultado idêntico. O número também mostra quando o Spark venceria.",m:["DuckDB 6,7× Spark","0 divergências"]},
         {n:89,k:"rigor",t:"Fase 6",e:"🔬",h:"Testei minha própria previsão — e ela estava errada.",b:"Eu tinha escrito que um modelo de busca semântica maior e específico para inglês \"quase certamente\" melhoraria o resultado. Rodei: 2,8× maior, 7,3× mais lento, e nenhuma diferença mensurável. Ficou registrado como previsão errada."},
         {n:90,k:"build",t:"Fase 6",e:"📈",h:"O estágio que faltava.",b:"Um reordenador que lê pergunta e trecho juntos elevou o acerto para 0,652 — e este é o único ganho da fase que sobrevive ao intervalo de confiança. Ele ganha exatamente onde a fusão simples atrapalhava.",m:["0,595 → 0,652 · IC disjunto"]},
         {n:91,k:"rigor",t:"Fase 6",e:"🔬",h:"A métrica que sozinha seria mentira.",b:"Medi se o sistema inventa quando o contrato não tem a cláusula: 98,7% de acerto. Sozinho, pareceria um triunfo. Mas a segunda taxa que eu tinha exigido revelou que ele recusava a maioria das perguntas que tinham resposta — quase tão inútil quanto um programa que só sabe dizer \"não sei\".",m:["98,7% não-alucinação","26,0% cobertura"]},

@@ -98,5 +98,4 @@ consagrados de terceiros (LeNER-Br na Fase 2; CFPB e CUAD na Fase 6), cada um co
 a licença confirmada na tabela acima e atribuído no `NOTICE` quando exigido.
 
 A cláusula que não se move: **zero** dado, esquema, nomenclatura ou regra de
-negócio de qualquer empregador/cliente. Ver `NOTICE` e a seção 3.1 do
-`PROMPT_MESTRE.md`.
+negócio de qualquer empregador/cliente. Ver `NOTICE`.

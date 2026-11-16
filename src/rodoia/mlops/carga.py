@@ -1,6 +1,6 @@
 """Teste de carga do cache do serving (Fase 5 — latência MEDIDA, não afirmada).
 
-O especialista apontou que o ganho do cache era *afirmado*, não medido. Aqui **medimos** o efeito
+A revisão apontou que o ganho do cache era *afirmado*, não medido. Aqui **medimos** o efeito
 no p50/p95 **sob concorrência**, com um workload realista (algumas consultas "quentes" repetidas +
 cauda), comparando **sem cache** vs **com cache**.
 

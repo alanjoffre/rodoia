@@ -1,13 +1,13 @@
 """Custo de serving — R$/1k requisições derivado do throughput vLLM MEDIDO (Fase 5).
 
-Fecha o item que o especialista pediu: "derivar R$/1k req da vazão medida — é aritmética".
+Fecha o item que a revisão pediu: "derivar R$/1k req da vazão medida — é aritmética".
 NÃO é cotação ao vivo. É um **modelo de custo** ancorado em (a) a vazão REAL do modelo
 fine-tunado em vLLM (`reports/fase2_ft/benchmark_vllm.json`: `req_por_s`, medido na Nitro) e
 (b) preços-hora de GPU de nuvem **assumidos** (premissas explícitas, ordem de grandeza ~2026 —
 não uma cotação de fornecedor). A honestidade está em separar:
 
   • marginal (100% de utilização)  → PISO: só o tempo de GPU que a requisição consome;
-  • always-on a baixa utilização    → REALIDADE de um endpoint de portfólio: paga-se a GPU
+  • always-on a baixa utilização    → REALIDADE de um endpoint de demo: paga-se a GPU
                                         ociosa, então o custo/req sobe por 1/utilização.
 
 Duas rotas, duas bases de medição: a **FT** (NER, `max_tokens=128`, geração curta) usa a **vazão
@@ -25,7 +25,7 @@ from rodoia.config import REPO_ROOT
 from rodoia.proveniencia import carimbar
 
 CAMBIO_BRL_POR_USD = 5.40          # PREMISSA (câmbio de referência, não cotação ao vivo)
-UTILIZACAO_REALISTA = 0.30         # PREMISSA: endpoint de portfólio fica ~30% ocupado
+UTILIZACAO_REALISTA = 0.30         # PREMISSA: endpoint de demo fica ~30% ocupado
 
 # PREMISSAS de preço-hora on-demand (USD/h), tier de GPU pequena que comporta o modelo
 # fp8 (~5,2 GB VRAM medidos). Ordem de grandeza ~2026 — não é cotação de fornecedor.

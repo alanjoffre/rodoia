@@ -6,7 +6,7 @@
 
 ## A decisão de fonte (reality-check)
 
-O `PROMPT_MESTRE` manda a arquitetura se adaptar ao que existe. A validação em
+A arquitetura se adapta ao que existe. A validação em
 campo do ANTTlegis (portal legado "datalegis") revelou:
 
 - **A busca não é scriptável** por HTTP: `consultarAtos` dá **HTTP 500**;

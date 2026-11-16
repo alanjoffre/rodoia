@@ -6,8 +6,8 @@
 > A execução real substituiu AWQ por **fp8** e adaptou os scripts p/ trl 1.x / transformers 5.x —
 > não siga o caminho AWQ literalmente.
 
-> **Este documento é auto-contido.** Um agente de IA que nunca viu o resto da
-> conversa deve conseguir, lendo isto + o código do repositório, executar a Fase 2
+> **Este documento é auto-contido.** Quem nunca viu o projeto deve conseguir,
+> lendo isto + o código do repositório, executar a Fase 2
 > de ponta a ponta na máquina com GPU NVIDIA (Acer Nitro V15, RTX 4050, 6 GB VRAM).
 > Escrito porque os passos GPU **não rodam no Mac** (bitsandbytes e vLLM são CUDA-only).
 
@@ -15,7 +15,7 @@
 
 ## 0. Contexto do projeto (para quem chega agora)
 
-**RodoIA** é uma plataforma de IA de portfólio, open-source, sobre a regulação e os
+**RodoIA** é uma plataforma de IA open-source sobre a regulação e os
 dados abertos do transporte rodoviário da ANTT. Repositório público:
 https://github.com/alanjoffre/rodoia . Estado:
 
@@ -138,7 +138,7 @@ python -m rodoia.ft.avaliar_ft
 - **bitsandbytes não acha CUDA no WSL2:** garantir `LD_LIBRARY_PATH` do CUDA e que
   `nvidia-smi` funciona dentro do WSL.
 
-## 7. Ao terminar — registrar resultados (parte do portfólio)
+## 7. Ao terminar — registrar resultados
 
 1. Preencher `reports/fase2_ft/avaliacao_ft.json` (gerado) e **anotar os números**
    (base vs ft, ganho) + VRAM antes/depois da AWQ + throughput/latência do vLLM

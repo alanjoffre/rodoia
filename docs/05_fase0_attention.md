@@ -58,6 +58,6 @@ o padrão dos LLMs geradores de texto).
 
 Todo LLM que vamos usar nas Fases 1 (RAG), 2 (fine-tuning) e 4 (agente) é uma
 pilha desses blocos. Ter implementado a atenção do zero — e provado correta —
-significa que, numa entrevista, consigo explicar **como um Transformer presta
-atenção ao contexto**, não só que sei chamar a API. Fecha o item de arquitetura
+permite explicar **como um Transformer presta atenção ao contexto**, e não só
+chamar a API. Fecha o item de arquitetura
 de redes da Fase 0.

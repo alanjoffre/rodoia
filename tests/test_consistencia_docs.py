@@ -34,7 +34,6 @@ DIARIO_HTML = (RAIZ / "docs/diario.html").read_text(encoding="utf-8")
 DOCS = [
     *sorted(RAIZ.glob("docs/*.md")),
     RAIZ / "README.md",
-    RAIZ / "PROMPT_MESTRE.md",
     RAIZ / "data/README.md",
 ]
 

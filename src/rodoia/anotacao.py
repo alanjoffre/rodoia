@@ -1,6 +1,6 @@
 """Kit de anotação HUMANA de relevância (Fase 1) — para um κ inter-anotador REAL.
 
-O ponto que faltava para a régua staff: a avaliação era anotador único (o autor). Aqui montamos
+O ponto que faltava para a régua de revisão: a avaliação era anotador único (o autor). Aqui montamos
 um kit para **≥2 humanos** julgarem, de forma independente, se um trecho recuperado é **relevante**
 para a pergunta (0=não, 1=sim), e computamos o **κ de Cohen** entre eles — a concordância
 inter-anotador humana, corrigida pelo acaso.

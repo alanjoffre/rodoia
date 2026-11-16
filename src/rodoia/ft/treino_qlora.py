@@ -2,7 +2,7 @@
 
 >>> RODA NA NITRO (GPU NVIDIA / CUDA). NÃO roda no Mac (bitsandbytes é CUDA-only). <<<
 
-Escolhas e trade-offs (defensáveis em entrevista):
+Escolhas e trade-offs:
 - **Modelo base: Qwen2.5-3B-Instruct.** Na RTX 4050 (6 GB VRAM), um 3B em 4-bit
   cabe com folga (~2 GB de pesos + adaptadores + ativações); 7B ficaria no limite.
   Qwen2.5 é forte em português. Ver docs/10 para o teto de VRAM.

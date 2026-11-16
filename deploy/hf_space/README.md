@@ -91,7 +91,7 @@ O Space Docker builda a imagem, roda `python app.py` (Gradio na porta 7860) e fi
 mesma URL.
 
 ## Por que Spaces (e não Cloud Run) para a demo
-- **Grátis** (CPU free-tier) e **HTTPS + URL pública** prontos — ideal para portfólio.
+- **Grátis** (CPU free-tier) e **HTTPS + URL pública** prontos — suficiente para uma demo aberta.
 - Sem cartão de crédito / sem risco de fatura.
 - O deploy em cloud gerenciada (Cloud Run) continua como runbook em [docs/16 §7](../../docs/16_fase5_mlops.md)
   para o cenário de produção/escala.
