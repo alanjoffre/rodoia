@@ -175,9 +175,9 @@ Repo público desde o commit 1 (histórico Git imutável). Garantias em vigor:
 | [**docs/RUNBOOK.md**](docs/RUNBOOK.md) | Setup do zero, ambiente GPU (WSL2) |
 | [docs/MODEL_CARD.md](docs/MODEL_CARD.md) · [docs/DATASET_CARD.md](docs/DATASET_CARD.md) | Governança do modelo FT e dos dados |
 
-## 🤖 Como foi feito
+## Sobre os dados
 
-Desenvolvo com assistente de IA no fluxo de trabalho, para ganhar velocidade em código, testes e documentação. O que sustenta o resultado está versionado aqui: escopo e decisões registrados, testes e medições. Dados públicos, sem código de empregador ou cliente.
+Dados públicos, sem código de empregador ou cliente. Escopo, decisões, testes e medições estão versionados neste repositório.
 
 ## 👤 Autor
 
